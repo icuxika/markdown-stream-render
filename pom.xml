@@ -12,6 +12,7 @@
     <modules>
         <module>core</module>
         <module>demo</module>
+        <module>javafx</module>
     </modules>
 
     <properties>

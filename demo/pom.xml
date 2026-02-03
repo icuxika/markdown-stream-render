@@ -20,13 +20,8 @@
     <dependencies>
         <dependency>
             <groupId>com.icuxika</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>markdown-stream-render-javafx</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>25</version>
         </dependency>
     </dependencies>
     <build>
@@ -36,7 +31,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.icuxika.demo.App</mainClass>
+                    <mainClass>com.icuxika.markdown.stream.render.demo.App</mainClass>
                 </configuration>
             </plugin>
             <plugin>
@@ -51,7 +46,7 @@
                     <launcher>JavaFXSample</launcher>
                     <jlinkImageName>build-link</jlinkImageName>
                     <jlinkZipName>sample-zip</jlinkZipName>
-                    <mainClass>com.icuxika.demo.GuiApp</mainClass>
+                    <mainClass>com.icuxika.markdown.stream.render.demo.GuiApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
