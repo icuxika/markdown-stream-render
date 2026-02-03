@@ -60,6 +60,15 @@ A basic editor where you can type Markdown and see the result.
 mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.GuiApp"
 ```
 
+**4. DeepSeek Chat Demo (AI Streaming)**
+A chat interface interacting with DeepSeek API. Requires API Key.
+```bash
+# Set environment variable first
+# Windows (PowerShell): $env:DEEPSEEK_API_KEY="your-key"
+# Linux/Mac: export DEEPSEEK_API_KEY="your-key"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.DeepSeekChatDemo"
+```
+
 ## 📐 Architecture & Design
 
 The project follows a modular, event-driven architecture to support streaming:

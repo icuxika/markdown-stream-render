@@ -60,6 +60,15 @@ mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo
 mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.GuiApp"
 ```
 
+**4. DeepSeek 聊天演示 (AI 流式对话)**
+与 DeepSeek API 交互的聊天界面。需要设置 API Key。
+```bash
+# 请先设置环境变量
+# Windows (PowerShell): $env:DEEPSEEK_API_KEY="your-key"
+# Linux/Mac: export DEEPSEEK_API_KEY="your-key"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.DeepSeekChatDemo"
+```
+
 ## 📐 架构与设计
 
 本项目采用模块化、事件驱动的架构以支持流式处理：
