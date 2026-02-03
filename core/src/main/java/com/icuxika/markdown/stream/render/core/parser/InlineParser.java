@@ -865,7 +865,9 @@ public class InlineParser {
     }
     
     private String normalizeLabel(String label) {
-        return label.trim().replaceAll("\\s+", " ").toUpperCase(java.util.Locale.ROOT).toLowerCase(java.util.Locale.ROOT);
+        String s = label.trim().replaceAll("\\s+", " ");
+        s = s.replace("ẞ", "ss");
+        return s.toUpperCase(java.util.Locale.ROOT).toLowerCase(java.util.Locale.ROOT);
     }
 
     private void handleText() {

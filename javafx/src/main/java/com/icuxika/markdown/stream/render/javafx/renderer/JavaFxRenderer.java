@@ -25,6 +25,18 @@ public class JavaFxRenderer implements IMarkdownRenderer {
     private boolean italic = false;
     private boolean code = false; // Monospace
     
+    private static class ListState {
+        boolean isOrdered;
+        int index;
+        char delimiter;
+        ListState(boolean isOrdered, int index, char delimiter) {
+            this.isOrdered = isOrdered;
+            this.index = index;
+            this.delimiter = delimiter;
+        }
+    }
+    private final Stack<ListState> listStack = new Stack<>();
+
     public JavaFxRenderer() {
         blockStack.push(root);
         root.setSpacing(10);
@@ -136,7 +148,9 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         listBox.setSpacing(5);
         blockStack.peek().getChildren().add(listBox);
         blockStack.push(listBox);
+        listStack.push(new ListState(false, 0, '.'));
         visitChildren(bulletList);
+        listStack.pop();
         blockStack.pop();
     }
 
@@ -146,7 +160,9 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         listBox.setSpacing(5);
         blockStack.peek().getChildren().add(listBox);
         blockStack.push(listBox);
+        listStack.push(new ListState(true, orderedList.getStartNumber(), orderedList.getDelimiter()));
         visitChildren(orderedList);
+        listStack.pop();
         blockStack.pop();
     }
 
@@ -155,7 +171,18 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         javafx.scene.layout.HBox itemBox = new javafx.scene.layout.HBox();
         itemBox.setSpacing(5);
         
-        Label marker = new Label("\u2022");
+        String markerText = "\u2022";
+        if (!listStack.isEmpty()) {
+            ListState state = listStack.peek();
+            if (state.isOrdered) {
+                markerText = state.index + String.valueOf(state.delimiter);
+                state.index++;
+            }
+        }
+        
+        Label marker = new Label(markerText);
+        marker.setMinWidth(20); // Fixed width for alignment
+        marker.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
         VBox contentBox = new VBox();
         itemBox.getChildren().addAll(marker, contentBox);
@@ -206,13 +233,22 @@ public class JavaFxRenderer implements IMarkdownRenderer {
     private boolean isLink = false;
     private String linkDestination = null;
 
+    // Image cache to prevent reloading and flickering
+    private static final java.util.Map<String, javafx.scene.image.Image> IMAGE_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
     @Override
     public void visit(Image image) {
         try {
-            javafx.scene.image.Image img = new javafx.scene.image.Image(image.getDestination(), true);
+            String url = image.getDestination();
+            javafx.scene.image.Image img = IMAGE_CACHE.computeIfAbsent(url, k -> new javafx.scene.image.Image(k, true));
+            
             ImageView iv = new ImageView(img);
             iv.setFitWidth(200);
             iv.setPreserveRatio(true);
+            
+            // If image is still loading, it might have 0 height.
+            // We can set a min height or placeholder?
+            // But if it is cached, it should be loaded.
             
             if (currentTextFlow != null) {
                 currentTextFlow.getChildren().add(iv);
@@ -223,6 +259,73 @@ public class JavaFxRenderer implements IMarkdownRenderer {
             if (currentTextFlow != null) {
                 currentTextFlow.getChildren().add(new javafx.scene.text.Text("[Image: " + image.getDestination() + "]"));
             }
+        }
+    }
+
+    @Override
+    public void visit(Table table) {
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(5);
+        grid.setStyle("-fx-border-color: #ddd; -fx-border-width: 1px; -fx-padding: 5px;");
+        
+        blockStack.peek().getChildren().add(grid);
+        blockStack.push(grid);
+        tableRowIndex = 0;
+        visitChildren(table);
+        blockStack.pop();
+    }
+    
+    private int tableRowIndex = 0;
+    private int tableColIndex = 0;
+
+    @Override
+    public void visit(TableHead tableHead) {
+        visitChildren(tableHead);
+    }
+
+    @Override
+    public void visit(TableBody tableBody) {
+        visitChildren(tableBody);
+    }
+
+    @Override
+    public void visit(TableRow tableRow) {
+        tableColIndex = 0;
+        visitChildren(tableRow);
+        tableRowIndex++;
+    }
+
+    @Override
+    public void visit(TableCell tableCell) {
+        Pane parent = blockStack.peek();
+        if (parent instanceof javafx.scene.layout.GridPane) {
+            javafx.scene.layout.GridPane grid = (javafx.scene.layout.GridPane) parent;
+            
+            TextFlow flow = new TextFlow();
+            if (tableCell.isHeader()) {
+                flow.setStyle("-fx-font-weight: bold; -fx-background-color: #f2f2f2; -fx-padding: 5px;");
+            } else {
+                flow.setStyle("-fx-padding: 5px; -fx-border-color: #eee; -fx-border-width: 0 0 1 0;");
+            }
+            
+            // Handle alignment
+            if (tableCell.getAlignment() != null) {
+                switch (tableCell.getAlignment()) {
+                    case CENTER: flow.setTextAlignment(javafx.scene.text.TextAlignment.CENTER); break;
+                    case RIGHT: flow.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT); break;
+                    case LEFT: flow.setTextAlignment(javafx.scene.text.TextAlignment.LEFT); break;
+                }
+            }
+            
+            blockStack.push(flow); // Temporarily push flow to capture children
+            currentTextFlow = flow;
+            visitChildren(tableCell);
+            currentTextFlow = null;
+            blockStack.pop();
+            
+            grid.add(flow, tableColIndex, tableRowIndex);
+            tableColIndex++;
         }
     }
 

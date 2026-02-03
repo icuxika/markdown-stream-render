@@ -20,4 +20,9 @@ public interface Visitor {
     void visit(HtmlInline htmlInline);
     void visit(Link link);
     void visit(Image image);
+    void visit(Table table);
+    void visit(TableHead tableHead);
+    void visit(TableBody tableBody);
+    void visit(TableRow tableRow);
+    void visit(TableCell tableCell);
 }

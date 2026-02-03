@@ -1,6 +1,6 @@
 # CommonMark Spec Test Report
 
-Total: 652, Passed: 651, Failed: 1
+Total: 652, Passed: 652, Failed: 0
 
 | Example | Section | Status | Info |
 | :--- | :--- | :--- | :--- |
@@ -543,7 +543,7 @@ Total: 652, Passed: 651, Failed: 1
 | 537 | Links | ✅ PASS |  |
 | 538 | Links | ✅ PASS |  |
 | 539 | Links | ✅ PASS |  |
-| 540 | Links | ❌ FAIL | Expected length: 28, Actual length: 11 |
+| 540 | Links | ✅ PASS |  |
 | 541 | Links | ✅ PASS |  |
 | 542 | Links | ✅ PASS |  |
 | 543 | Links | ✅ PASS |  |

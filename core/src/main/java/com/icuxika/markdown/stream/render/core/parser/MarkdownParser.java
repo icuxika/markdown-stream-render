@@ -113,6 +113,10 @@ public class MarkdownParser {
         boolean inHtmlBlock = false;
         int htmlBlockCondition = 0;
 
+        // Table State
+        boolean inTable = false;
+        List<TableCell.Alignment> tableAlignments = new ArrayList<>();
+
         BlockParserState() {
             // Document is added lazily or handled as root
         }
@@ -192,16 +196,15 @@ public class MarkdownParser {
                 boolean lazyContinuation = false;
                 if (currentLeaf instanceof Paragraph && !openContainers.isEmpty() && !contentLine.trim().isEmpty()) {
                     Node lastContainer = openContainers.get(openContainers.size() - 1);
-                if (matches < openContainers.size() && lastContainer instanceof Block) { // Should check if it's a block that allows lazy continuation?
-                    // Actually, if we haven't matched all containers, we might be in a lazy continuation of a paragraph
-                    // inside the last matched container.
-                    // But standard says lazy continuation applies to paragraphs.
+                if (matches < openContainers.size() && lastContainer instanceof Block) { 
                     
                     // We need to check if this line is a block starter.
                     boolean isBlockStarter = isAtxHeading(contentLine) 
                         || isThematicBreak(contentLine) 
                         || parseFencedCodeStart(contentLine) != null
-                        || isBlockQuoteStart(contentLine);
+                        || isBlockQuoteStart(contentLine)
+                        || isTableDelimiterRow(contentLine) // Table can interrupt paragraph
+                        ;
 
                     if (!isBlockStarter) {
                         ListMarker lm = parseListMarker(contentLine, 0);
@@ -373,6 +376,37 @@ public class MarkdownParser {
             
             // 4. Handle Leaf Blocks
             
+            // Table (Continuation)
+            if (inTable) {
+                // If line is empty or matches another block start, end table
+                if (contentLine.trim().isEmpty() 
+                    || isBlockQuoteStart(contentLine)
+                    || isAtxHeading(contentLine)
+                    || isThematicBreak(contentLine)
+                    || parseFencedCodeStart(contentLine) != null
+                    || parseListMarker(contentLine, 0) != null
+                    || getHtmlBlockStartCondition(contentLine) > 0) {
+                    
+                    finalizeCurrentLeaf();
+                    inTable = false;
+                    tableAlignments.clear();
+                    // Fall through to process as normal block/line
+                } else {
+                    // Parse Table Row
+                    if (currentLeaf instanceof TableBody) {
+                        TableRow row = parseTableRow(contentLine, tableAlignments, false);
+                        currentLeaf.appendChild(row);
+                    } else if (currentLeaf instanceof TableHead) {
+                        // Should not happen, we switch to TableBody immediately after parsing header
+                    } else if (currentLeaf instanceof Table) {
+                        // Create TableBody if not exists?
+                        // Actually we should set currentLeaf to TableBody after creating Table
+                    }
+                    lastLineContentDepth = Integer.MAX_VALUE;
+                    return;
+                }
+            }
+
             // Fenced Code Block (Continuation)
             if (inFencedCodeBlock) {
                 // Check for closing fence
@@ -502,6 +536,82 @@ public class MarkdownParser {
                      return;
                  } else {
                      finalizeCurrentLeaf();
+                 }
+            }
+
+            // Table (Start)
+            // Check if current line is a delimiter row and previous line (currentLeaf) is a paragraph
+            if (indent < 4 && currentLeaf instanceof Paragraph) {
+                 List<TableCell.Alignment> alignments = parseTableDelimiterRow(contentLine);
+                 if (alignments != null) {
+                     // We found a table!
+                     // 1. Get header content from Paragraph
+                     Paragraph p = (Paragraph) currentLeaf;
+                     // We assume paragraph has single line of text for header
+                     // If paragraph has multiple lines, GFM says:
+                     // "The header row consists of the line of text immediately preceding the delimiter row."
+                     // So we take the last line of the paragraph? 
+                     // Or must the paragraph ONLY contain one line?
+                     // GFM: "It consists of a single line of text containing no block-level structures"
+                     // "A table cannot interrupt a paragraph." -> WAIT.
+                     // GFM: "The header row ... must match the delimiter row in number of columns?" No.
+                     // Actually, GFM says: "Tables can interrupt a paragraph."
+                     // "The line immediately preceding the delimiter row is the header row."
+                     // If the paragraph has multiple lines, only the LAST line becomes the header row.
+                     // The preceding lines remain in the paragraph.
+                     
+                     String paragraphContent = currentLeafContent.toString();
+                     String[] lines = paragraphContent.split("\n");
+                     String headerLine = lines[lines.length - 1];
+                     
+                     // 2. Finalize paragraph (remove last line)
+                     if (lines.length > 1) {
+                         StringBuilder remaining = new StringBuilder();
+                         for (int k = 0; k < lines.length - 1; k++) {
+                             remaining.append(lines[k]).append("\n");
+                         }
+                         // Update paragraph content
+                         currentLeafContent.setLength(0);
+                         currentLeafContent.append(remaining);
+                         finalizeCurrentLeaf();
+                         // The paragraph is now finalized with previous lines.
+                     } else {
+                         // Paragraph fully consumed
+                         currentLeafContent.setLength(0);
+                         // We need to unlink the paragraph? 
+                         // finalizeCurrentLeaf() sets currentLeaf=null, but it creates Text node.
+                         // We don't want to create Text node for the header line.
+                         // But we might have already added Text nodes if we finalized incrementally?
+                         // In this parser, we only finalize at end of block.
+                         // So we just discard the paragraph if it was single line.
+                         // But finalizeCurrentLeaf() adds children.
+                         // We should just unlink the paragraph node if it becomes empty.
+                         
+                         // Hack: finalize then remove if empty?
+                         // Better: manually handle switch
+                         currentLeaf.unlink();
+                         currentLeaf = null;
+                     }
+                     
+                     // 3. Create Table structure
+                     Table table = new Table();
+                     checkLooseList(openContainers.get(openContainers.size() - 1));
+                     openContainers.get(openContainers.size() - 1).appendChild(table);
+                     
+                     TableHead head = new TableHead();
+                     table.appendChild(head);
+                     
+                     TableRow headerRow = parseTableRow(headerLine, alignments, true);
+                     head.appendChild(headerRow);
+                     
+                     TableBody body = new TableBody();
+                     table.appendChild(body);
+                     
+                     currentLeaf = body; // Set current leaf to body so we append rows to it
+                     inTable = true;
+                     tableAlignments = alignments;
+                     lastLineContentDepth = Integer.MAX_VALUE;
+                     return;
                  }
             }
 
@@ -654,6 +764,172 @@ public class MarkdownParser {
             openContainers.clear();
         }
         
+        boolean isTableDelimiterRow(String line) {
+            return parseTableDelimiterRow(line) != null;
+        }
+
+        List<TableCell.Alignment> parseTableDelimiterRow(String line) {
+             String s = line.trim();
+             
+             // GFM: A delimiter row must contain at least one pipe `|`
+             // OR it must contain both dashes and colons to distinguish from Setext
+             // Actually, strict GFM requires pipe if it's a 1-column table?
+             // But for multi-column, spaces are allowed.
+             // However, to avoid conflict with Setext `---`, we require that if no pipe is present,
+             // it must NOT look like a Setext heading.
+             // Setext heading: `^ {0,3}(=+|-+)\s*$`
+             
+             if (!s.contains("|") && s.matches("^[-=\\s]+$")) {
+                 return null; // Looks like Setext
+             }
+             
+             if (!s.contains("-")) return null; // Must have at least one dash
+             
+             // Remove leading/trailing pipes if present
+             if (s.startsWith("|")) s = s.substring(1);
+             if (s.endsWith("|") && !s.endsWith("\\|")) s = s.substring(0, s.length() - 1); 
+             
+             String[] parts = s.split("\\|");
+             List<TableCell.Alignment> alignments = new ArrayList<>();
+             
+             for (String part : parts) {
+                 String cell = part.trim();
+                 if (cell.isEmpty()) {
+                     // If we have "||", it's an empty cell?
+                     // GFM: "The delimiter row consists of cells... each containing at least 3 dashes"
+                     // Actually GFM allows less?
+                     // But commonmark-java implementation checks for at least one dash.
+                     return null; 
+                 }
+                 
+                 boolean left = cell.startsWith(":");
+                 boolean right = cell.endsWith(":");
+                 
+                 // Strip colons to check for dashes
+                 String content = cell;
+                 if (left) content = content.substring(1);
+                 if (right) content = content.substring(0, content.length() - 1);
+                 
+                 if (content.isEmpty()) return null;
+                 // Check if content consists only of dashes
+                 for (int i = 0; i < content.length(); i++) {
+                     if (content.charAt(i) != '-') return null;
+                 }
+                 
+                 if (left && right) alignments.add(TableCell.Alignment.CENTER);
+                 else if (left) alignments.add(TableCell.Alignment.LEFT);
+                 else if (right) alignments.add(TableCell.Alignment.RIGHT);
+                 else alignments.add(TableCell.Alignment.NONE);
+             }
+             
+             return alignments;
+        }
+        
+        TableRow parseTableRow(String line, List<TableCell.Alignment> alignments, boolean isHeader) {
+            TableRow row = new TableRow();
+            String s = line.trim();
+            if (s.startsWith("|")) s = s.substring(1);
+            // Trailing pipe check is tricky due to escaping.
+            // We should use a proper split function that respects escaped pipes.
+            
+            List<String> cells = splitTableCells(s);
+            
+            // Adjust cells to match alignments?
+            // GFM: "If there are more cells in the row than in the delimiter row, the extra cells are ignored."
+            // "If there are fewer cells... empty cells are inserted."
+            
+            for (int i = 0; i < alignments.size(); i++) {
+                TableCell cell = new TableCell();
+                cell.setHeader(isHeader);
+                cell.setAlignment(alignments.get(i));
+                
+                String content = (i < cells.size()) ? cells.get(i).trim() : "";
+                cell.appendChild(new Text(content)); // Placeholder, will be parsed as inline later
+                row.appendChild(cell);
+            }
+            
+            return row;
+        }
+        
+        List<String> splitTableCells(String row) {
+            List<String> cells = new ArrayList<>();
+            StringBuilder current = new StringBuilder();
+            boolean escaped = false;
+            
+            for (int i = 0; i < row.length(); i++) {
+                char c = row.charAt(i);
+                if (escaped) {
+                    current.append(c);
+                    escaped = false;
+                } else {
+                    if (c == '\\') {
+                        current.append(c);
+                        escaped = true;
+                    } else if (c == '|') {
+                        cells.add(current.toString());
+                        current.setLength(0);
+                    } else {
+                        current.append(c);
+                    }
+                }
+            }
+            // Add last cell
+            // Note: If row ends with unescaped pipe, we treat it as trailing pipe (ignore last empty cell?)
+            // GFM: "The final pipe is optional."
+            // If the row string passed here HAS trailing pipe stripped, then we just add current.
+            // But we didn't strip it robustly above.
+            
+            // Let's handle trailing pipe detection here.
+            // If the last char processed was | (implied by loop finish), then we have an empty `current`.
+            // But wait, if row ends with |, the loop adds the content before it to `cells`, clears `current`.
+            // Then loop finishes. `current` is empty.
+            // If row was "a|b|", cells=["a", "b"], current="".
+            // We should NOT add empty current if it corresponds to trailing pipe.
+            // But "a|b|" could mean 3 columns? "a", "b", "".
+            // GFM: "A trailing pipe | is also optional... If a row ends with |, that | is stripped."
+            // So "a|b|" is effectively "a|b". Two cells.
+            
+            // So if the input string ended with `|` (unescaped), we should ignore the final empty buffer?
+            // Yes.
+            
+            // But we need to know if the last char was indeed an unescaped pipe.
+            // Check original string.
+            boolean endedWithPipe = false;
+            if (row.length() > 0) {
+                 // Check backwards for unescaped pipe
+                 int idx = row.length() - 1;
+                 int backslashes = 0;
+                 while (idx >= 0 && row.charAt(idx) == '\\') {
+                     backslashes++;
+                     idx--;
+                 }
+                 // If odd backslashes, last char is escaped.
+                 // Wait, we are looking at the LAST character of string.
+                 if (row.charAt(row.length() - 1) == '|') {
+                      // Check preceding backslashes
+                      int j = row.length() - 2;
+                      int bs = 0;
+                      while (j >= 0 && row.charAt(j) == '\\') {
+                          bs++;
+                          j--;
+                      }
+                      if (bs % 2 == 0) {
+                          endedWithPipe = true;
+                      }
+                 }
+            }
+            
+            if (endedWithPipe) {
+                // If we ended with pipe, the loop would have added the cell before it.
+                // And `current` would be empty.
+                // We just discard `current`.
+            } else {
+                cells.add(current.toString());
+            }
+            
+            return cells;
+        }
+
         static class ListMarker {
             boolean isOrdered;
             char bulletChar; 
@@ -1277,6 +1553,19 @@ public class MarkdownParser {
                     h.appendChild(inline);
                 }
             }
+        } else if (node instanceof TableCell) {
+            TableCell c = (TableCell) node;
+            Node first = c.getFirstChild();
+            if (first instanceof Text && first.getNext() == null) {
+                String content = ((Text) first).getLiteral();
+                first.unlink();
+                
+                InlineParser parser = new InlineParser(content, doc.getLinkReferences());
+                List<Node> inlines = parser.parse();
+                for (Node inline : inlines) {
+                    c.appendChild(inline);
+                }
+            }
         }
     }
 
@@ -1462,7 +1751,10 @@ public class MarkdownParser {
             }
 
             // Normalization
-            label = label.trim().replaceAll("\\s+", " ").toUpperCase(java.util.Locale.ROOT).toLowerCase(java.util.Locale.ROOT);
+            label = label.trim().replaceAll("\\s+", " ");
+            // Handle Unicode case folding for sharp S (ẞ)
+            label = label.replace("ẞ", "ss");
+            label = label.toUpperCase(java.util.Locale.ROOT).toLowerCase(java.util.Locale.ROOT);
             doc.addLinkReference(new LinkReference(label, unescape(destination), title != null ? unescape(title) : null));
         }
         

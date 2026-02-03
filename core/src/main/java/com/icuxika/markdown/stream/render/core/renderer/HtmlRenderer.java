@@ -197,6 +197,46 @@ public class HtmlRenderer implements IMarkdownRenderer {
         sb.append(" />");
         // Do NOT visit children, as they are rendered in alt attribute
     }
+
+    @Override
+    public void visit(Table table) {
+        sb.append("<table>\n");
+        visitChildren(table);
+        sb.append("</table>\n");
+    }
+
+    @Override
+    public void visit(TableHead tableHead) {
+        sb.append("<thead>\n");
+        visitChildren(tableHead);
+        sb.append("</thead>\n");
+    }
+
+    @Override
+    public void visit(TableBody tableBody) {
+        sb.append("<tbody>\n");
+        visitChildren(tableBody);
+        sb.append("</tbody>\n");
+    }
+
+    @Override
+    public void visit(TableRow tableRow) {
+        sb.append("<tr>\n");
+        visitChildren(tableRow);
+        sb.append("</tr>\n");
+    }
+
+    @Override
+    public void visit(TableCell tableCell) {
+        String tag = tableCell.isHeader() ? "th" : "td";
+        sb.append("<").append(tag);
+        if (tableCell.getAlignment() != null && tableCell.getAlignment() != TableCell.Alignment.NONE) {
+            sb.append(" align=\"").append(tableCell.getAlignment().name().toLowerCase()).append("\"");
+        }
+        sb.append(">");
+        visitChildren(tableCell);
+        sb.append("</").append(tag).append(">\n");
+    }
     
     private String encodeUrl(String url) {
         if (url == null) return "";

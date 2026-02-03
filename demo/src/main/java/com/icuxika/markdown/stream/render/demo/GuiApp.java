@@ -21,7 +21,18 @@ public class GuiApp extends Application {
         // Input Area
         TextArea inputArea = new TextArea();
         inputArea.setWrapText(true);
-        inputArea.setText("# Hello Markdown\n\nType **markdown** here and click Render.");
+        
+        // Load template.md
+        try (java.io.InputStream is = getClass().getResourceAsStream("/template.md")) {
+            if (is != null) {
+                String template = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                inputArea.setText(template);
+            } else {
+                inputArea.setText("# Hello Markdown\n\nType **markdown** here and click Render.");
+            }
+        } catch (java.io.IOException e) {
+             inputArea.setText("# Error Loading Template\n\n" + e.getMessage());
+        }
         
         // Output Area
         ScrollPane outputScroll = new ScrollPane();
