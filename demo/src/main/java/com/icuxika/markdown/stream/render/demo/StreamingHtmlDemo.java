@@ -28,7 +28,7 @@ public class StreamingHtmlDemo {
         int port = 8081;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Streaming Server started on http://localhost:" + port);
-            
+
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI("http://localhost:" + port));
             }
@@ -49,7 +49,7 @@ public class StreamingHtmlDemo {
         int n = input.read(buffer);
         if (n == -1) return;
         String request = new String(buffer, 0, n);
-        
+
         OutputStream output = socket.getOutputStream();
 
         if (request.startsWith("GET /stream ")) {
@@ -65,7 +65,7 @@ public class StreamingHtmlDemo {
             MarkdownParser parser = new MarkdownParser();
             int index = 0;
             while (index < fullMarkdown.length()) {
-                int chunkSize = 2 + (int)(Math.random() * 5);
+                int chunkSize = 2 + (int) (Math.random() * 5);
                 int endIndex = Math.min(index + chunkSize, fullMarkdown.length());
                 String currentText = fullMarkdown.substring(0, endIndex);
                 index = endIndex;
@@ -74,18 +74,18 @@ public class StreamingHtmlDemo {
                 try {
                     parser.parse(new java.io.StringReader(currentText), renderer);
                 } catch (Exception e) {
-                     e.printStackTrace();
+                    e.printStackTrace();
                 }
                 String html = (String) renderer.getResult();
-                
+
                 // SSE format: data: <payload>\n\n
                 // JSON escape? Simple string replace for demo
                 String jsonHtml = html.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
                 String payload = "data: {\"html\": \"" + jsonHtml + "\"}\n\n";
-                
+
                 output.write(payload.getBytes(StandardCharsets.UTF_8));
                 output.flush();
-                
+
                 Thread.sleep(20); // Simulate typing speed
             }
             // End stream? keep open or close.
@@ -126,7 +126,7 @@ public class StreamingHtmlDemo {
                     </body>
                     </html>
                     """;
-            
+
             String header = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: text/html; charset=utf-8\r\n" +
                     "Content-Length: " + page.getBytes(StandardCharsets.UTF_8).length + "\r\n" +

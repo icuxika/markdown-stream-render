@@ -5,8 +5,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
-import java.net.URL;
-
 public class MarkdownTheme {
 
     public enum Theme {

@@ -118,7 +118,7 @@ public class HtmlRenderer implements IMarkdownRenderer {
     @Override
     public void visit(ListItem listItem) {
         sb.append("<li>");
-        
+
         boolean tight = false;
         Node parent = listItem.getParent();
         if (parent instanceof BulletList) {
@@ -126,7 +126,7 @@ public class HtmlRenderer implements IMarkdownRenderer {
         } else if (parent instanceof OrderedList) {
             tight = ((OrderedList) parent).isTight();
         }
-        
+
         boolean addNewline = !tight;
         if (listItem.getFirstChild() == null) {
             addNewline = false;
@@ -136,11 +136,11 @@ public class HtmlRenderer implements IMarkdownRenderer {
                 addNewline = true;
             }
         }
-        
+
         if (addNewline) {
             sb.append("\n");
         }
-        
+
         visitChildren(listItem);
         sb.append("</li>\n");
     }
@@ -237,7 +237,7 @@ public class HtmlRenderer implements IMarkdownRenderer {
         visitChildren(tableCell);
         sb.append("</").append(tag).append(">\n");
     }
-    
+
     private String encodeUrl(String url) {
         if (url == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -256,7 +256,7 @@ public class HtmlRenderer implements IMarkdownRenderer {
                     }
                 }
             }
-            
+
             if (c <= 32 || c >= 127 || c == '%' || c == '[' || c == ']' || c == '\\' || c == '"' || c == '<' || c == '>' || c == '^' || c == '`' || c == '{' || c == '|' || c == '}') {
                 byte[] bytes = new String(new char[]{c}).getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 for (byte b : bytes) {
@@ -268,7 +268,7 @@ public class HtmlRenderer implements IMarkdownRenderer {
         }
         return sb.toString();
     }
-    
+
     private boolean isHex(char c) {
         return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
     }
@@ -302,17 +302,17 @@ public class HtmlRenderer implements IMarkdownRenderer {
     private String escapeContent(String text) {
         if (text == null) return "";
         return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;")
-                   .replace("\"", "&quot;");
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
-    
+
     private String escapeAttribute(String text) {
         if (text == null) return "";
         return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;")
-                   .replace("\"", "&quot;")
-                   .replace("'", "&#39;");
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }

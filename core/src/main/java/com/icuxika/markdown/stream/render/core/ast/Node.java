@@ -9,11 +9,25 @@ public abstract class Node {
 
     public abstract void accept(Visitor visitor);
 
-    public Node getParent() { return parent; }
-    public Node getFirstChild() { return firstChild; }
-    public Node getLastChild() { return lastChild; }
-    public Node getNext() { return next; }
-    public Node getPrevious() { return previous; }
+    public Node getParent() {
+        return parent;
+    }
+
+    public Node getFirstChild() {
+        return firstChild;
+    }
+
+    public Node getLastChild() {
+        return lastChild;
+    }
+
+    public Node getNext() {
+        return next;
+    }
+
+    public Node getPrevious() {
+        return previous;
+    }
 
     public void appendChild(Node child) {
         child.unlink();

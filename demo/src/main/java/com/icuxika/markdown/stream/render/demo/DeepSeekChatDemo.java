@@ -33,7 +33,7 @@ public class DeepSeekChatDemo extends Application {
         if (apiKey == null || apiKey.isBlank()) {
             apiKey = "YOUR_API_KEY_HERE"; // Fallback or prompt
             System.out.println("Warning: DEEPSEEK_API_KEY environment variable not set.");
-            
+
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Configuration Missing");
             alert.setHeaderText("API Key Not Found");
@@ -41,7 +41,7 @@ public class DeepSeekChatDemo extends Application {
             alert.showAndWait();
         }
         client = new DeepSeekClient(apiKey);
-        
+
         // Initialize history with system prompt
         history.add(new DeepSeekClient.ChatMessage("system", "You are a helpful assistant."));
 
@@ -94,14 +94,14 @@ public class DeepSeekChatDemo extends Application {
 
         Scene scene = new Scene(root, 900, 700);
         theme.apply(scene); // Apply theme
-        
+
         // Also apply theme to input box area manually if needed, or rely on root inheritance
         // We added a style to inputBox that uses -md-bg-color, so it should work.
 
         primaryStage.setTitle("DeepSeek Chat - Markdown Stream Render");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
+
         inputArea.requestFocus();
     }
 
@@ -111,7 +111,7 @@ public class DeepSeekChatDemo extends Application {
 
         inputArea.clear();
         addMessage(text, true);
-        
+
         // Add user message to history
         history.add(new DeepSeekClient.ChatMessage("user", text));
 
@@ -119,42 +119,42 @@ public class DeepSeekChatDemo extends Application {
         AIMessageBubble aiBubble = new AIMessageBubble();
         chatContainer.getChildren().add(aiBubble);
         scrollToBottom();
-        
+
         StringBuilder assistantResponse = new StringBuilder();
 
-        client.streamChat(history, 
-            token -> Platform.runLater(() -> {
-                assistantResponse.append(token);
-                aiBubble.append(token);
-                scrollToBottom();
-            }),
-            () -> Platform.runLater(() -> {
-                // Done, add assistant message to history
-                history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
-            }),
-            error -> Platform.runLater(() -> {
-                aiBubble.append("\n\n**Error**: " + error.getMessage());
-                scrollToBottom();
-            })
+        client.streamChat(history,
+                token -> Platform.runLater(() -> {
+                    assistantResponse.append(token);
+                    aiBubble.append(token);
+                    scrollToBottom();
+                }),
+                () -> Platform.runLater(() -> {
+                    // Done, add assistant message to history
+                    history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
+                }),
+                error -> Platform.runLater(() -> {
+                    aiBubble.append("\n\n**Error**: " + error.getMessage());
+                    scrollToBottom();
+                })
         );
     }
 
     private void addMessage(String text, boolean isUser) {
         HBox bubbleWrapper = new HBox();
         bubbleWrapper.setPadding(new Insets(5));
-        
+
         if (isUser) {
             Label label = new Label(text);
             label.setWrapText(true);
             label.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 10; -fx-font-size: 14px;");
             label.setMaxWidth(600);
-            
+
             bubbleWrapper.setAlignment(Pos.CENTER_RIGHT);
             bubbleWrapper.getChildren().add(label);
         } else {
             // Should not happen here for AI, using AIMessageBubble class
         }
-        
+
         chatContainer.getChildren().add(bubbleWrapper);
         scrollToBottom();
     }
@@ -172,13 +172,13 @@ public class DeepSeekChatDemo extends Application {
         public AIMessageBubble() {
             this.setAlignment(Pos.CENTER_LEFT);
             this.setPadding(new Insets(5));
-            
+
             contentBox.setStyle("-fx-background-color: transparent;"); // Markdown renderer handles text color via CSS
             contentBox.setMaxWidth(700);
-            
+
             // Add initial empty content or loading indicator?
             // contentBox.getChildren().add(new Label("..."));
-            
+
             this.getChildren().add(contentBox);
         }
 

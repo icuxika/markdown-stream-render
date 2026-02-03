@@ -11,7 +11,8 @@ import java.util.function.Consumer;
 
 public class DeepSeekClient {
 
-    public record ChatMessage(String role, String content) {}
+    public record ChatMessage(String role, String content) {
+    }
 
     private final String apiKey;
     private final HttpClient client;
@@ -53,53 +54,53 @@ public class DeepSeekClient {
                 .build();
 
         client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(new Flow.Subscriber<>() {
-            private Flow.Subscription subscription;
+                    private Flow.Subscription subscription;
 
-            @Override
-            public void onSubscribe(Flow.Subscription subscription) {
-                this.subscription = subscription;
-                subscription.request(Long.MAX_VALUE);
-            }
-
-            @Override
-            public void onNext(String line) {
-                if (line.startsWith("data: ")) {
-                    String data = line.substring(6).trim();
-                    if ("[DONE]".equals(data)) {
-                        return; // Stream finished
+                    @Override
+                    public void onSubscribe(Flow.Subscription subscription) {
+                        this.subscription = subscription;
+                        subscription.request(Long.MAX_VALUE);
                     }
-                    
-                    String content = extractContent(data);
-                    if (content != null && !content.isEmpty()) {
-                        onToken.accept(content);
+
+                    @Override
+                    public void onNext(String line) {
+                        if (line.startsWith("data: ")) {
+                            String data = line.substring(6).trim();
+                            if ("[DONE]".equals(data)) {
+                                return; // Stream finished
+                            }
+
+                            String content = extractContent(data);
+                            if (content != null && !content.isEmpty()) {
+                                onToken.accept(content);
+                            }
+                        }
                     }
-                }
-            }
 
-            @Override
-            public void onError(Throwable throwable) {
-                onError.accept(throwable);
-            }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        onError.accept(throwable);
+                    }
 
-            @Override
-            public void onComplete() {
-                onComplete.run();
-            }
-        }))
-        .exceptionally(e -> {
-            onError.accept(e);
-            return null;
-        });
+                    @Override
+                    public void onComplete() {
+                        onComplete.run();
+                    }
+                }))
+                .exceptionally(e -> {
+                    onError.accept(e);
+                    return null;
+                });
     }
 
     // Simple JSON escaping for the request body
     private String escapeJson(String input) {
         if (input == null) return "";
         return input.replace("\\", "\\\\")
-                    .replace("\"", "\\\"")
-                    .replace("\n", "\\n")
-                    .replace("\r", "\\r")
-                    .replace("\t", "\\t");
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
     // Regex to extract "content": "..." from JSON

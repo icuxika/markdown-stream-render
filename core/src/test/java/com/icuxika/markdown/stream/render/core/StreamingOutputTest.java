@@ -24,7 +24,7 @@ public class StreamingOutputTest {
     @Test
     public void testEventOrder() throws Exception {
         String markdown = "# Heading\n\nParagraph with **bold** text.";
-        
+
         List<String> events = new ArrayList<>();
         // 创建一个追踪用的 Renderer，记录访问顺序
         IMarkdownRenderer trackingRenderer = new IMarkdownRenderer() {
@@ -67,25 +67,93 @@ public class StreamingOutputTest {
             }
 
             // Implement other methods as no-ops or default
-            @Override public void visit(Emphasis emphasis) { visitChildren(emphasis); }
-            @Override public void visit(BlockQuote blockQuote) { visitChildren(blockQuote); }
-            @Override public void visit(BulletList bulletList) { visitChildren(bulletList); }
-            @Override public void visit(OrderedList orderedList) { visitChildren(orderedList); }
-            @Override public void visit(ListItem listItem) { visitChildren(listItem); }
-            @Override public void visit(CodeBlock codeBlock) { }
-            @Override public void visit(HtmlBlock htmlBlock) { }
-            @Override public void visit(Table table) { visitChildren(table); }
-            @Override public void visit(TableHead tableHead) { visitChildren(tableHead); }
-            @Override public void visit(TableBody tableBody) { visitChildren(tableBody); }
-            @Override public void visit(TableRow tableRow) { visitChildren(tableRow); }
-            @Override public void visit(TableCell tableCell) { visitChildren(tableCell); }
-            @Override public void visit(ThematicBreak thematicBreak) { }
-            @Override public void visit(SoftBreak softBreak) { }
-            @Override public void visit(HardBreak hardBreak) { }
-            @Override public void visit(Code code) { }
-            @Override public void visit(HtmlInline htmlInline) { }
-            @Override public void visit(Link link) { visitChildren(link); }
-            @Override public void visit(Image image) { visitChildren(image); }
+            @Override
+            public void visit(Emphasis emphasis) {
+                visitChildren(emphasis);
+            }
+
+            @Override
+            public void visit(BlockQuote blockQuote) {
+                visitChildren(blockQuote);
+            }
+
+            @Override
+            public void visit(BulletList bulletList) {
+                visitChildren(bulletList);
+            }
+
+            @Override
+            public void visit(OrderedList orderedList) {
+                visitChildren(orderedList);
+            }
+
+            @Override
+            public void visit(ListItem listItem) {
+                visitChildren(listItem);
+            }
+
+            @Override
+            public void visit(CodeBlock codeBlock) {
+            }
+
+            @Override
+            public void visit(HtmlBlock htmlBlock) {
+            }
+
+            @Override
+            public void visit(Table table) {
+                visitChildren(table);
+            }
+
+            @Override
+            public void visit(TableHead tableHead) {
+                visitChildren(tableHead);
+            }
+
+            @Override
+            public void visit(TableBody tableBody) {
+                visitChildren(tableBody);
+            }
+
+            @Override
+            public void visit(TableRow tableRow) {
+                visitChildren(tableRow);
+            }
+
+            @Override
+            public void visit(TableCell tableCell) {
+                visitChildren(tableCell);
+            }
+
+            @Override
+            public void visit(ThematicBreak thematicBreak) {
+            }
+
+            @Override
+            public void visit(SoftBreak softBreak) {
+            }
+
+            @Override
+            public void visit(HardBreak hardBreak) {
+            }
+
+            @Override
+            public void visit(Code code) {
+            }
+
+            @Override
+            public void visit(HtmlInline htmlInline) {
+            }
+
+            @Override
+            public void visit(Link link) {
+                visitChildren(link);
+            }
+
+            @Override
+            public void visit(Image image) {
+                visitChildren(image);
+            }
 
             private void visitChildren(Node parent) {
                 Node child = parent.getFirstChild();

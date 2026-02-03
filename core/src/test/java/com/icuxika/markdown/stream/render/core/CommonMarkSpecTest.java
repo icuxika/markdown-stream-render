@@ -61,12 +61,13 @@ public class CommonMarkSpecTest {
     private List<SpecExample> loadExamples() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         java.io.InputStream specStream = getClass().getResourceAsStream("/commonmark-spec-0.31.2.json");
-        
+
         if (specStream == null) {
             throw new RuntimeException("Could not find commonmark-spec-0.31.2.json in classpath");
         }
-        
-        return mapper.readValue(specStream, new TypeReference<List<SpecExample>>() {});
+
+        return mapper.readValue(specStream, new TypeReference<List<SpecExample>>() {
+        });
     }
 
     /**
@@ -86,11 +87,11 @@ public class CommonMarkSpecTest {
                             HtmlRenderer renderer = new HtmlRenderer();
                             parser.parse(new java.io.StringReader(example.markdown), renderer);
                             String actual = (String) renderer.getResult();
-                            
+
                             // 规范化换行符以进行比较
                             String expected = example.html.replace("\r\n", "\n");
                             actual = actual.replace("\r\n", "\n");
-                            
+
                             if (!expected.equals(actual)) {
                                 System.out.println("Failed Example " + example.example);
                                 System.out.println("Markdown: [" + example.markdown + "]");
@@ -98,7 +99,7 @@ public class CommonMarkSpecTest {
                                 System.out.println("Actual:   [" + actual + "]");
                                 printAst(parser.parse(example.markdown), "");
                             }
-                            
+
                             assertEquals(expected, actual);
                         }
                 ));
@@ -152,7 +153,7 @@ public class CommonMarkSpecTest {
         if (!reportFile.getParentFile().exists()) {
             reportFile = new File("SPEC_REPORT.md");
         }
-        
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(reportFile))) {
             writer.println("# CommonMark Spec Test Report");
             writer.println();
@@ -160,12 +161,12 @@ public class CommonMarkSpecTest {
             writer.println();
             writer.println("| Example | Section | Status | Info |");
             writer.println("| :--- | :--- | :--- | :--- |");
-            
+
             for (TestResult res : results) {
                 writer.println("| " + res.example + " | " + res.section + " | " + (res.passed ? "✅ PASS" : "❌ FAIL") + " | " + (res.message != null ? res.message : "") + " |");
             }
         }
-        
+
         System.out.println("Report generated at " + reportFile.getAbsolutePath());
     }
 }

@@ -3,14 +3,14 @@ package com.icuxika.markdown.stream.render.demo;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.renderer.HtmlRenderer;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.awt.Desktop;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 public class App {
 
@@ -78,17 +78,17 @@ public class App {
                     InputStream clientInput = clientSocket.getInputStream();
                     byte[] buffer = new byte[1024];
                     int read = clientInput.read(buffer); // Read part of the request
-                    
+
                     // Send response
                     OutputStream clientOutput = clientSocket.getOutputStream();
                     byte[] responseBytes = fullHtml.getBytes(StandardCharsets.UTF_8);
-                    
+
                     String header = "HTTP/1.1 200 OK\r\n" +
                             "Content-Type: text/html; charset=utf-8\r\n" +
                             "Content-Length: " + responseBytes.length + "\r\n" +
                             "Connection: close\r\n" +
                             "\r\n";
-                    
+
                     clientOutput.write(header.getBytes(StandardCharsets.UTF_8));
                     clientOutput.write(responseBytes);
                     clientOutput.flush();

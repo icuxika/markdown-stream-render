@@ -17,11 +17,11 @@ public class GuiApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();
-        
+
         // Input Area
         TextArea inputArea = new TextArea();
         inputArea.setWrapText(true);
-        
+
         // Load template.md
         try (java.io.InputStream is = getClass().getResourceAsStream("/template.md")) {
             if (is != null) {
@@ -31,38 +31,38 @@ public class GuiApp extends Application {
                 inputArea.setText("# Hello Markdown\n\nType **markdown** here and click Render.");
             }
         } catch (java.io.IOException e) {
-             inputArea.setText("# Error Loading Template\n\n" + e.getMessage());
+            inputArea.setText("# Error Loading Template\n\n" + e.getMessage());
         }
-        
+
         // Output Area
         ScrollPane outputScroll = new ScrollPane();
         outputScroll.setFitToWidth(true);
         VBox outputBox = new VBox();
         outputScroll.setContent(outputBox);
-        
+
         // Render Button (or auto-render)
         Button renderBtn = new Button("Render");
         renderBtn.setOnAction(e -> render(inputArea.getText(), outputScroll));
-        
+
         // Layout
         VBox leftBox = new VBox(inputArea, renderBtn);
         javafx.scene.layout.VBox.setVgrow(inputArea, javafx.scene.layout.Priority.ALWAYS);
-        
+
         SplitPane splitPane = new SplitPane();
         splitPane.getItems().addAll(leftBox, outputScroll);
         splitPane.setDividerPositions(0.5);
-        
+
         root.setCenter(splitPane);
-        
+
         // Initial Render
         render(inputArea.getText(), outputScroll);
-        
+
         Scene scene = new Scene(root, 800, 600);
         primaryStage.setTitle("Markdown Stream Renderer - JavaFX Demo");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    
+
     private void render(String markdown, ScrollPane outputScroll) {
         MarkdownParser parser = new MarkdownParser();
         JavaFxRenderer renderer = new JavaFxRenderer();

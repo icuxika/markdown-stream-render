@@ -32,11 +32,11 @@ public class MarkdownParser {
         String[] lines = input.split("\r\n|\r|\n", -1);
         int length = lines.length;
         if (input.endsWith("\n") || input.endsWith("\r")) {
-             if (length > 0 && lines[length - 1].isEmpty()) {
-                 length--;
-             }
+            if (length > 0 && lines[length - 1].isEmpty()) {
+                length--;
+            }
         }
-        
+
         BlockParserState state = new BlockParserState();
 
         for (int i = 0; i < length; i++) {
@@ -54,7 +54,7 @@ public class MarkdownParser {
         int col = 0;
         for (int i = 0; i < line.length(); i++) {
             if (col == column) return line.substring(i);
-            
+
             char c = line.charAt(i);
             if (c == '\t') {
                 int toAdd = 4 - (col % 4);
@@ -105,7 +105,7 @@ public class MarkdownParser {
         char fenceChar;
         int fenceLength;
         int fenceIndent;
-        
+
         // Indented Code Block State
         boolean inIndentedCodeBlock = false;
 
@@ -169,7 +169,7 @@ public class MarkdownParser {
                         i++;
                         indent++;
                     }
-                    
+
                     if (indent >= expectedIndent) {
                         matches++;
                         currentContentDepth = k;
@@ -191,20 +191,20 @@ public class MarkdownParser {
 
             // 2. Close unmatched containers
             String contentLine = line.substring(i);
-            
+
             // Check for Lazy Continuation
-                boolean lazyContinuation = false;
-                if (currentLeaf instanceof Paragraph && !openContainers.isEmpty() && !contentLine.trim().isEmpty()) {
-                    Node lastContainer = openContainers.get(openContainers.size() - 1);
-                if (matches < openContainers.size() && lastContainer instanceof Block) { 
-                    
+            boolean lazyContinuation = false;
+            if (currentLeaf instanceof Paragraph && !openContainers.isEmpty() && !contentLine.trim().isEmpty()) {
+                Node lastContainer = openContainers.get(openContainers.size() - 1);
+                if (matches < openContainers.size() && lastContainer instanceof Block) {
+
                     // We need to check if this line is a block starter.
-                    boolean isBlockStarter = isAtxHeading(contentLine) 
-                        || isThematicBreak(contentLine) 
-                        || parseFencedCodeStart(contentLine) != null
-                        || isBlockQuoteStart(contentLine)
-                        || isTableDelimiterRow(contentLine) // Table can interrupt paragraph
-                        ;
+                    boolean isBlockStarter = isAtxHeading(contentLine)
+                            || isThematicBreak(contentLine)
+                            || parseFencedCodeStart(contentLine) != null
+                            || isBlockQuoteStart(contentLine)
+                            || isTableDelimiterRow(contentLine) // Table can interrupt paragraph
+                            ;
 
                     if (!isBlockStarter) {
                         ListMarker lm = parseListMarker(contentLine, 0);
@@ -231,16 +231,16 @@ public class MarkdownParser {
                                 }
 
                                 if (!openContainers.isEmpty()) {
-                                     Node lastOpenContainer = openContainers.get(openContainers.size() - 1);
-                                     if (lastOpenContainer instanceof ListItem && lastOpenContainer.getParent() instanceof OrderedList) {
-                                         canInterrupt = true;
-                                     }
-                                 }
+                                    Node lastOpenContainer = openContainers.get(openContainers.size() - 1);
+                                    if (lastOpenContainer instanceof ListItem && lastOpenContainer.getParent() instanceof OrderedList) {
+                                        canInterrupt = true;
+                                    }
+                                }
                                 if (canInterrupt) isBlockStarter = true;
                             }
                         }
                     }
-                    
+
                     // System.out.println("Lazy check: line='" + line + "', matches=" + matches + ", size=" + openContainers.size() + ", isStarter=" + isBlockStarter);
 
                     if (!isBlockStarter) {
@@ -266,58 +266,58 @@ public class MarkdownParser {
             // Only if we are not in a Fenced Code Block (Leaf)
             // Or if currentLeaf is null
             if (!inFencedCodeBlock && !inIndentedCodeBlock && !lazyContinuation) {
-                 while (true) {
-                     int indent = 0;
-                     int startI = i;
-                     
-                     // Check BlockQuote
-                     while (i < line.length() && line.charAt(i) == ' ' && indent < 3) {
-                         i++;
-                         indent++;
-                     }
-                     if (i < line.length() && line.charAt(i) == '>') {
-                         i++;
-                         if (i < line.length() && line.charAt(i) == ' ') {
-                             i++;
-                         }
-                         finalizeCurrentLeaf();
-                         BlockQuote quote = new BlockQuote();
-                         checkLooseList(openContainers.get(openContainers.size() - 1));
-                         openContainers.get(openContainers.size() - 1).appendChild(quote);
-                         openContainers.add(quote);
-                         openContainerBlockIndents.add(0);
-                         currentContentDepth = openContainers.size() - 1;
-                         continue;
-                     } 
-                     
-                     // Rewind for List check
-                     i = startI;
-                     
-                     // Check Thematic Break - If it IS a thematic break, it cannot be a List Item start.
-                     if (isThematicBreak(line.substring(i))) {
-                         break;
-                     }
+                while (true) {
+                    int indent = 0;
+                    int startI = i;
 
-                     // Check List Item
-                     ListMarker marker = parseListMarker(line, i);
-                     if (marker != null) {
-                         finalizeCurrentLeaf();
-                         
-                         boolean matchesCurrentList = false;
-                         Node parent = openContainers.get(openContainers.size() - 1);
-                         if (parent instanceof BulletList) {
-                             BulletList bl = (BulletList) parent;
-                             if (!marker.isOrdered && bl.getBulletChar() == marker.bulletChar) {
-                                 matchesCurrentList = true;
-                             }
-                         } else if (parent instanceof OrderedList) {
-                             OrderedList ol = (OrderedList) parent;
-                             if (marker.isOrdered && ol.getDelimiter() == marker.delimiter) {
-                                 matchesCurrentList = true;
-                             }
-                         }
-                         
-                         if (!matchesCurrentList) {
+                    // Check BlockQuote
+                    while (i < line.length() && line.charAt(i) == ' ' && indent < 3) {
+                        i++;
+                        indent++;
+                    }
+                    if (i < line.length() && line.charAt(i) == '>') {
+                        i++;
+                        if (i < line.length() && line.charAt(i) == ' ') {
+                            i++;
+                        }
+                        finalizeCurrentLeaf();
+                        BlockQuote quote = new BlockQuote();
+                        checkLooseList(openContainers.get(openContainers.size() - 1));
+                        openContainers.get(openContainers.size() - 1).appendChild(quote);
+                        openContainers.add(quote);
+                        openContainerBlockIndents.add(0);
+                        currentContentDepth = openContainers.size() - 1;
+                        continue;
+                    }
+
+                    // Rewind for List check
+                    i = startI;
+
+                    // Check Thematic Break - If it IS a thematic break, it cannot be a List Item start.
+                    if (isThematicBreak(line.substring(i))) {
+                        break;
+                    }
+
+                    // Check List Item
+                    ListMarker marker = parseListMarker(line, i);
+                    if (marker != null) {
+                        finalizeCurrentLeaf();
+
+                        boolean matchesCurrentList = false;
+                        Node parent = openContainers.get(openContainers.size() - 1);
+                        if (parent instanceof BulletList) {
+                            BulletList bl = (BulletList) parent;
+                            if (!marker.isOrdered && bl.getBulletChar() == marker.bulletChar) {
+                                matchesCurrentList = true;
+                            }
+                        } else if (parent instanceof OrderedList) {
+                            OrderedList ol = (OrderedList) parent;
+                            if (marker.isOrdered && ol.getDelimiter() == marker.delimiter) {
+                                matchesCurrentList = true;
+                            }
+                        }
+
+                        if (!matchesCurrentList) {
                             // If parent is a List, close it!
                             Node parentNode = openContainers.get(openContainers.size() - 1);
                             if (parentNode instanceof BulletList || parentNode instanceof OrderedList) {
@@ -326,40 +326,40 @@ public class MarkdownParser {
                             }
 
                             Node newList;
-                             if (marker.isOrdered) {
-                                 OrderedList ol = new OrderedList();
-                                 ol.setStartNumber(marker.startNumber);
-                                 ol.setDelimiter(marker.delimiter);
-                                 newList = ol;
-                             } else {
-                                 BulletList bl = new BulletList();
-                                 bl.setBulletChar(marker.bulletChar);
-                                 newList = bl;
-                             }
-                             checkLooseList(openContainers.get(openContainers.size() - 1));
-                             openContainers.get(openContainers.size() - 1).appendChild(newList);
-                             openContainers.add(newList);
-                             openContainerBlockIndents.add(0);
-                         }
-                         
-                         ListItem li = new ListItem();
-                         Node listParent = openContainers.get(openContainers.size() - 1);
-                         checkLooseList(listParent);
-                         listParent.appendChild(li);
-                         openContainers.add(li);
-                         int contentIndent = marker.indent + marker.markerLength + marker.padding;
-                         System.out.println("Adding ListItem: contentIndent=" + contentIndent + ", markerIndent=" + marker.indent + ", len=" + marker.markerLength + ", pad=" + marker.padding);
-                         openContainerBlockIndents.add(contentIndent);
-                        
+                            if (marker.isOrdered) {
+                                OrderedList ol = new OrderedList();
+                                ol.setStartNumber(marker.startNumber);
+                                ol.setDelimiter(marker.delimiter);
+                                newList = ol;
+                            } else {
+                                BulletList bl = new BulletList();
+                                bl.setBulletChar(marker.bulletChar);
+                                newList = bl;
+                            }
+                            checkLooseList(openContainers.get(openContainers.size() - 1));
+                            openContainers.get(openContainers.size() - 1).appendChild(newList);
+                            openContainers.add(newList);
+                            openContainerBlockIndents.add(0);
+                        }
+
+                        ListItem li = new ListItem();
+                        Node listParent = openContainers.get(openContainers.size() - 1);
+                        checkLooseList(listParent);
+                        listParent.appendChild(li);
+                        openContainers.add(li);
+                        int contentIndent = marker.indent + marker.markerLength + marker.padding;
+                        System.out.println("Adding ListItem: contentIndent=" + contentIndent + ", markerIndent=" + marker.indent + ", len=" + marker.markerLength + ", pad=" + marker.padding);
+                        openContainerBlockIndents.add(contentIndent);
+
                         i = marker.nextIndex;
                         isListMarkerLine = true;
                         continue;
                     }
-                     
-                     break;
-                 }
+
+                    break;
+                }
             }
-            
+
             // Re-calculate contentLine after potential new containers
             contentLine = line.substring(i);
             int indent = countIndent(contentLine);
@@ -368,25 +368,25 @@ public class MarkdownParser {
             if (!openContainers.isEmpty()) {
                 Node last = openContainers.get(openContainers.size() - 1);
                 if ((last instanceof BulletList || last instanceof OrderedList) && currentLeaf == null) {
-                     // We closed the last ListItem, and didn't open a new one.
-                     openContainers.remove(openContainers.size() - 1);
-                     openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
+                    // We closed the last ListItem, and didn't open a new one.
+                    openContainers.remove(openContainers.size() - 1);
+                    openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                 }
             }
-            
+
             // 4. Handle Leaf Blocks
-            
+
             // Table (Continuation)
             if (inTable) {
                 // If line is empty or matches another block start, end table
-                if (contentLine.trim().isEmpty() 
-                    || isBlockQuoteStart(contentLine)
-                    || isAtxHeading(contentLine)
-                    || isThematicBreak(contentLine)
-                    || parseFencedCodeStart(contentLine) != null
-                    || parseListMarker(contentLine, 0) != null
-                    || getHtmlBlockStartCondition(contentLine) > 0) {
-                    
+                if (contentLine.trim().isEmpty()
+                        || isBlockQuoteStart(contentLine)
+                        || isAtxHeading(contentLine)
+                        || isThematicBreak(contentLine)
+                        || parseFencedCodeStart(contentLine) != null
+                        || parseListMarker(contentLine, 0) != null
+                        || getHtmlBlockStartCondition(contentLine) > 0) {
+
                     finalizeCurrentLeaf();
                     inTable = false;
                     tableAlignments.clear();
@@ -414,7 +414,7 @@ public class MarkdownParser {
                 // We already stripped container markers.
                 // But we need to check indent < 4 relative to start of contentLine?
                 // Yes.
-                
+
                 int currentIndent = countIndent(contentLine);
                 if (currentIndent < 4 && isClosingFence(contentLine, fenceChar, fenceLength)) {
                     if (currentLeaf instanceof CodeBlock) {
@@ -426,7 +426,7 @@ public class MarkdownParser {
                     lastLineContentDepth = Integer.MAX_VALUE;
                     return;
                 }
-                
+
                 // Add content
                 int strip = fenceIndent;
                 int spaces = 0;
@@ -439,7 +439,7 @@ public class MarkdownParser {
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
             }
-            
+
             // HTML Block (Continuation)
             if (inHtmlBlock) {
                 if (isHtmlBlockEnd(contentLine, htmlBlockCondition)) {
@@ -476,7 +476,7 @@ public class MarkdownParser {
                     return;
                 }
             }
-            
+
             // HTML Block (Start)
             if (indent < 4) {
                 int condition = getHtmlBlockStartCondition(contentLine);
@@ -491,7 +491,7 @@ public class MarkdownParser {
                         currentLeaf = htmlBlock;
                         inHtmlBlock = true;
                         htmlBlockCondition = condition;
-                        
+
                         if (isHtmlBlockEnd(contentLine, condition)) {
                             currentLeafContent.append(getSubstringForColumn(originalLine, i)).append("\n");
                             htmlBlock.setLiteral(currentLeafContent.toString());
@@ -512,107 +512,107 @@ public class MarkdownParser {
             // But we must check if we are already in Indented Code Block
             if (indent >= 4) {
                 if (inIndentedCodeBlock) {
-                     currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
-                     lastLineContentDepth = Integer.MAX_VALUE;
-                     return;
+                    currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
+                    lastLineContentDepth = Integer.MAX_VALUE;
+                    return;
                 } else if ((lastLineContentDepth == Integer.MAX_VALUE || currentLeaf == null) && !(currentLeaf instanceof Paragraph)) {
-                     // Start new indented code block
-                     if (!contentLine.trim().isEmpty()) {
-                         finalizeCurrentLeaf();
-                         CodeBlock codeBlock = new CodeBlock("");
-                         checkLooseList(openContainers.get(openContainers.size() - 1));
-                         openContainers.get(openContainers.size() - 1).appendChild(codeBlock);
-                         currentLeaf = codeBlock;
-                         inIndentedCodeBlock = true;
-                         currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
-                         lastLineContentDepth = Integer.MAX_VALUE;
-                         return;
-                     }
+                    // Start new indented code block
+                    if (!contentLine.trim().isEmpty()) {
+                        finalizeCurrentLeaf();
+                        CodeBlock codeBlock = new CodeBlock("");
+                        checkLooseList(openContainers.get(openContainers.size() - 1));
+                        openContainers.get(openContainers.size() - 1).appendChild(codeBlock);
+                        currentLeaf = codeBlock;
+                        inIndentedCodeBlock = true;
+                        currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
+                        lastLineContentDepth = Integer.MAX_VALUE;
+                        return;
+                    }
                 }
             } else if (inIndentedCodeBlock) {
-                 if (contentLine.trim().isEmpty()) {
-                     currentLeafContent.append("\n");
-                     lastLineContentDepth = currentContentDepth;
-                     return;
-                 } else {
-                     finalizeCurrentLeaf();
-                 }
+                if (contentLine.trim().isEmpty()) {
+                    currentLeafContent.append("\n");
+                    lastLineContentDepth = currentContentDepth;
+                    return;
+                } else {
+                    finalizeCurrentLeaf();
+                }
             }
 
             // Table (Start)
             // Check if current line is a delimiter row and previous line (currentLeaf) is a paragraph
             if (indent < 4 && currentLeaf instanceof Paragraph) {
-                 List<TableCell.Alignment> alignments = parseTableDelimiterRow(contentLine);
-                 if (alignments != null) {
-                     // We found a table!
-                     // 1. Get header content from Paragraph
-                     Paragraph p = (Paragraph) currentLeaf;
-                     // We assume paragraph has single line of text for header
-                     // If paragraph has multiple lines, GFM says:
-                     // "The header row consists of the line of text immediately preceding the delimiter row."
-                     // So we take the last line of the paragraph? 
-                     // Or must the paragraph ONLY contain one line?
-                     // GFM: "It consists of a single line of text containing no block-level structures"
-                     // "A table cannot interrupt a paragraph." -> WAIT.
-                     // GFM: "The header row ... must match the delimiter row in number of columns?" No.
-                     // Actually, GFM says: "Tables can interrupt a paragraph."
-                     // "The line immediately preceding the delimiter row is the header row."
-                     // If the paragraph has multiple lines, only the LAST line becomes the header row.
-                     // The preceding lines remain in the paragraph.
-                     
-                     String paragraphContent = currentLeafContent.toString();
-                     String[] lines = paragraphContent.split("\n");
-                     String headerLine = lines[lines.length - 1];
-                     
-                     // 2. Finalize paragraph (remove last line)
-                     if (lines.length > 1) {
-                         StringBuilder remaining = new StringBuilder();
-                         for (int k = 0; k < lines.length - 1; k++) {
-                             remaining.append(lines[k]).append("\n");
-                         }
-                         // Update paragraph content
-                         currentLeafContent.setLength(0);
-                         currentLeafContent.append(remaining);
-                         finalizeCurrentLeaf();
-                         // The paragraph is now finalized with previous lines.
-                     } else {
-                         // Paragraph fully consumed
-                         currentLeafContent.setLength(0);
-                         // We need to unlink the paragraph? 
-                         // finalizeCurrentLeaf() sets currentLeaf=null, but it creates Text node.
-                         // We don't want to create Text node for the header line.
-                         // But we might have already added Text nodes if we finalized incrementally?
-                         // In this parser, we only finalize at end of block.
-                         // So we just discard the paragraph if it was single line.
-                         // But finalizeCurrentLeaf() adds children.
-                         // We should just unlink the paragraph node if it becomes empty.
-                         
-                         // Hack: finalize then remove if empty?
-                         // Better: manually handle switch
-                         currentLeaf.unlink();
-                         currentLeaf = null;
-                     }
-                     
-                     // 3. Create Table structure
-                     Table table = new Table();
-                     checkLooseList(openContainers.get(openContainers.size() - 1));
-                     openContainers.get(openContainers.size() - 1).appendChild(table);
-                     
-                     TableHead head = new TableHead();
-                     table.appendChild(head);
-                     
-                     TableRow headerRow = parseTableRow(headerLine, alignments, true);
-                     head.appendChild(headerRow);
-                     
-                     TableBody body = new TableBody();
-                     table.appendChild(body);
-                     
-                     currentLeaf = body; // Set current leaf to body so we append rows to it
-                     inTable = true;
-                     tableAlignments = alignments;
-                     lastLineContentDepth = Integer.MAX_VALUE;
-                     return;
-                 }
+                List<TableCell.Alignment> alignments = parseTableDelimiterRow(contentLine);
+                if (alignments != null) {
+                    // We found a table!
+                    // 1. Get header content from Paragraph
+                    Paragraph p = (Paragraph) currentLeaf;
+                    // We assume paragraph has single line of text for header
+                    // If paragraph has multiple lines, GFM says:
+                    // "The header row consists of the line of text immediately preceding the delimiter row."
+                    // So we take the last line of the paragraph?
+                    // Or must the paragraph ONLY contain one line?
+                    // GFM: "It consists of a single line of text containing no block-level structures"
+                    // "A table cannot interrupt a paragraph." -> WAIT.
+                    // GFM: "The header row ... must match the delimiter row in number of columns?" No.
+                    // Actually, GFM says: "Tables can interrupt a paragraph."
+                    // "The line immediately preceding the delimiter row is the header row."
+                    // If the paragraph has multiple lines, only the LAST line becomes the header row.
+                    // The preceding lines remain in the paragraph.
+
+                    String paragraphContent = currentLeafContent.toString();
+                    String[] lines = paragraphContent.split("\n");
+                    String headerLine = lines[lines.length - 1];
+
+                    // 2. Finalize paragraph (remove last line)
+                    if (lines.length > 1) {
+                        StringBuilder remaining = new StringBuilder();
+                        for (int k = 0; k < lines.length - 1; k++) {
+                            remaining.append(lines[k]).append("\n");
+                        }
+                        // Update paragraph content
+                        currentLeafContent.setLength(0);
+                        currentLeafContent.append(remaining);
+                        finalizeCurrentLeaf();
+                        // The paragraph is now finalized with previous lines.
+                    } else {
+                        // Paragraph fully consumed
+                        currentLeafContent.setLength(0);
+                        // We need to unlink the paragraph?
+                        // finalizeCurrentLeaf() sets currentLeaf=null, but it creates Text node.
+                        // We don't want to create Text node for the header line.
+                        // But we might have already added Text nodes if we finalized incrementally?
+                        // In this parser, we only finalize at end of block.
+                        // So we just discard the paragraph if it was single line.
+                        // But finalizeCurrentLeaf() adds children.
+                        // We should just unlink the paragraph node if it becomes empty.
+
+                        // Hack: finalize then remove if empty?
+                        // Better: manually handle switch
+                        currentLeaf.unlink();
+                        currentLeaf = null;
+                    }
+
+                    // 3. Create Table structure
+                    Table table = new Table();
+                    checkLooseList(openContainers.get(openContainers.size() - 1));
+                    openContainers.get(openContainers.size() - 1).appendChild(table);
+
+                    TableHead head = new TableHead();
+                    table.appendChild(head);
+
+                    TableRow headerRow = parseTableRow(headerLine, alignments, true);
+                    head.appendChild(headerRow);
+
+                    TableBody body = new TableBody();
+                    table.appendChild(body);
+
+                    currentLeaf = body; // Set current leaf to body so we append rows to it
+                    inTable = true;
+                    tableAlignments = alignments;
+                    lastLineContentDepth = Integer.MAX_VALUE;
+                    return;
+                }
             }
 
             // Setext Heading
@@ -622,16 +622,16 @@ public class MarkdownParser {
                     lastLineContentDepth = Integer.MAX_VALUE;
                     return;
                 }
-                
+
                 String headingContent = currentLeafContent.toString();
                 int level = contentLine.trim().startsWith("=") ? 1 : 2;
                 Heading heading = new Heading(level);
                 heading.appendChild(new Text(headingContent.trim()));
-                
+
                 Node parent = openContainers.get(openContainers.size() - 1);
                 currentLeaf.unlink(); // Remove paragraph
                 parent.appendChild(heading);
-                
+
                 currentLeaf = null;
                 currentLeafContent.setLength(0);
                 lastLineContentDepth = Integer.MAX_VALUE;
@@ -665,15 +665,15 @@ public class MarkdownParser {
                 if (!openContainers.isEmpty()) {
                     Node last = openContainers.get(openContainers.size() - 1);
                     if (!isListMarkerLine && last instanceof ListItem && last.getFirstChild() == null) {
-                         openContainers.remove(openContainers.size() - 1);
-                         openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
+                        openContainers.remove(openContainers.size() - 1);
+                        openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                     }
                 }
 
                 if (currentLeaf instanceof Paragraph) {
                     finalizeCurrentLeaf();
                 }
-                
+
                 if (lastMatchedContainerHadMarker || isListMarkerLine) {
                     lastLineContentDepth = Integer.MAX_VALUE;
                 } else {
@@ -756,106 +756,106 @@ public class MarkdownParser {
                 inHtmlBlock = false;
             }
         }
-        
+
         void finalizeBlock(Document doc) {
             finalizeCurrentLeaf();
             // Close all containers? 
             // They are already in the tree.
             openContainers.clear();
         }
-        
+
         boolean isTableDelimiterRow(String line) {
             return parseTableDelimiterRow(line) != null;
         }
 
         List<TableCell.Alignment> parseTableDelimiterRow(String line) {
-             String s = line.trim();
-             
-             // GFM: A delimiter row must contain at least one pipe `|`
-             // OR it must contain both dashes and colons to distinguish from Setext
-             // Actually, strict GFM requires pipe if it's a 1-column table?
-             // But for multi-column, spaces are allowed.
-             // However, to avoid conflict with Setext `---`, we require that if no pipe is present,
-             // it must NOT look like a Setext heading.
-             // Setext heading: `^ {0,3}(=+|-+)\s*$`
-             
-             if (!s.contains("|") && s.matches("^[-=\\s]+$")) {
-                 return null; // Looks like Setext
-             }
-             
-             if (!s.contains("-")) return null; // Must have at least one dash
-             
-             // Remove leading/trailing pipes if present
-             if (s.startsWith("|")) s = s.substring(1);
-             if (s.endsWith("|") && !s.endsWith("\\|")) s = s.substring(0, s.length() - 1); 
-             
-             String[] parts = s.split("\\|");
-             List<TableCell.Alignment> alignments = new ArrayList<>();
-             
-             for (String part : parts) {
-                 String cell = part.trim();
-                 if (cell.isEmpty()) {
-                     // If we have "||", it's an empty cell?
-                     // GFM: "The delimiter row consists of cells... each containing at least 3 dashes"
-                     // Actually GFM allows less?
-                     // But commonmark-java implementation checks for at least one dash.
-                     return null; 
-                 }
-                 
-                 boolean left = cell.startsWith(":");
-                 boolean right = cell.endsWith(":");
-                 
-                 // Strip colons to check for dashes
-                 String content = cell;
-                 if (left) content = content.substring(1);
-                 if (right) content = content.substring(0, content.length() - 1);
-                 
-                 if (content.isEmpty()) return null;
-                 // Check if content consists only of dashes
-                 for (int i = 0; i < content.length(); i++) {
-                     if (content.charAt(i) != '-') return null;
-                 }
-                 
-                 if (left && right) alignments.add(TableCell.Alignment.CENTER);
-                 else if (left) alignments.add(TableCell.Alignment.LEFT);
-                 else if (right) alignments.add(TableCell.Alignment.RIGHT);
-                 else alignments.add(TableCell.Alignment.NONE);
-             }
-             
-             return alignments;
+            String s = line.trim();
+
+            // GFM: A delimiter row must contain at least one pipe `|`
+            // OR it must contain both dashes and colons to distinguish from Setext
+            // Actually, strict GFM requires pipe if it's a 1-column table?
+            // But for multi-column, spaces are allowed.
+            // However, to avoid conflict with Setext `---`, we require that if no pipe is present,
+            // it must NOT look like a Setext heading.
+            // Setext heading: `^ {0,3}(=+|-+)\s*$`
+
+            if (!s.contains("|") && s.matches("^[-=\\s]+$")) {
+                return null; // Looks like Setext
+            }
+
+            if (!s.contains("-")) return null; // Must have at least one dash
+
+            // Remove leading/trailing pipes if present
+            if (s.startsWith("|")) s = s.substring(1);
+            if (s.endsWith("|") && !s.endsWith("\\|")) s = s.substring(0, s.length() - 1);
+
+            String[] parts = s.split("\\|");
+            List<TableCell.Alignment> alignments = new ArrayList<>();
+
+            for (String part : parts) {
+                String cell = part.trim();
+                if (cell.isEmpty()) {
+                    // If we have "||", it's an empty cell?
+                    // GFM: "The delimiter row consists of cells... each containing at least 3 dashes"
+                    // Actually GFM allows less?
+                    // But commonmark-java implementation checks for at least one dash.
+                    return null;
+                }
+
+                boolean left = cell.startsWith(":");
+                boolean right = cell.endsWith(":");
+
+                // Strip colons to check for dashes
+                String content = cell;
+                if (left) content = content.substring(1);
+                if (right) content = content.substring(0, content.length() - 1);
+
+                if (content.isEmpty()) return null;
+                // Check if content consists only of dashes
+                for (int i = 0; i < content.length(); i++) {
+                    if (content.charAt(i) != '-') return null;
+                }
+
+                if (left && right) alignments.add(TableCell.Alignment.CENTER);
+                else if (left) alignments.add(TableCell.Alignment.LEFT);
+                else if (right) alignments.add(TableCell.Alignment.RIGHT);
+                else alignments.add(TableCell.Alignment.NONE);
+            }
+
+            return alignments;
         }
-        
+
         TableRow parseTableRow(String line, List<TableCell.Alignment> alignments, boolean isHeader) {
             TableRow row = new TableRow();
             String s = line.trim();
             if (s.startsWith("|")) s = s.substring(1);
             // Trailing pipe check is tricky due to escaping.
             // We should use a proper split function that respects escaped pipes.
-            
+
             List<String> cells = splitTableCells(s);
-            
+
             // Adjust cells to match alignments?
             // GFM: "If there are more cells in the row than in the delimiter row, the extra cells are ignored."
             // "If there are fewer cells... empty cells are inserted."
-            
+
             for (int i = 0; i < alignments.size(); i++) {
                 TableCell cell = new TableCell();
                 cell.setHeader(isHeader);
                 cell.setAlignment(alignments.get(i));
-                
+
                 String content = (i < cells.size()) ? cells.get(i).trim() : "";
                 cell.appendChild(new Text(content)); // Placeholder, will be parsed as inline later
                 row.appendChild(cell);
             }
-            
+
             return row;
         }
-        
+
         List<String> splitTableCells(String row) {
             List<String> cells = new ArrayList<>();
             StringBuilder current = new StringBuilder();
             boolean escaped = false;
-            
+
             for (int i = 0; i < row.length(); i++) {
                 char c = row.charAt(i);
                 if (escaped) {
@@ -878,7 +878,7 @@ public class MarkdownParser {
             // GFM: "The final pipe is optional."
             // If the row string passed here HAS trailing pipe stripped, then we just add current.
             // But we didn't strip it robustly above.
-            
+
             // Let's handle trailing pipe detection here.
             // If the last char processed was | (implied by loop finish), then we have an empty `current`.
             // But wait, if row ends with |, the loop adds the content before it to `cells`, clears `current`.
@@ -888,37 +888,37 @@ public class MarkdownParser {
             // But "a|b|" could mean 3 columns? "a", "b", "".
             // GFM: "A trailing pipe | is also optional... If a row ends with |, that | is stripped."
             // So "a|b|" is effectively "a|b". Two cells.
-            
+
             // So if the input string ended with `|` (unescaped), we should ignore the final empty buffer?
             // Yes.
-            
+
             // But we need to know if the last char was indeed an unescaped pipe.
             // Check original string.
             boolean endedWithPipe = false;
             if (row.length() > 0) {
-                 // Check backwards for unescaped pipe
-                 int idx = row.length() - 1;
-                 int backslashes = 0;
-                 while (idx >= 0 && row.charAt(idx) == '\\') {
-                     backslashes++;
-                     idx--;
-                 }
-                 // If odd backslashes, last char is escaped.
-                 // Wait, we are looking at the LAST character of string.
-                 if (row.charAt(row.length() - 1) == '|') {
-                      // Check preceding backslashes
-                      int j = row.length() - 2;
-                      int bs = 0;
-                      while (j >= 0 && row.charAt(j) == '\\') {
-                          bs++;
-                          j--;
-                      }
-                      if (bs % 2 == 0) {
-                          endedWithPipe = true;
-                      }
-                 }
+                // Check backwards for unescaped pipe
+                int idx = row.length() - 1;
+                int backslashes = 0;
+                while (idx >= 0 && row.charAt(idx) == '\\') {
+                    backslashes++;
+                    idx--;
+                }
+                // If odd backslashes, last char is escaped.
+                // Wait, we are looking at the LAST character of string.
+                if (row.charAt(row.length() - 1) == '|') {
+                    // Check preceding backslashes
+                    int j = row.length() - 2;
+                    int bs = 0;
+                    while (j >= 0 && row.charAt(j) == '\\') {
+                        bs++;
+                        j--;
+                    }
+                    if (bs % 2 == 0) {
+                        endedWithPipe = true;
+                    }
+                }
             }
-            
+
             if (endedWithPipe) {
                 // If we ended with pipe, the loop would have added the cell before it.
                 // And `current` would be empty.
@@ -926,13 +926,13 @@ public class MarkdownParser {
             } else {
                 cells.add(current.toString());
             }
-            
+
             return cells;
         }
 
         static class ListMarker {
             boolean isOrdered;
-            char bulletChar; 
+            char bulletChar;
             char delimiter;
             int startNumber;
             int markerLength;
@@ -949,9 +949,9 @@ public class MarkdownParser {
                 indent++;
             }
             if (i >= line.length()) return null;
-            
+
             char c = line.charAt(i);
-            
+
             // Bullet
             if (c == '-' || c == '+' || c == '*') {
                 if (i + 1 >= line.length() || line.charAt(i + 1) == ' ' || line.charAt(i + 1) == '\t') {
@@ -963,7 +963,7 @@ public class MarkdownParser {
                     return calculateListMarkerIndent(line, i, 1, indent, m);
                 }
             }
-            
+
             // Ordered
             if (Character.isDigit(c)) {
                 int start = i;
@@ -972,10 +972,10 @@ public class MarkdownParser {
                     if (i - start > 9) return null;
                 }
                 if (i >= line.length()) return null;
-                
+
                 char delim = line.charAt(i);
                 if (delim != '.' && delim != ')') return null;
-                
+
                 if (i + 1 >= line.length() || line.charAt(i + 1) == ' ' || line.charAt(i + 1) == '\t') {
                     ListMarker m = new ListMarker();
                     m.isOrdered = true;
@@ -986,31 +986,31 @@ public class MarkdownParser {
                     return calculateListMarkerIndent(line, start, m.markerLength, indent, m);
                 }
             }
-            
+
             return null;
         }
-        
+
         ListMarker calculateListMarkerIndent(String line, int markerStart, int markerLength, int markerIndent, ListMarker m) {
             int i = markerStart + markerLength;
-            
+
             if (i >= line.length()) {
                 m.padding = 1;
                 m.nextIndex = i;
                 return m;
             }
-            
+
             int spaces = 0;
             while (i < line.length() && line.charAt(i) == ' ') {
                 spaces++;
                 i++;
             }
-            
+
             if (i >= line.length()) {
                 m.padding = 1;
                 m.nextIndex = i;
                 return m;
             }
-            
+
             if (spaces >= 1 && spaces <= 4) {
                 m.padding = spaces;
                 m.nextIndex = i;
@@ -1021,7 +1021,7 @@ public class MarkdownParser {
                 m.padding = 0;
                 m.nextIndex = i;
             }
-            
+
             return m;
         }
 
@@ -1062,18 +1062,18 @@ public class MarkdownParser {
             if (i >= line.length()) return null;
             char c = line.charAt(i);
             if (c != '`' && c != '~') return null;
-            
+
             int start = i;
             while (i < line.length() && line.charAt(i) == c) {
                 i++;
             }
             int length = i - start;
             if (length < 3) return null;
-            
+
             // Info string
             String info = unescape(line.substring(i).trim());
             if (c == '`' && info.contains("`")) return null;
-            
+
             FencedCodeStart res = new FencedCodeStart();
             res.fenceChar = c;
             res.fenceLength = length;
@@ -1089,14 +1089,14 @@ public class MarkdownParser {
             }
             if (i >= line.length()) return false;
             if (line.charAt(i) != fenceChar) return false;
-            
+
             int start = i;
             while (i < line.length() && line.charAt(i) == fenceChar) {
                 i++;
             }
             int length = i - start;
             if (length < minLength) return false;
-            
+
             while (i < line.length()) {
                 if (line.charAt(i) != ' ') return false;
                 i++;
@@ -1120,7 +1120,7 @@ public class MarkdownParser {
             if (i >= line.length()) return false;
             char c = line.charAt(i);
             if (c != '-' && c != '_' && c != '*') return false;
-            
+
             int count = 0;
             while (i < line.length()) {
                 char current = line.charAt(i);
@@ -1135,64 +1135,65 @@ public class MarkdownParser {
         }
 
         boolean isAtxHeading(String line) {
-             int i = 0;
-             while (i < line.length() && line.charAt(i) == ' ') i++;
-             if (i >= line.length() || line.charAt(i) != '#') return false;
-             int start = i;
-             while (i < line.length() && line.charAt(i) == '#') i++;
-             int level = i - start;
-             if (level < 1 || level > 6) return false;
-             if (i < line.length() && line.charAt(i) != ' ') return false;
-             return true;
+            int i = 0;
+            while (i < line.length() && line.charAt(i) == ' ') i++;
+            if (i >= line.length() || line.charAt(i) != '#') return false;
+            int start = i;
+            while (i < line.length() && line.charAt(i) == '#') i++;
+            int level = i - start;
+            if (level < 1 || level > 6) return false;
+            if (i < line.length() && line.charAt(i) != ' ') return false;
+            return true;
         }
 
         Node parseAtxHeading(String line) {
-             int i = 0;
-             while (i < line.length() && line.charAt(i) == ' ') i++;
-             int start = i;
-             while (i < line.length() && line.charAt(i) == '#') i++;
-             int level = i - start;
-             
-             String content = line.substring(i).trim();
-             int end = content.length() - 1;
-             while (end >= 0 && content.charAt(end) == '#') {
-                 end--;
-             }
-             if (end < content.length() - 1) {
-                  // Only strip if preceded by space or start of string
-                  if (end < 0 || content.charAt(end) == ' ') {
-                      content = content.substring(0, end + 1).trim();
-                  }
-             }
+            int i = 0;
+            while (i < line.length() && line.charAt(i) == ' ') i++;
+            int start = i;
+            while (i < line.length() && line.charAt(i) == '#') i++;
+            int level = i - start;
 
-             Heading h = new Heading(level);
-             h.appendChild(new Text(content));
-             return h;
+            String content = line.substring(i).trim();
+            int end = content.length() - 1;
+            while (end >= 0 && content.charAt(end) == '#') {
+                end--;
+            }
+            if (end < content.length() - 1) {
+                // Only strip if preceded by space or start of string
+                if (end < 0 || content.charAt(end) == ' ') {
+                    content = content.substring(0, end + 1).trim();
+                }
+            }
+
+            Heading h = new Heading(level);
+            h.appendChild(new Text(content));
+            return h;
         }
 
         int getHtmlBlockStartCondition(String line) {
             String s = line.trim();
             String lower = s.toLowerCase();
-            if (lower.startsWith("<script") || lower.startsWith("<pre") || lower.startsWith("<style") || lower.startsWith("<textarea")) return 1;
+            if (lower.startsWith("<script") || lower.startsWith("<pre") || lower.startsWith("<style") || lower.startsWith("<textarea"))
+                return 1;
             if (s.startsWith("<!--")) return 2;
             if (s.startsWith("<?")) return 3;
             if (s.startsWith("<!") && s.length() >= 3 && Character.isUpperCase(s.charAt(2))) return 4;
             if (s.startsWith("<![CDATA[")) return 5;
-            
+
             if (s.startsWith("<")) {
-                 if (s.length() > 1 && s.charAt(1) != ' ') {
-                     int i = 1;
-                     if (s.charAt(i) == '/') i++;
-                     int startName = i;
-                     while(i < s.length() && Character.isLetterOrDigit(s.charAt(i))) i++;
-                     String name = s.substring(startName, i).toLowerCase();
-                     
-                     if (name.isEmpty()) return 0;
-                    
+                if (s.length() > 1 && s.charAt(1) != ' ') {
+                    int i = 1;
+                    if (s.charAt(i) == '/') i++;
+                    int startName = i;
+                    while (i < s.length() && Character.isLetterOrDigit(s.charAt(i))) i++;
+                    String name = s.substring(startName, i).toLowerCase();
+
+                    if (name.isEmpty()) return 0;
+
                     if (isBlockTag(name)) {
                         return 6;
                     }
-                    
+
                     if (isCompleteTagAndRestWhitespace(s, startName)) {
                         return 7;
                     }
@@ -1200,14 +1201,14 @@ public class MarkdownParser {
             }
             return 0;
         }
-        
+
         boolean isCompleteTagAndRestWhitespace(String line, int startName) {
             int i = startName;
             // Skip name
-            while(i < line.length() && (Character.isLetterOrDigit(line.charAt(i)) || line.charAt(i) == '-')) i++;
-            
+            while (i < line.length() && (Character.isLetterOrDigit(line.charAt(i)) || line.charAt(i) == '-')) i++;
+
             boolean isClosing = (startName > 1 && line.charAt(startName - 1) == '/');
-            
+
             if (isClosing) {
                 while (i < line.length() && Character.isWhitespace(line.charAt(i))) i++;
                 if (i < line.length() && line.charAt(i) == '>') {
@@ -1220,7 +1221,7 @@ public class MarkdownParser {
                 }
                 return false;
             }
-            
+
             // Start Tag
             boolean requireWhitespace = true; // After tag name, whitespace required before attribute
             while (i < line.length()) {
@@ -1230,10 +1231,10 @@ public class MarkdownParser {
                     hasWhitespace = true;
                     i++;
                 }
-                
+
                 if (i >= line.length()) return false;
                 char c = line.charAt(i);
-                
+
                 if (c == '/') {
                     i++;
                     if (i < line.length() && line.charAt(i) == '>') {
@@ -1246,7 +1247,7 @@ public class MarkdownParser {
                     }
                     return false;
                 }
-                
+
                 if (c == '>') {
                     i++;
                     while (i < line.length()) {
@@ -1255,10 +1256,10 @@ public class MarkdownParser {
                     }
                     return true;
                 }
-                
+
                 // Attribute
                 if (requireWhitespace && !hasWhitespace) return false;
-                
+
                 // Attribute Name
                 int attrStart = i;
                 while (i < line.length()) {
@@ -1270,16 +1271,16 @@ public class MarkdownParser {
                     }
                 }
                 if (i == attrStart) return false; // Invalid attribute start char
-                
+
                 // Attribute Value
                 int afterName = i;
                 while (i < line.length() && Character.isWhitespace(line.charAt(i))) i++;
-                
+
                 if (i < line.length() && line.charAt(i) == '=') {
                     i++;
                     while (i < line.length() && Character.isWhitespace(line.charAt(i))) i++;
                     if (i >= line.length()) return false;
-                    
+
                     char valStart = line.charAt(i);
                     if (valStart == '"' || valStart == '\'') {
                         char quote = valStart;
@@ -1296,7 +1297,8 @@ public class MarkdownParser {
                         if (!foundClose) return false;
                     } else {
                         // Unquoted
-                        if (valStart == '"' || valStart == '\'' || valStart == '=' || valStart == '<' || valStart == '>' || valStart == '`') return false;
+                        if (valStart == '"' || valStart == '\'' || valStart == '=' || valStart == '<' || valStart == '>' || valStart == '`')
+                            return false;
                         while (i < line.length()) {
                             char ch = line.charAt(i);
                             if (Character.isWhitespace(ch) || ch == '"' || ch == '\'' || ch == '=' || ch == '<' || ch == '>' || ch == '`') {
@@ -1312,30 +1314,30 @@ public class MarkdownParser {
                     // If no =, we stay at i.
                     // The loop continues, next iteration checks for whitespace or >.
                 }
-                
+
                 requireWhitespace = true;
             }
-            
+
             return false;
         }
-        
+
         boolean isBlockTag(String name) {
-            return name.equals("address") || name.equals("article") || name.equals("aside") || name.equals("base") || 
-                   name.equals("basefont") || name.equals("blockquote") || name.equals("body") || name.equals("caption") || 
-                   name.equals("center") || name.equals("col") || name.equals("colgroup") || name.equals("dd") || 
-                   name.equals("details") || name.equals("dialog") || name.equals("dir") || name.equals("div") || 
-                   name.equals("dl") || name.equals("dt") || name.equals("fieldset") || name.equals("figcaption") || 
-                   name.equals("figure") || name.equals("footer") || name.equals("form") || name.equals("frame") || 
-                   name.equals("frameset") || name.equals("h1") || name.equals("h2") || name.equals("h3") || 
-                   name.equals("h4") || name.equals("h5") || name.equals("h6") || name.equals("head") || 
-                   name.equals("header") || name.equals("hr") || name.equals("html") || name.equals("iframe") || 
-                   name.equals("legend") || name.equals("li") || name.equals("link") || name.equals("main") || 
-                   name.equals("menu") || name.equals("menuitem") || name.equals("meta") || name.equals("nav") || 
-                   name.equals("noframes") || name.equals("ol") || name.equals("optgroup") || name.equals("option") || 
-                   name.equals("p") || name.equals("param") || name.equals("section") || name.equals("source") || 
-                   name.equals("summary") || name.equals("table") || name.equals("tbody") || name.equals("td") || 
-                   name.equals("tfoot") || name.equals("th") || name.equals("thead") || name.equals("title") || 
-                   name.equals("tr") || name.equals("track") || name.equals("ul");
+            return name.equals("address") || name.equals("article") || name.equals("aside") || name.equals("base") ||
+                    name.equals("basefont") || name.equals("blockquote") || name.equals("body") || name.equals("caption") ||
+                    name.equals("center") || name.equals("col") || name.equals("colgroup") || name.equals("dd") ||
+                    name.equals("details") || name.equals("dialog") || name.equals("dir") || name.equals("div") ||
+                    name.equals("dl") || name.equals("dt") || name.equals("fieldset") || name.equals("figcaption") ||
+                    name.equals("figure") || name.equals("footer") || name.equals("form") || name.equals("frame") ||
+                    name.equals("frameset") || name.equals("h1") || name.equals("h2") || name.equals("h3") ||
+                    name.equals("h4") || name.equals("h5") || name.equals("h6") || name.equals("head") ||
+                    name.equals("header") || name.equals("hr") || name.equals("html") || name.equals("iframe") ||
+                    name.equals("legend") || name.equals("li") || name.equals("link") || name.equals("main") ||
+                    name.equals("menu") || name.equals("menuitem") || name.equals("meta") || name.equals("nav") ||
+                    name.equals("noframes") || name.equals("ol") || name.equals("optgroup") || name.equals("option") ||
+                    name.equals("p") || name.equals("param") || name.equals("section") || name.equals("source") ||
+                    name.equals("summary") || name.equals("table") || name.equals("tbody") || name.equals("td") ||
+                    name.equals("tfoot") || name.equals("th") || name.equals("thead") || name.equals("title") ||
+                    name.equals("tr") || name.equals("track") || name.equals("ul");
         }
 
         boolean isHtmlBlockEnd(String line, int condition) {
@@ -1358,7 +1360,7 @@ public class MarkdownParser {
                 index++;
             }
             if (index >= text.length()) break;
-            
+
             int start = index;
             // Label
             if (text.charAt(index) != '[') return false;
@@ -1368,8 +1370,12 @@ public class MarkdownParser {
             int bracketDepth = 1;
             while (index < text.length()) {
                 char c = text.charAt(index);
-                if (c == '\\') { index += 2; continue; }
-                if (c == '[') return false; // Nested bracket in label? (Wait, label can contain brackets if escaped? No.)
+                if (c == '\\') {
+                    index += 2;
+                    continue;
+                }
+                if (c == '[')
+                    return false; // Nested bracket in label? (Wait, label can contain brackets if escaped? No.)
                 if (c == ']') {
                     bracketDepth--;
                     if (bracketDepth == 0) {
@@ -1380,16 +1386,16 @@ public class MarkdownParser {
                 index++;
             }
             if (labelEnd == -1) return false;
-            
+
             String label = text.substring(labelStart, labelEnd);
             if (label.trim().isEmpty()) return false;
-            
+
             index = labelEnd + 1;
             if (index >= text.length() || text.charAt(index) != ':') return false;
             index++;
-            
+
             while (index < text.length() && Character.isWhitespace(text.charAt(index))) index++;
-            
+
             // Destination
             boolean inAngleBrackets = false;
             if (index < text.length() && text.charAt(index) == '<') {
@@ -1409,7 +1415,7 @@ public class MarkdownParser {
                 }
                 if (index == destStart) return false; // Empty destination
             }
-            
+
             // Optional Title
             if (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 int lookahead = index;
@@ -1422,8 +1428,14 @@ public class MarkdownParser {
                         int p = titleStart;
                         boolean foundClose = false;
                         while (p < text.length()) {
-                            if (text.charAt(p) == '\\') { p += 2; continue; }
-                            if (text.charAt(p) == close) { foundClose = true; break; }
+                            if (text.charAt(p) == '\\') {
+                                p += 2;
+                                continue;
+                            }
+                            if (text.charAt(p) == close) {
+                                foundClose = true;
+                                break;
+                            }
                             p++;
                         }
                         if (foundClose) {
@@ -1433,7 +1445,10 @@ public class MarkdownParser {
                             while (afterTitle < text.length()) {
                                 char c = text.charAt(afterTitle);
                                 if (c == '\n' || c == '\r') break;
-                                if (!Character.isWhitespace(c)) { valid = false; break; }
+                                if (!Character.isWhitespace(c)) {
+                                    valid = false;
+                                    break;
+                                }
                                 afterTitle++;
                             }
                             if (valid) {
@@ -1446,24 +1461,27 @@ public class MarkdownParser {
                     }
                 }
             }
-            
+
             // Trailing checks
             boolean validLineEnd = true;
             while (index < text.length()) {
                 char c = text.charAt(index);
                 if (c == '\n' || c == '\r') break;
-                if (!Character.isWhitespace(c)) { validLineEnd = false; break; }
+                if (!Character.isWhitespace(c)) {
+                    validLineEnd = false;
+                    break;
+                }
                 index++;
             }
             if (!validLineEnd) return false;
         }
         return true;
     }
-    
+
     private void extractLinkReferenceDefinitions(Document doc) {
         visitAndExtract(doc, doc);
     }
-    
+
     private void visitAndExtract(Node node, Document doc) {
         if (node instanceof Paragraph) {
             Paragraph p = (Paragraph) node;
@@ -1510,7 +1528,7 @@ public class MarkdownParser {
                 }
             }
         }
-        
+
         Node child = node.getFirstChild();
         while (child != null) {
             Node next = child.getNext();
@@ -1522,7 +1540,7 @@ public class MarkdownParser {
     private void parseInlines(Document doc, Node node) {
         Node child = node.getFirstChild();
         while (child != null) {
-            Node next = child.getNext(); 
+            Node next = child.getNext();
             parseInlines(doc, child);
             child = next;
         }
@@ -1533,7 +1551,7 @@ public class MarkdownParser {
             if (first instanceof Text && first.getNext() == null) {
                 String content = ((Text) first).getLiteral();
                 first.unlink();
-                
+
                 InlineParser parser = new InlineParser(content, doc.getLinkReferences());
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
@@ -1546,7 +1564,7 @@ public class MarkdownParser {
             if (first instanceof Text && first.getNext() == null) {
                 String content = ((Text) first).getLiteral();
                 first.unlink();
-                
+
                 InlineParser parser = new InlineParser(content, doc.getLinkReferences());
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
@@ -1559,7 +1577,7 @@ public class MarkdownParser {
             if (first instanceof Text && first.getNext() == null) {
                 String content = ((Text) first).getLiteral();
                 first.unlink();
-                
+
                 InlineParser parser = new InlineParser(content, doc.getLinkReferences());
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
@@ -1590,17 +1608,17 @@ public class MarkdownParser {
             if (index >= text.length()) break;
 
             int start = index;
-            
+
             // 1. Parse Label: [ ... ]
             if (index >= text.length() || text.charAt(index) != '[') {
                 break;
             }
             index++;
-            
+
             int labelStart = index;
             int labelEnd = -1;
             int bracketDepth = 1;
-            
+
             while (index < text.length()) {
                 char c = text.charAt(index);
                 if (c == '\\') {
@@ -1619,30 +1637,30 @@ public class MarkdownParser {
                 }
                 index++;
             }
-            
+
             if (labelEnd == -1) {
                 index = start;
                 break;
             }
-            
+
             String label = text.substring(labelStart, labelEnd);
             if (label.trim().isEmpty()) {
                 index = start;
                 break;
             }
-            
+
             index = labelEnd + 1;
             if (index >= text.length() || text.charAt(index) != ':') {
                 index = start;
                 break;
             }
             index++;
-            
+
             // Whitespace
             while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 index++;
             }
-            
+
             // Destination
             String destination;
             int destStart = index;
@@ -1654,7 +1672,10 @@ public class MarkdownParser {
                     if (text.charAt(index) == '\\') index += 2;
                     else index++;
                 }
-                if (index >= text.length()) { index = start; break; }
+                if (index >= text.length()) {
+                    index = start;
+                    break;
+                }
                 destination = text.substring(destStart + 1, index);
                 index++;
             } else {
@@ -1664,17 +1685,17 @@ public class MarkdownParser {
                 }
                 destination = text.substring(destStart, index);
             }
-            
+
             if (!inAngleBrackets && destination.isEmpty()) {
                 index = start;
                 break;
             }
-            
+
             // Optional Title
             String title = null;
             int titleStartIdx = index;
             boolean hasTitle = false;
-            
+
             // Check for space/newline before title
             if (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 int lookahead = index;
@@ -1701,7 +1722,7 @@ public class MarkdownParser {
                             }
                             p++;
                         }
-                        
+
                         if (foundClose) {
                             // Check for trailing whitespace/newline
                             int afterTitle = p + 1;
@@ -1715,14 +1736,14 @@ public class MarkdownParser {
                                 }
                                 afterTitle++;
                             }
-                            
+
                             if (valid) {
                                 title = text.substring(titleStart, titleEnd);
                                 // Check for blank line in title
                                 Pattern blankLine = Pattern.compile("\\n\\s*\\n");
                                 if (blankLine.matcher(title).find()) {
-                                     index = start;
-                                     break;
+                                    index = start;
+                                    break;
                                 }
                                 index = afterTitle;
                                 hasTitle = true;
@@ -1731,7 +1752,7 @@ public class MarkdownParser {
                     }
                 }
             }
-            
+
             if (!hasTitle) {
                 // Check if we stopped at newline or EOF
                 boolean validLineEnd = true;
@@ -1757,7 +1778,7 @@ public class MarkdownParser {
             label = label.toUpperCase(java.util.Locale.ROOT).toLowerCase(java.util.Locale.ROOT);
             doc.addLinkReference(new LinkReference(label, unescape(destination), title != null ? unescape(title) : null));
         }
-        
+
         return index;
     }
 
@@ -1802,7 +1823,7 @@ public class MarkdownParser {
         String name = matcher.group(1);
         String decimal = matcher.group(2);
         String hex = matcher.group(3);
-        
+
         if (name != null) {
             String decoded = EntityDecoder.decode(name);
             if (decoded != null) return decoded;

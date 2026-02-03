@@ -6,9 +6,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextFlow;
 
 import java.util.Stack;
@@ -16,25 +13,27 @@ import java.util.Stack;
 public class JavaFxRenderer implements IMarkdownRenderer {
     private final VBox root = new VBox();
     private final Stack<Pane> blockStack = new Stack<>();
-    
+
     // For inlines
     private TextFlow currentTextFlow;
-    
+
     // Style state
     private boolean bold = false;
     private boolean italic = false;
     private boolean code = false; // Monospace
-    
+
     private static class ListState {
         boolean isOrdered;
         int index;
         char delimiter;
+
         ListState(boolean isOrdered, int index, char delimiter) {
             this.isOrdered = isOrdered;
             this.index = index;
             this.delimiter = delimiter;
         }
     }
+
     private final Stack<ListState> listStack = new Stack<>();
 
     public JavaFxRenderer() {
@@ -88,15 +87,15 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         flow.getStyleClass().add("markdown-h" + heading.getLevel());
         blockStack.peek().getChildren().add(flow);
         currentTextFlow = flow;
-        
+
         int oldLevel = headingLevel;
         headingLevel = heading.getLevel();
         visitChildren(heading);
         headingLevel = oldLevel;
-        
+
         currentTextFlow = null;
     }
-    
+
     private int headingLevel = 0;
 
     @Override
@@ -181,7 +180,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         javafx.scene.layout.HBox itemBox = new javafx.scene.layout.HBox();
         itemBox.setSpacing(5);
         itemBox.getStyleClass().add("markdown-list-item");
-        
+
         String markerText = "\u2022";
         if (!listStack.isEmpty()) {
             ListState state = listStack.peek();
@@ -190,16 +189,16 @@ public class JavaFxRenderer implements IMarkdownRenderer {
                 state.index++;
             }
         }
-        
+
         Label marker = new Label(markerText);
         marker.getStyleClass().add("markdown-list-marker");
         marker.setMinWidth(20); // Fixed width for alignment
         marker.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
-        
+
         VBox contentBox = new VBox();
         contentBox.getStyleClass().add("markdown-list-content");
         itemBox.getChildren().addAll(marker, contentBox);
-        
+
         blockStack.peek().getChildren().add(itemBox);
         blockStack.push(contentBox);
         visitChildren(listItem);
@@ -217,7 +216,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         }
         codeVal = old;
     }
-    
+
     private boolean codeVal = false;
 
     @Override
@@ -243,7 +242,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         isLink = false;
         linkDestination = null;
     }
-    
+
     private boolean isLink = false;
     private String linkDestination = null;
 
@@ -255,12 +254,12 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         try {
             String url = image.getDestination();
             javafx.scene.image.Image img = IMAGE_CACHE.computeIfAbsent(url, k -> new javafx.scene.image.Image(k, true));
-            
+
             ImageView iv = new ImageView(img);
             iv.getStyleClass().add("markdown-image");
             iv.setFitWidth(200);
             iv.setPreserveRatio(true);
-            
+
             if (currentTextFlow != null) {
                 currentTextFlow.getChildren().add(iv);
             } else {
@@ -279,14 +278,14 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         grid.getStyleClass().add("markdown-table");
         grid.setHgap(10);
         grid.setVgap(5);
-        
+
         blockStack.peek().getChildren().add(grid);
         blockStack.push(grid);
         tableRowIndex = 0;
         visitChildren(table);
         blockStack.pop();
     }
-    
+
     private int tableRowIndex = 0;
     private int tableColIndex = 0;
 
@@ -312,28 +311,34 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         Pane parent = blockStack.peek();
         if (parent instanceof javafx.scene.layout.GridPane) {
             javafx.scene.layout.GridPane grid = (javafx.scene.layout.GridPane) parent;
-            
+
             TextFlow flow = new TextFlow();
             flow.getStyleClass().add("markdown-table-cell");
             if (tableCell.isHeader()) {
                 flow.getStyleClass().add("markdown-table-header");
             }
-            
+
             // Handle alignment
             if (tableCell.getAlignment() != null) {
                 switch (tableCell.getAlignment()) {
-                    case CENTER: flow.setTextAlignment(javafx.scene.text.TextAlignment.CENTER); break;
-                    case RIGHT: flow.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT); break;
-                    case LEFT: flow.setTextAlignment(javafx.scene.text.TextAlignment.LEFT); break;
+                    case CENTER:
+                        flow.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+                        break;
+                    case RIGHT:
+                        flow.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
+                        break;
+                    case LEFT:
+                        flow.setTextAlignment(javafx.scene.text.TextAlignment.LEFT);
+                        break;
                 }
             }
-            
+
             blockStack.push(flow); // Temporarily push flow to capture children
             currentTextFlow = flow;
             visitChildren(tableCell);
             currentTextFlow = null;
             blockStack.pop();
-            
+
             grid.add(flow, tableColIndex, tableRowIndex);
             tableColIndex++;
         }
@@ -346,14 +351,14 @@ public class JavaFxRenderer implements IMarkdownRenderer {
             child = child.getNext();
         }
     }
-    
+
     private void applyStyle(javafx.scene.text.Text t) {
         t.getStyleClass().add("markdown-text");
-        
+
         if (headingLevel > 0) {
             t.getStyleClass().add("markdown-h" + headingLevel + "-text");
         }
-        
+
         if (bold) {
             t.getStyleClass().add("markdown-bold");
             t.setStyle(t.getStyle() + "-fx-font-weight: bold;"); // Fallback if css not enough for text node inside TextFlow?
@@ -367,7 +372,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         if (codeVal) {
             t.getStyleClass().add("markdown-code");
         }
-        
+
         if (isLink) {
             t.getStyleClass().add("markdown-link");
             t.setOnMouseClicked(e -> {

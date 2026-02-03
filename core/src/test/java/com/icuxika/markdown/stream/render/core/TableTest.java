@@ -23,14 +23,14 @@ public class TableTest {
                 | --- | --- |
                 | Cell 1 | Cell 2 |
                 """;
-        
+
         MarkdownParser parser = new MarkdownParser();
         HtmlRenderer renderer = new HtmlRenderer();
         parser.parse(new StringReader(markdown), renderer);
-        
+
         String html = (String) renderer.getResult();
         System.out.println(html);
-        
+
         // Expected output should contain table tags
         assert html.contains("<table>");
         assert html.contains("<thead>");
@@ -49,14 +49,14 @@ public class TableTest {
                 | :--- | :---: | ---: |
                 | L    | C     | R    |
                 """;
-        
+
         MarkdownParser parser = new MarkdownParser();
         HtmlRenderer renderer = new HtmlRenderer();
         parser.parse(new StringReader(markdown), renderer);
-        
+
         String html = (String) renderer.getResult();
         System.out.println(html);
-        
+
         assert html.contains("<th align=\"left\">Left</th>");
         assert html.contains("<th align=\"center\">Center</th>");
         assert html.contains("<th align=\"right\">Right</th>");

@@ -58,14 +58,14 @@ public class StreamingGuiApp extends Application {
                 theme.setTheme(MarkdownTheme.Theme.LIGHT);
             }
         });
-        
+
         ToolBar toolBar = new ToolBar(themeBtn);
 
         VBox mainLayout = new VBox(toolBar, scrollPane);
 
         Scene scene = new Scene(mainLayout, 800, 600);
         theme.apply(scene); // Apply theme styles
-        
+
         primaryStage.setTitle("Markdown Stream Renderer - JavaFX Streaming Demo");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -75,9 +75,9 @@ public class StreamingGuiApp extends Application {
         executor.scheduleAtFixedRate(() -> {
             if (charIndex < fullMarkdown.length()) {
                 // Add a chunk of characters (e.g., 2-5 chars to simulate fast typing)
-                int chunkSize = 2 + (int)(Math.random() * 5);
+                int chunkSize = 2 + (int) (Math.random() * 5);
                 int endIndex = Math.min(charIndex + chunkSize, fullMarkdown.length());
-                
+
                 String currentText = fullMarkdown.substring(0, endIndex);
                 charIndex = endIndex;
 
@@ -87,7 +87,7 @@ public class StreamingGuiApp extends Application {
                         parser.parse(new java.io.StringReader(currentText), renderer);
                         Pane content = (Pane) renderer.getResult();
                         contentContainer.getChildren().setAll(content);
-                        
+
                         // Auto-scroll to bottom
                         scrollPane.setVvalue(1.0);
                     } catch (Exception e) {
@@ -98,7 +98,7 @@ public class StreamingGuiApp extends Application {
                 executor.shutdown();
             }
         }, 0, 50, TimeUnit.MILLISECONDS);
-        
+
         primaryStage.setOnCloseRequest(e -> executor.shutdownNow());
     }
 }

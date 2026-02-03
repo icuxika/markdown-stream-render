@@ -21,11 +21,11 @@ public class Document extends Block {
     public LinkReference getLinkReference(String label) {
         return linkReferences.get(normalizeLabel(label));
     }
-    
+
     private String normalizeLabel(String label) {
-         return label.trim().replaceAll("\\s+", " ").toLowerCase();
+        return label.trim().replaceAll("\\s+", " ").toLowerCase();
     }
-    
+
     public Map<String, LinkReference> getLinkReferences() {
         return linkReferences;
     }

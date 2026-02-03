@@ -26,10 +26,10 @@ public class ReferenceLinkTest {
         MarkdownParser parser = new MarkdownParser();
         HtmlRenderer renderer = new HtmlRenderer();
         parser.parse(new StringReader(input), renderer);
-        
+
         String result = (String) renderer.getResult();
         System.out.println("Result: " + result);
-        
+
         assertEquals("<p><a href=\"/url\" title=\"title\">foo</a></p>\n", result);
     }
 
@@ -41,13 +41,13 @@ public class ReferenceLinkTest {
         String input = "[foo]: /url \"title\"";
         MarkdownParser parser = new MarkdownParser();
         Document doc = parser.parse(input);
-        
+
         LinkReference ref = doc.getLinkReference("foo");
         assertNotNull(ref, "Reference 'foo' should be parsed");
         assertEquals("/url", ref.getDestination());
         assertEquals("title", ref.getTitle());
     }
-    
+
     /**
      * 测试引用式图片
      */
@@ -57,10 +57,10 @@ public class ReferenceLinkTest {
         MarkdownParser parser = new MarkdownParser();
         HtmlRenderer renderer = new HtmlRenderer();
         parser.parse(new StringReader(input), renderer);
-        
+
         String result = (String) renderer.getResult();
         System.out.println("Result: " + result);
-        
+
         assertEquals("<p><img src=\"/image.jpg\" alt=\"foo\" /></p>\n", result);
     }
 
@@ -75,7 +75,7 @@ public class ReferenceLinkTest {
         HtmlRenderer renderer = new HtmlRenderer();
         doc.accept(renderer);
         String output = (String) renderer.getResult();
-        
+
         System.out.println("Output NoBlank: " + output);
         assertEquals("<p><a href=\"/url\" title=\"title\">foo</a></p>\n", output);
     }
