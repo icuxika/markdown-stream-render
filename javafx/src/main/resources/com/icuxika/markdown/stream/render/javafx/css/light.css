@@ -1,0 +1,11 @@
+.root {
+    -md-fg-color: #24292f;
+    -md-bg-color: #ffffff;
+    -md-link-color: #0969da;
+    -md-code-fg-color: #cf222e;
+    -md-code-bg-color: #f6f8fa;
+    -md-border-color: #d0d7de;
+    -md-quote-bg-color: #f6f8fa;
+    -md-quote-border-color: #d0d7de;
+    -md-table-header-bg: #f6f8fa;
+}

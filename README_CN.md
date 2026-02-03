@@ -45,19 +45,19 @@ mvn clean install
 **1. JavaFX 流式渲染演示**
 在一个桌面窗口中模拟打字机效果，直观展示流式渲染能力。
 ```bash
-mvn -pl demo exec:java -Dexec.mainClass="com.icuxika.markdown.stream.render.demo.StreamingGuiApp"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingGuiApp"
 ```
 
 **2. HTML 流式渲染演示**
 启动本地 Web 服务器。打开浏览器即可看到 Markdown 被实时渲染并推送到页面上。
 ```bash
-mvn -pl demo exec:java -Dexec.mainClass="com.icuxika.markdown.stream.render.demo.StreamingHtmlDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingHtmlDemo"
 ```
 
 **3. JavaFX 编辑器**
 一个基础的编辑器，你可以输入 Markdown 并实时查看结果。
 ```bash
-mvn -pl demo exec:java -Dexec.mainClass="com.icuxika.markdown.stream.render.demo.GuiApp"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.GuiApp"
 ```
 
 ## 📐 架构与设计

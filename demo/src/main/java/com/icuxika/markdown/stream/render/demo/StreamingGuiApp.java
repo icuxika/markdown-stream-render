@@ -1,11 +1,14 @@
 package com.icuxika.markdown.stream.render.demo;
 
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -40,12 +43,29 @@ public class StreamingGuiApp extends Application {
             fullMarkdown = "# Error\n" + e.getMessage();
         }
 
-        VBox root = new VBox();
-        ScrollPane scrollPane = new ScrollPane(root);
+        MarkdownTheme theme = new MarkdownTheme();
+
+        VBox contentContainer = new VBox(); // Container for the rendered markdown content
+        ScrollPane scrollPane = new ScrollPane(contentContainer);
         scrollPane.setFitToWidth(true);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-        Scene scene = new Scene(scrollPane, 800, 600);
+        Button themeBtn = new Button("Switch Theme");
+        themeBtn.setOnAction(e -> {
+            if (theme.getTheme() == MarkdownTheme.Theme.LIGHT) {
+                theme.setTheme(MarkdownTheme.Theme.DARK);
+            } else {
+                theme.setTheme(MarkdownTheme.Theme.LIGHT);
+            }
+        });
+        
+        ToolBar toolBar = new ToolBar(themeBtn);
+
+        VBox mainLayout = new VBox(toolBar, scrollPane);
+
+        Scene scene = new Scene(mainLayout, 800, 600);
+        theme.apply(scene); // Apply theme styles
+        
         primaryStage.setTitle("Markdown Stream Renderer - JavaFX Streaming Demo");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -66,7 +86,7 @@ public class StreamingGuiApp extends Application {
                     try {
                         parser.parse(new java.io.StringReader(currentText), renderer);
                         Pane content = (Pane) renderer.getResult();
-                        root.getChildren().setAll(content);
+                        contentContainer.getChildren().setAll(content);
                         
                         // Auto-scroll to bottom
                         scrollPane.setVvalue(1.0);

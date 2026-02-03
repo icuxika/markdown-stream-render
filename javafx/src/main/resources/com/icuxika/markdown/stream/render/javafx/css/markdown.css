@@ -1,0 +1,77 @@
+.markdown-root {
+    -fx-spacing: 10;
+    -fx-padding: 10;
+    -fx-background-color: -md-bg-color;
+}
+
+.markdown-text {
+    -fx-font-family: "System";
+    -fx-font-size: 14px;
+    -fx-fill: -md-fg-color;
+}
+
+.markdown-h1 { -fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h2 { -fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h3 { -fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h4 { -fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h5 { -fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h6 { -fx-font-size: 10px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+
+.markdown-link {
+    -fx-fill: -md-link-color;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.markdown-code {
+    -fx-font-family: "Courier New", monospace;
+    -fx-fill: -md-code-fg-color;
+    /* -fx-background-color: -md-code-bg-color; Inline code usually doesn't have bg in TextFlow in JavaFX easily without StackPane, but we can try */
+}
+
+.markdown-code-block {
+    -fx-font-family: "Courier New", monospace;
+    -fx-text-fill: -md-fg-color;
+    -fx-background-color: -md-code-bg-color;
+    -fx-padding: 10;
+    -fx-border-color: -md-border-color;
+    -fx-border-width: 1;
+}
+
+.markdown-quote {
+    -fx-background-color: -md-quote-bg-color;
+    -fx-padding: 10;
+    -fx-border-color: -md-quote-border-color;
+    -fx-border-width: 0 0 0 4;
+}
+
+.markdown-table {
+    -fx-border-color: -md-border-color;
+    -fx-border-width: 1;
+    -fx-padding: 5;
+}
+
+.markdown-table-cell {
+    -fx-padding: 5;
+    -fx-border-color: -md-border-color;
+    -fx-border-width: 0 0 1 0;
+}
+
+.markdown-table-header {
+    -fx-font-weight: bold;
+    -fx-background-color: -md-table-header-bg;
+    -fx-padding: 5;
+}
+
+/* Default (Fallback) */
+.root {
+    -md-fg-color: #24292f;
+    -md-bg-color: #ffffff;
+    -md-link-color: #0969da;
+    -md-code-fg-color: #cf222e;
+    -md-code-bg-color: #f6f8fa;
+    -md-border-color: #d0d7de;
+    -md-quote-bg-color: #f6f8fa;
+    -md-quote-border-color: #d0d7de;
+    -md-table-header-bg: #f6f8fa;
+}

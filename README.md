@@ -45,19 +45,19 @@ mvn clean install
 **1. JavaFX Streaming Demo**
 Visualizes the streaming capability by simulating a typewriter effect in a desktop window.
 ```bash
-mvn -pl demo exec:java -Dexec.mainClass="com.icuxika.markdown.stream.render.demo.StreamingGuiApp"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingGuiApp"
 ```
 
 **2. HTML Streaming Demo**
 Starts a local web server. Open your browser to watch the Markdown being rendered and streamed in real-time.
 ```bash
-mvn -pl demo exec:java -Dexec.mainClass="com.icuxika.markdown.stream.render.demo.StreamingHtmlDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingHtmlDemo"
 ```
 
 **3. JavaFX Editor**
 A basic editor where you can type Markdown and see the result.
 ```bash
-mvn -pl demo exec:java -Dexec.mainClass="com.icuxika.markdown.stream.render.demo.GuiApp"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.GuiApp"
 ```
 
 ## 📐 Architecture & Design
