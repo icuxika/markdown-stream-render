@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.icuxika</groupId>
         <artifactId>markdown-stream-render</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>demo</artifactId>
@@ -18,5 +18,42 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.icuxika</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>25</version>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.icuxika.demo.App</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <stripDebug>true</stripDebug>
+                    <compress>2</compress>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <launcher>JavaFXSample</launcher>
+                    <jlinkImageName>build-link</jlinkImageName>
+                    <jlinkZipName>sample-zip</jlinkZipName>
+                    <mainClass>com.icuxika.demo.GuiApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

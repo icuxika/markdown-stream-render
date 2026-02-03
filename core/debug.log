@@ -1,0 +1,759 @@
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 8 canOpen=false
+  Checking opener _ at 4 canOpen=false
+  Checking opener _ at 0 canOpen=true
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+DEBUG: Processing closer _ at 19
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+DEBUG: Processing closer _ at 19
+DEBUG: Processing closer _ at 15
+  Checking opener _ at 10 canOpen=false
+  Checking opener _ at 5 canOpen=false
+  Checking opener _ at 0 canOpen=true
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 16
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 16
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 14
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 14
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 16
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 16
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+DEBUG: Processing closer * at 14
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+DEBUG: Processing closer * at 14
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 12
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 15
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 15
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 17
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 17
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+DEBUG: Processing closer * at 15
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+DEBUG: Processing closer * at 15
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 13
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 13
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+DEBUG: Processing closer * at 9
+  Checking opener _ at 5 canOpen=true
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer _ at 14
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer * at 25
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer * at 25
+DEBUG: Processing closer * at 15
+  Checking opener * at 6 canOpen=true
+DEBUG: Processing closer * at 13
+  Checking opener * at 5 canOpen=true
+Start: _(0) -> _(4) -> _(8) -> _(12) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 8 canOpen=false
+  Checking opener _ at 4 canOpen=false
+  Checking opener _ at 0 canOpen=true
+Start: _(0) -> _(7) -> _(12) -> _(19) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+DEBUG: Processing closer _ at 19
+Start: _(0) -> _(7) -> _(12) -> _(19) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+DEBUG: Processing closer _ at 19
+Start: _(0) -> _(5) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+  Checking opener _ at 10 canOpen=false
+  Checking opener _ at 5 canOpen=false
+  Checking opener _ at 0 canOpen=true
+Start: _(0) -> _(5) -> _(10) -> _(16) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 16
+Start: _(0) -> _(5) -> _(10) -> _(16) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 16
+Start: _(0) -> _(5) -> _(9) -> _(14) -> null
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 14
+Start: _(0) -> _(5) -> _(9) -> _(14) -> null
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer _ at 14
+Start: *(0) -> *(5) -> *(10) -> *(16) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 16
+Start: *(0) -> *(5) -> *(10) -> *(16) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 16
+Start: *(0) -> *(4) -> *(9) -> *(14) -> null
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+DEBUG: Processing closer * at 14
+Start: *(0) -> *(4) -> *(9) -> *(14) -> null
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+DEBUG: Processing closer * at 14
+Start: *(3) -> *(9) -> null
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+Start: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+DEBUG: Processing closer * at 12
+Start: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+Start: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+Start: _(0) -> _(6) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 15
+Start: _(0) -> _(6) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 15
+Start: _(0) -> _(6) -> _(11) -> _(17) -> null
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 17
+Start: _(0) -> _(6) -> _(11) -> _(17) -> null
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+DEBUG: Processing closer _ at 17
+Start: *(0) -> *(6) -> *(10) -> *(15) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+DEBUG: Processing closer * at 15
+Start: *(0) -> *(6) -> *(10) -> *(15) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+DEBUG: Processing closer * at 15
+Start: *(0) -> *(5) -> *(9) -> *(13) -> null
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 13
+Start: *(0) -> *(5) -> *(9) -> *(13) -> null
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+DEBUG: Processing closer * at 13
+Start: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+Start: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+Start: *(0) -> _(5) -> *(9) -> _(14) -> null
+DEBUG: Processing closer * at 9
+  Checking opener _ at 5 canOpen=true
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer _ at 14
+Start: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer * at 25
+Start: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+DEBUG: Processing closer * at 25
+Start: *(0) -> *(6) -> *(15) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 6 canOpen=true
+Start: *(0) -> *(5) -> *(13) -> null
+DEBUG: Processing closer * at 13
+  Checking opener * at 5 canOpen=true
+Start: _(0) -> _(4) -> _(8) -> _(12) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 8 canOpen=false
+  Checking opener _ at 4 canOpen=false
+  Checking opener _ at 0 canOpen=true
+Before remove: _(0) -> _(4) -> _(8) -> _(12) -> null
+After remove opener: _(4) -> _(8) -> _(12) -> null
+After remove closer: _(4) -> _(8) -> null
+Start: _(0) -> _(7) -> _(12) -> _(19) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+Before remove: _(0) -> _(7) -> _(12) -> _(19) -> null
+After remove opener: _(0) -> _(12) -> _(19) -> null
+After remove closer: _(0) -> _(19) -> null
+DEBUG: Processing closer _ at 19
+Start: _(0) -> _(7) -> _(12) -> _(19) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+Before remove: _(0) -> _(7) -> _(12) -> _(19) -> null
+After remove opener: _(0) -> _(12) -> _(19) -> null
+After remove closer: _(0) -> _(19) -> null
+DEBUG: Processing closer _ at 19
+Start: _(0) -> _(5) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+  Checking opener _ at 10 canOpen=false
+  Checking opener _ at 5 canOpen=false
+  Checking opener _ at 0 canOpen=true
+Before remove: _(0) -> _(5) -> _(10) -> _(15) -> null
+After remove opener: _(5) -> _(10) -> _(15) -> null
+After remove closer: _(5) -> _(10) -> null
+Start: _(0) -> _(5) -> _(10) -> _(16) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(10) -> _(16) -> null
+After remove opener: _(0) -> _(10) -> _(16) -> null
+After remove closer: _(0) -> _(16) -> null
+DEBUG: Processing closer _ at 16
+Start: _(0) -> _(5) -> _(10) -> _(16) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(10) -> _(16) -> null
+After remove opener: _(0) -> _(10) -> _(16) -> null
+After remove closer: _(0) -> _(16) -> null
+DEBUG: Processing closer _ at 16
+Start: _(0) -> _(5) -> _(9) -> _(14) -> null
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(9) -> _(14) -> null
+After remove opener: _(0) -> _(9) -> _(14) -> null
+After remove closer: _(0) -> _(14) -> null
+DEBUG: Processing closer _ at 14
+Start: _(0) -> _(5) -> _(9) -> _(14) -> null
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(9) -> _(14) -> null
+After remove opener: _(0) -> _(9) -> _(14) -> null
+After remove closer: _(0) -> _(14) -> null
+DEBUG: Processing closer _ at 14
+Start: *(0) -> *(5) -> *(10) -> *(16) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(10) -> *(16) -> null
+After remove opener: *(0) -> *(10) -> *(16) -> null
+After remove closer: *(0) -> *(16) -> null
+DEBUG: Processing closer * at 16
+Start: *(0) -> *(5) -> *(10) -> *(16) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(10) -> *(16) -> null
+After remove opener: *(0) -> *(10) -> *(16) -> null
+After remove closer: *(0) -> *(16) -> null
+DEBUG: Processing closer * at 16
+Start: *(0) -> *(4) -> *(9) -> *(14) -> null
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+Before remove: *(0) -> *(4) -> *(9) -> *(14) -> null
+After remove opener: *(0) -> *(9) -> *(14) -> null
+After remove closer: *(0) -> *(14) -> null
+DEBUG: Processing closer * at 14
+Start: *(0) -> *(4) -> *(9) -> *(14) -> null
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+Before remove: *(0) -> *(4) -> *(9) -> *(14) -> null
+After remove opener: *(0) -> *(9) -> *(14) -> null
+After remove closer: *(0) -> *(14) -> null
+DEBUG: Processing closer * at 14
+Start: *(3) -> *(9) -> null
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(9) -> null
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(9) -> null
+After remove opener: *(9) -> null
+After remove closer: null
+Start: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(12) -> null
+After remove opener: *(12) -> null
+DEBUG: Processing closer * at 12
+Start: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+After remove opener: *(0) -> *(5) -> *(15) -> *(20) -> *(26) -> null
+After remove closer: *(0) -> *(5) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+Start: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+After remove opener: *(0) -> *(5) -> *(15) -> *(20) -> *(26) -> null
+After remove closer: *(0) -> *(5) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+Start: _(0) -> _(6) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(10) -> _(15) -> null
+After remove opener: _(0) -> _(10) -> _(15) -> null
+After remove closer: _(0) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+Start: _(0) -> _(6) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(10) -> _(15) -> null
+After remove opener: _(0) -> _(10) -> _(15) -> null
+After remove closer: _(0) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+Start: _(0) -> _(6) -> _(11) -> _(17) -> null
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(11) -> _(17) -> null
+After remove opener: _(0) -> _(11) -> _(17) -> null
+After remove closer: _(0) -> _(17) -> null
+DEBUG: Processing closer _ at 17
+Start: _(0) -> _(6) -> _(11) -> _(17) -> null
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(11) -> _(17) -> null
+After remove opener: _(0) -> _(11) -> _(17) -> null
+After remove closer: _(0) -> _(17) -> null
+DEBUG: Processing closer _ at 17
+Start: *(0) -> *(6) -> *(10) -> *(15) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+Before remove: *(0) -> *(6) -> *(10) -> *(15) -> null
+After remove opener: *(0) -> *(10) -> *(15) -> null
+After remove closer: *(0) -> *(15) -> null
+DEBUG: Processing closer * at 15
+Start: *(0) -> *(6) -> *(10) -> *(15) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+Before remove: *(0) -> *(6) -> *(10) -> *(15) -> null
+After remove opener: *(0) -> *(10) -> *(15) -> null
+After remove closer: *(0) -> *(15) -> null
+DEBUG: Processing closer * at 15
+Start: *(0) -> *(5) -> *(9) -> *(13) -> null
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(9) -> *(13) -> null
+After remove opener: *(0) -> *(9) -> *(13) -> null
+After remove closer: *(0) -> *(13) -> null
+DEBUG: Processing closer * at 13
+Start: *(0) -> *(5) -> *(9) -> *(13) -> null
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(9) -> *(13) -> null
+After remove opener: *(0) -> *(9) -> *(13) -> null
+After remove closer: *(0) -> *(13) -> null
+DEBUG: Processing closer * at 13
+Start: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+After remove opener: *(0) -> *(6) -> *(16) -> *(22) -> *(27) -> null
+After remove closer: *(0) -> *(6) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+Start: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+After remove opener: *(0) -> *(6) -> *(16) -> *(22) -> *(27) -> null
+After remove closer: *(0) -> *(6) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+Start: *(0) -> _(5) -> *(9) -> _(14) -> null
+DEBUG: Processing closer * at 9
+  Checking opener _ at 5 canOpen=true
+  Checking opener * at 0 canOpen=true
+Before remove: *(0) -> _(5) -> *(9) -> _(14) -> null
+After remove opener: _(5) -> *(9) -> _(14) -> null
+After remove closer: _(5) -> _(14) -> null
+DEBUG: Processing closer _ at 14
+Start: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+Before remove: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+After remove opener: *(0) -> *(11) -> _(19) -> *(25) -> null
+After remove closer: *(0) -> *(11) -> *(25) -> null
+DEBUG: Processing closer * at 25
+Start: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+Before remove: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+After remove opener: *(0) -> *(11) -> _(19) -> *(25) -> null
+After remove closer: *(0) -> *(11) -> *(25) -> null
+DEBUG: Processing closer * at 25
+Start: *(0) -> *(6) -> *(15) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 6 canOpen=true
+Before remove: *(0) -> *(6) -> *(15) -> null
+After remove opener: *(0) -> *(15) -> null
+After remove closer: *(0) -> null
+Start: *(0) -> *(5) -> *(13) -> null
+DEBUG: Processing closer * at 13
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(13) -> null
+After remove opener: *(0) -> *(13) -> null
+After remove closer: *(0) -> null
+Start: _(0) -> _(4) -> _(8) -> _(12) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 8 canOpen=false
+  Checking opener _ at 4 canOpen=false
+  Checking opener _ at 0 canOpen=true
+Before remove: _(0) -> _(4) -> _(8) -> _(12) -> null
+After remove opener: _(4) -> _(8) -> _(12) -> null
+After remove closer: _(4) -> _(8) -> null
+Start: _(0) -> _(7) -> _(12) -> _(19) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+Before remove: _(0) -> _(7) -> _(12) -> _(19) -> null
+After remove opener: _(0) -> _(12) -> _(19) -> null
+After remove closer: _(0) -> _(19) -> null
+DEBUG: Processing closer _ at 19
+Start: _(0) -> _(7) -> _(12) -> _(19) -> null
+DEBUG: Processing closer _ at 12
+  Checking opener _ at 7 canOpen=true
+Before remove: _(0) -> _(7) -> _(12) -> _(19) -> null
+After remove opener: _(0) -> _(12) -> _(19) -> null
+After remove closer: _(0) -> _(19) -> null
+DEBUG: Processing closer _ at 19
+Start: _(0) -> _(5) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+  Checking opener _ at 10 canOpen=false
+  Checking opener _ at 5 canOpen=false
+  Checking opener _ at 0 canOpen=true
+Before remove: _(0) -> _(5) -> _(10) -> _(15) -> null
+After remove opener: _(5) -> _(10) -> _(15) -> null
+After remove closer: _(5) -> _(10) -> null
+Start: _(0) -> _(5) -> _(10) -> _(16) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(10) -> _(16) -> null
+After remove opener: _(0) -> _(10) -> _(16) -> null
+After remove closer: _(0) -> _(16) -> null
+DEBUG: Processing closer _ at 16
+Start: _(0) -> _(5) -> _(10) -> _(16) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(10) -> _(16) -> null
+After remove opener: _(0) -> _(10) -> _(16) -> null
+After remove closer: _(0) -> _(16) -> null
+DEBUG: Processing closer _ at 16
+Start: _(0) -> _(5) -> _(9) -> _(14) -> null
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(9) -> _(14) -> null
+After remove opener: _(0) -> _(9) -> _(14) -> null
+After remove closer: _(0) -> _(14) -> null
+DEBUG: Processing closer _ at 14
+Start: _(0) -> _(5) -> _(9) -> _(14) -> null
+DEBUG: Processing closer _ at 9
+  Checking opener _ at 5 canOpen=true
+Before remove: _(0) -> _(5) -> _(9) -> _(14) -> null
+After remove opener: _(0) -> _(9) -> _(14) -> null
+After remove closer: _(0) -> _(14) -> null
+DEBUG: Processing closer _ at 14
+Start: *(0) -> *(5) -> *(10) -> *(16) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(10) -> *(16) -> null
+After remove opener: *(0) -> *(10) -> *(16) -> null
+After remove closer: *(0) -> *(16) -> null
+DEBUG: Processing closer * at 16
+Start: *(0) -> *(5) -> *(10) -> *(16) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(10) -> *(16) -> null
+After remove opener: *(0) -> *(10) -> *(16) -> null
+After remove closer: *(0) -> *(16) -> null
+DEBUG: Processing closer * at 16
+Start: *(0) -> *(4) -> *(9) -> *(14) -> null
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+Before remove: *(0) -> *(4) -> *(9) -> *(14) -> null
+After remove opener: *(0) -> *(9) -> *(14) -> null
+After remove closer: *(0) -> *(14) -> null
+DEBUG: Processing closer * at 14
+Start: *(0) -> *(4) -> *(9) -> *(14) -> null
+DEBUG: Processing closer * at 4
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 4 canOpen=true
+Before remove: *(0) -> *(4) -> *(9) -> *(14) -> null
+After remove opener: *(0) -> *(9) -> *(14) -> null
+After remove closer: *(0) -> *(14) -> null
+DEBUG: Processing closer * at 14
+Start: *(3) -> *(9) -> null
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(9) -> null
+DEBUG: Processing closer * at 9
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(9) -> null
+After remove opener: *(9) -> null
+After remove closer: null
+Start: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 3
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(12) -> null
+DEBUG: Processing closer * at 12
+  Checking opener * at 3 canOpen=true
+Before remove: *(3) -> *(12) -> null
+After remove opener: *(12) -> null
+DEBUG: Processing closer * at 12
+Start: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+After remove opener: *(0) -> *(5) -> *(15) -> *(20) -> *(26) -> null
+After remove closer: *(0) -> *(5) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+Start: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(5) -> *(11) -> *(15) -> *(20) -> *(26) -> null
+After remove opener: *(0) -> *(5) -> *(15) -> *(20) -> *(26) -> null
+After remove closer: *(0) -> *(5) -> *(20) -> *(26) -> null
+DEBUG: Processing closer * at 20
+DEBUG: Processing closer * at 26
+  Checking opener * at 20 canOpen=false
+Start: _(0) -> _(6) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(10) -> _(15) -> null
+After remove opener: _(0) -> _(10) -> _(15) -> null
+After remove closer: _(0) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+Start: _(0) -> _(6) -> _(10) -> _(15) -> null
+DEBUG: Processing closer _ at 10
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(10) -> _(15) -> null
+After remove opener: _(0) -> _(10) -> _(15) -> null
+After remove closer: _(0) -> _(15) -> null
+DEBUG: Processing closer _ at 15
+Start: _(0) -> _(6) -> _(11) -> _(17) -> null
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(11) -> _(17) -> null
+After remove opener: _(0) -> _(11) -> _(17) -> null
+After remove closer: _(0) -> _(17) -> null
+DEBUG: Processing closer _ at 17
+Start: _(0) -> _(6) -> _(11) -> _(17) -> null
+DEBUG: Processing closer _ at 11
+  Checking opener _ at 6 canOpen=true
+Before remove: _(0) -> _(6) -> _(11) -> _(17) -> null
+After remove opener: _(0) -> _(11) -> _(17) -> null
+After remove closer: _(0) -> _(17) -> null
+DEBUG: Processing closer _ at 17
+Start: *(0) -> *(6) -> *(10) -> *(15) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+Before remove: *(0) -> *(6) -> *(10) -> *(15) -> null
+After remove opener: *(0) -> *(10) -> *(15) -> null
+After remove closer: *(0) -> *(15) -> null
+DEBUG: Processing closer * at 15
+Start: *(0) -> *(6) -> *(10) -> *(15) -> null
+DEBUG: Processing closer * at 10
+  Checking opener * at 6 canOpen=true
+Before remove: *(0) -> *(6) -> *(10) -> *(15) -> null
+After remove opener: *(0) -> *(10) -> *(15) -> null
+After remove closer: *(0) -> *(15) -> null
+DEBUG: Processing closer * at 15
+Start: *(0) -> *(5) -> *(9) -> *(13) -> null
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(9) -> *(13) -> null
+After remove opener: *(0) -> *(9) -> *(13) -> null
+After remove closer: *(0) -> *(13) -> null
+DEBUG: Processing closer * at 13
+Start: *(0) -> *(5) -> *(9) -> *(13) -> null
+DEBUG: Processing closer * at 5
+  Checking opener * at 0 canOpen=true
+DEBUG: Processing closer * at 9
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(9) -> *(13) -> null
+After remove opener: *(0) -> *(9) -> *(13) -> null
+After remove closer: *(0) -> *(13) -> null
+DEBUG: Processing closer * at 13
+Start: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+After remove opener: *(0) -> *(6) -> *(16) -> *(22) -> *(27) -> null
+After remove closer: *(0) -> *(6) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+Start: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 16
+  Checking opener * at 11 canOpen=true
+Before remove: *(0) -> *(6) -> *(11) -> *(16) -> *(22) -> *(27) -> null
+After remove opener: *(0) -> *(6) -> *(16) -> *(22) -> *(27) -> null
+After remove closer: *(0) -> *(6) -> *(22) -> *(27) -> null
+DEBUG: Processing closer * at 22
+DEBUG: Processing closer * at 27
+  Checking opener * at 22 canOpen=false
+Start: *(0) -> _(5) -> *(9) -> _(14) -> null
+DEBUG: Processing closer * at 9
+  Checking opener _ at 5 canOpen=true
+  Checking opener * at 0 canOpen=true
+Before remove: *(0) -> _(5) -> *(9) -> _(14) -> null
+After remove opener: _(5) -> *(9) -> _(14) -> null
+After remove closer: _(5) -> _(14) -> null
+DEBUG: Processing closer _ at 14
+Start: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+Before remove: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+After remove opener: *(0) -> *(11) -> _(19) -> *(25) -> null
+After remove closer: *(0) -> *(11) -> *(25) -> null
+DEBUG: Processing closer * at 25
+Start: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+DEBUG: Processing closer _ at 19
+  Checking opener * at 11 canOpen=true
+  Checking opener _ at 5 canOpen=true
+Before remove: *(0) -> _(5) -> *(11) -> _(19) -> *(25) -> null
+After remove opener: *(0) -> *(11) -> _(19) -> *(25) -> null
+After remove closer: *(0) -> *(11) -> *(25) -> null
+DEBUG: Processing closer * at 25
+Start: *(0) -> *(6) -> *(15) -> null
+DEBUG: Processing closer * at 15
+  Checking opener * at 6 canOpen=true
+Before remove: *(0) -> *(6) -> *(15) -> null
+After remove opener: *(0) -> *(15) -> null
+After remove closer: *(0) -> null
+Start: *(0) -> *(5) -> *(13) -> null
+DEBUG: Processing closer * at 13
+  Checking opener * at 5 canOpen=true
+Before remove: *(0) -> *(5) -> *(13) -> null
+After remove opener: *(0) -> *(13) -> null
+After remove closer: *(0) -> null
