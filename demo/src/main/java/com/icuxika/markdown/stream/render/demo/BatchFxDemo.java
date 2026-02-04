@@ -31,6 +31,7 @@ public class BatchFxDemo extends Application {
         // Input Area
         CodeArea inputArea = new CodeArea();
         inputArea.setLineNumbersEnabled(true);
+        inputArea.setSyntaxDecorator(new MarkdownSyntaxDecorator());
         // inputArea.setWrapText(true); // CodeArea might not support wrapping the same way
 
         // Load template.md

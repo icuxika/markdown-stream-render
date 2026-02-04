@@ -923,7 +923,7 @@ public class InlineParser {
             "(^|\\s)(?:(https?|ftp)://|www\\.)[a-zA-Z0-9.+-]+(?:/[a-zA-Z0-9._+/?#@!$&'()*+,;=-]*)?",
             Pattern.CASE_INSENSITIVE
     );
-    
+
     private static final Pattern EXTENDED_AUTOLINK_EMAIL = Pattern.compile(
             "(^|\\s)[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
             Pattern.CASE_INSENSITIVE
@@ -939,56 +939,56 @@ public class InlineParser {
         // We look for patterns.
         // Note: This is simplified. GFM has complex rules about trailing punctuation.
         // Also, we need to handle both URI and Email.
-        
+
         int lastPos = 0;
-        
+
         // Combine regex? Or iterative?
         // Let's use a simpler approach: Match URIs, then check Emails in remaining text?
         // Actually, emails are distinct.
-        
+
         // Let's iterate through the content finding matches.
         // We use a custom matcher that finds the earliest match of either type.
-        
+
         Matcher uriMatcher = EXTENDED_AUTOLINK_URI.matcher(content);
         Matcher emailMatcher = EXTENDED_AUTOLINK_EMAIL.matcher(content);
-        
+
         while (lastPos < content.length()) {
             int uriStart = -1;
             int emailStart = -1;
-            
+
             if (uriMatcher.find(lastPos)) uriStart = uriMatcher.start();
             if (emailMatcher.find(lastPos)) emailStart = emailMatcher.start();
-            
+
             if (uriStart == -1 && emailStart == -1) {
                 nodes.add(new Text(content.substring(lastPos)));
                 break;
             }
-            
+
             int start = -1;
             int end = -1;
             boolean isEmail = false;
             String match = "";
             String linkDest = "";
-            
+
             // Prioritize earliest match
             if (uriStart != -1 && (emailStart == -1 || uriStart <= emailStart)) {
                 start = uriStart;
                 match = uriMatcher.group();
                 end = uriMatcher.end();
-                
+
                 // Regex might include leading whitespace due to (^|\\s)
                 if (Character.isWhitespace(match.charAt(0))) {
                     start++;
                     match = match.substring(1);
                 }
-                
+
                 // Trim trailing punctuation (., ?, !, :, ;, *, ~) if not paired?
                 // GFM rule: Trailing punctuation should not be part of the link
                 // unless it is a closing paren ) and there is an opening paren ( in the link.
-                
+
                 match = trimTrailingPunctuation(match);
                 end = start + match.length();
-                
+
                 if (match.toLowerCase().startsWith("www.")) {
                     linkDest = "http://" + match;
                 } else {
@@ -999,33 +999,33 @@ public class InlineParser {
                 match = emailMatcher.group();
                 end = emailMatcher.end();
                 isEmail = true;
-                
+
                 if (Character.isWhitespace(match.charAt(0))) {
                     start++;
                     match = match.substring(1);
                 }
-                
+
                 // Email usually doesn't have complex trailing punctuation issues if regex is strict.
                 // But let's apply trim just in case.
                 match = trimTrailingPunctuation(match);
                 end = start + match.length();
-                
+
                 linkDest = "mailto:" + match;
             }
-            
+
             // Add text before
             if (start > lastPos) {
                 nodes.add(new Text(content.substring(lastPos, start)));
             }
-            
+
             Link link = new Link(linkDest, "");
             link.appendChild(new Text(match));
             nodes.add(link);
-            
+
             lastPos = end;
         }
     }
-    
+
     private String trimTrailingPunctuation(String s) {
         int end = s.length();
         while (end > 0) {
@@ -1138,14 +1138,14 @@ public class InlineParser {
                         opener = opener.previous;
                         continue;
                     }
-                    
+
                     // GFM Strikethrough check
                     if (d.c == '~') {
-                         if (opener.length < 2 || d.length < 2) {
-                             // Must have at least 2 tildes
-                             opener = opener.previous;
-                             continue;
-                         }
+                        if (opener.length < 2 || d.length < 2) {
+                            // Must have at least 2 tildes
+                            opener = opener.previous;
+                            continue;
+                        }
                     }
 
                     found = true;
@@ -1159,7 +1159,7 @@ public class InlineParser {
 
                 // Determine usage
                 int useDelims = (d.length >= 2 && opener.length >= 2) ? 2 : 1;
-                
+
                 if (d.c == '~') {
                     useDelims = 2; // Always use 2 for strikethrough
                 }

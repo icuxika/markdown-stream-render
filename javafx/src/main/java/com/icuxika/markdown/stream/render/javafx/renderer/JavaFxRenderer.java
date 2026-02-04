@@ -10,13 +10,17 @@ import javafx.scene.text.TextFlow;
 
 import java.util.Stack;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 public class JavaFxRenderer implements IMarkdownRenderer {
     private final VBox root = new VBox();
     private final Stack<Pane> blockStack = new Stack<>();
-    
+
     // Map start line number to JavaFX Node
     private final TreeMap<Integer, javafx.scene.Node> lineToNodeMap = new TreeMap<>();
+
+    // Link handling callback
+    private Consumer<String> onLinkClick;
 
     // For inlines
     private TextFlow currentTextFlow;
@@ -44,7 +48,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         blockStack.push(root);
         root.setSpacing(10);
         root.getStyleClass().add("markdown-root");
-        
+
         // Load default stylesheet
         java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
         if (cssUrl != null) {
@@ -56,9 +60,13 @@ public class JavaFxRenderer implements IMarkdownRenderer {
     public Object getResult() {
         return root;
     }
-    
+
     public TreeMap<Integer, javafx.scene.Node> getLineToNodeMap() {
         return lineToNodeMap;
+    }
+
+    public void setOnLinkClick(Consumer<String> onLinkClick) {
+        this.onLinkClick = onLinkClick;
     }
 
     private void registerNode(Node astNode, javafx.scene.Node fxNode) {
@@ -99,7 +107,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         flow.getStyleClass().add("markdown-paragraph");
         blockStack.peek().getChildren().add(flow);
         registerNode(paragraph, flow);
-        
+
         currentTextFlow = flow;
         visitChildren(paragraph);
         currentTextFlow = null;
@@ -112,7 +120,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         flow.getStyleClass().add("markdown-h" + heading.getLevel());
         blockStack.peek().getChildren().add(flow);
         registerNode(heading, flow);
-        
+
         currentTextFlow = flow;
 
         int oldLevel = headingLevel;
@@ -172,7 +180,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         quoteBox.getStyleClass().add("markdown-quote");
         blockStack.peek().getChildren().add(quoteBox);
         registerNode(blockQuote, quoteBox);
-        
+
         blockStack.push(quoteBox);
         visitChildren(blockQuote);
         blockStack.pop();
@@ -185,7 +193,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         listBox.setSpacing(5);
         blockStack.peek().getChildren().add(listBox);
         registerNode(bulletList, listBox);
-        
+
         blockStack.push(listBox);
         listStack.push(new ListState(false, 0, '.'));
         visitChildren(bulletList);
@@ -200,7 +208,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         listBox.setSpacing(5);
         blockStack.peek().getChildren().add(listBox);
         registerNode(orderedList, listBox);
-        
+
         blockStack.push(listBox);
         listStack.push(new ListState(true, orderedList.getStartNumber(), orderedList.getDelimiter()));
         visitChildren(orderedList);
@@ -213,33 +221,33 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         javafx.scene.layout.HBox itemBox = new javafx.scene.layout.HBox();
         itemBox.setSpacing(5);
         itemBox.getStyleClass().add("markdown-list-item");
-        
+
         // 1. Determine Bullet/Number Marker
         boolean isOrdered = false;
         int index = 0;
         char delimiter = '.';
-        
+
         if (!listStack.isEmpty()) {
             ListState state = listStack.peek();
             isOrdered = state.isOrdered;
             index = state.index;
             delimiter = state.delimiter;
-            
+
             // Increment index for next item
             if (isOrdered) {
                 state.index++;
             }
         }
-        
+
         java.util.List<javafx.scene.Node> markers = new java.util.ArrayList<>();
-        
+
         if (isOrdered) {
-             String markerText = index + String.valueOf(delimiter);
-             Label markerLabel = new Label(markerText);
-             markerLabel.getStyleClass().add("markdown-list-marker");
-             markerLabel.setMinWidth(20);
-             markerLabel.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
-             markers.add(markerLabel);
+            String markerText = index + String.valueOf(delimiter);
+            Label markerLabel = new Label(markerText);
+            markerLabel.getStyleClass().add("markdown-list-marker");
+            markerLabel.setMinWidth(20);
+            markerLabel.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+            markers.add(markerLabel);
         } else if (!listItem.isTask()) {
             // Only show bullet if NOT a task (GitHub style: bullet replaced by checkbox)
             String markerText = "\u2022";
@@ -249,7 +257,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
             markerLabel.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
             markers.add(markerLabel);
         }
-        
+
         // 2. Add Checkbox if Task
         if (listItem.isTask()) {
             javafx.scene.control.CheckBox checkBox = new javafx.scene.control.CheckBox();
@@ -258,16 +266,16 @@ public class JavaFxRenderer implements IMarkdownRenderer {
             checkBox.getStyleClass().add("markdown-task-checkbox");
             markers.add(checkBox);
         }
-        
+
         VBox contentBox = new VBox();
         contentBox.getStyleClass().add("markdown-list-content");
-        
+
         itemBox.getChildren().addAll(markers);
         itemBox.getChildren().add(contentBox);
-        
+
         blockStack.peek().getChildren().add(itemBox);
         registerNode(listItem, itemBox);
-        
+
         blockStack.push(contentBox);
         visitChildren(listItem);
         blockStack.pop();
@@ -280,24 +288,24 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         visitChildren(strikethrough);
         strike = old;
     }
-    
+
     private boolean strike = false;
 
     @Override
     public void visit(Code code) {
         boolean old = codeVal;
         codeVal = true;
-        
+
         // Use Label for inline code to support background color and padding
         Label codeLabel = new Label(code.getLiteral());
         codeLabel.getStyleClass().add("markdown-code");
-        
+
         if (currentTextFlow != null) {
             currentTextFlow.getChildren().add(codeLabel);
         } else {
             blockStack.peek().getChildren().add(codeLabel);
         }
-        
+
         codeVal = old;
     }
 
@@ -367,7 +375,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
 
         blockStack.peek().getChildren().add(grid);
         registerNode(table, grid);
-        
+
         blockStack.push(grid);
         tableRowIndex = 0;
         visitChildren(table);
@@ -462,11 +470,15 @@ public class JavaFxRenderer implements IMarkdownRenderer {
 
         if (isLink) {
             t.getStyleClass().add("markdown-link");
-            
+
             final String dest = linkDestination;
             t.setOnMouseClicked(e -> {
-                // TODO: Provide a callback for link handling instead of just printing
-                System.out.println("Link clicked: " + dest);
+                if (onLinkClick != null) {
+                    onLinkClick.accept(dest);
+                } else {
+                    // Fallback or debug info
+                    System.out.println("Link clicked (no handler): " + dest);
+                }
             });
         }
     }

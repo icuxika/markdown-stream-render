@@ -83,6 +83,12 @@ public class StreamingFxDemo extends Application {
 
                 Platform.runLater(() -> {
                     JavaFxRenderer renderer = new JavaFxRenderer();
+                    // Handle link clicks
+                    renderer.setOnLinkClick(url -> {
+                        System.out.println("Opening link: " + url);
+                        getHostServices().showDocument(url);
+                    });
+
                     try {
                         parser.parse(new java.io.StringReader(currentText), renderer);
                         Pane content = (Pane) renderer.getResult();

@@ -171,7 +171,7 @@ public class MarkdownParser {
                 Node container = openContainers.get(k);
                 // Update end line for container as we are still inside it
                 container.setEndLine(lineNumber);
-                
+
                 if (container instanceof BlockQuote) {
                     int indent = 0;
                     int startI = i;
@@ -272,8 +272,6 @@ public class MarkdownParser {
                             }
                         }
                     }
-
-                    // System.out.println("Lazy check: line='" + line + "', matches=" + matches + ", size=" + openContainers.size() + ", isStarter=" + isBlockStarter);
 
                     if (!isBlockStarter) {
                         lazyContinuation = true;
@@ -379,13 +377,13 @@ public class MarkdownParser {
 
                         ListItem li = new ListItem();
                         li.setStartLine(lineNumber);
-                        
+
                         // Check for Task List Item
                         String remaining = "";
                         if (marker.nextIndex < line.length()) {
                             remaining = line.substring(marker.nextIndex);
                         }
-                        
+
                         if (remaining.startsWith("[ ] ") || remaining.startsWith("[x] ") || remaining.startsWith("[X] ")) {
                             li.setTask(true);
                             if (remaining.charAt(1) != ' ') {
@@ -393,9 +391,9 @@ public class MarkdownParser {
                             }
                             marker.nextIndex += 4; // [ ] + space
                         } else if (remaining.equals("[ ]") || remaining.equals("[x]") || remaining.equals("[X]")) {
-                             li.setTask(true);
-                             if (remaining.charAt(1) != ' ') li.setChecked(true);
-                             marker.nextIndex += 3; // No trailing space
+                            li.setTask(true);
+                            if (remaining.charAt(1) != ' ') li.setChecked(true);
+                            marker.nextIndex += 3; // No trailing space
                         }
 
                         Node listParent = openContainers.get(openContainers.size() - 1);
@@ -483,7 +481,7 @@ public class MarkdownParser {
                     // Line 510 in original: ((CodeBlock) currentLeaf).setLiteral(currentLeafContent.toString());
                     // My new finalizeCurrentLeaf(lineNumber) does that too.
                     // So I can just call finalizeCurrentLeaf(lineNumber) and return.
-                    
+
                     lastLineContentDepth = Integer.MAX_VALUE;
                     return;
                 }
@@ -601,7 +599,7 @@ public class MarkdownParser {
                 if (alignments != null) {
                     Paragraph p = (Paragraph) currentLeaf;
                     int pStartLine = p.getStartLine();
-                    
+
                     String paragraphContent = currentLeafContent.toString();
                     String[] lines = paragraphContent.split("\n");
                     String headerLine = lines[lines.length - 1];
@@ -636,7 +634,7 @@ public class MarkdownParser {
                     TableBody body = new TableBody();
                     table.appendChild(body);
 
-                    currentLeaf = body; 
+                    currentLeaf = body;
                     inTable = true;
                     tableAlignments = alignments;
                     lastLineContentDepth = Integer.MAX_VALUE;
@@ -878,7 +876,7 @@ public class MarkdownParser {
                     while (i < row.length() && row.charAt(i) == '`') i++;
                     int len = i - s;
                     if (len == runLength) return s;
-                    i = s; 
+                    i = s;
                 } else if (row.charAt(i) == '\\') {
                     i += 2;
                 } else {
@@ -895,32 +893,32 @@ public class MarkdownParser {
 
             int i = 0;
             boolean lastCharWasDelimiter = false;
-            
+
             while (i < row.length()) {
                 char c = row.charAt(i);
                 lastCharWasDelimiter = false;
-                
+
                 if (escaped) {
                     current.append(c);
                     escaped = false;
                     i++;
                     continue;
                 }
-                
+
                 if (c == '\\') {
                     current.append(c);
                     escaped = true;
                     i++;
                     continue;
                 }
-                
+
                 if (c == '`') {
                     int start = i;
                     while (i < row.length() && row.charAt(i) == '`') i++;
                     int runLength = i - start;
-                    
+
                     for (int k = 0; k < runLength; k++) current.append('`');
-                    
+
                     int match = findCodeSpanEnd(row, i, runLength);
                     if (match != -1) {
                         current.append(row.substring(i, match));
@@ -929,7 +927,7 @@ public class MarkdownParser {
                     }
                     continue;
                 }
-                
+
                 if (c == '|') {
                     cells.add(current.toString());
                     current.setLength(0);
@@ -937,7 +935,7 @@ public class MarkdownParser {
                     i++;
                     continue;
                 }
-                
+
                 current.append(c);
                 i++;
             }

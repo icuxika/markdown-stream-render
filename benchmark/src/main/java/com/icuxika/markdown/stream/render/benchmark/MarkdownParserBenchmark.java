@@ -1,9 +1,9 @@
 package com.icuxika.markdown.stream.render.benchmark;
 
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
 import org.openjdk.jmh.annotations.*;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class MarkdownParserBenchmark {
     public void setup() {
         parser = new MarkdownParser();
         renderer = new NoOpRenderer();
-        
+
         switch (size) {
             case "SMALL":
                 markdownInput = "# Hello\nThis is a small test.";
@@ -69,32 +69,125 @@ public class MarkdownParserBenchmark {
     // Dummy renderer that does nothing
     private static class NoOpRenderer implements IMarkdownRenderer {
         @Override
-        public Object getResult() { return null; }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Document document) { visitChildren(document); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.HtmlBlock htmlBlock) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.HtmlInline htmlInline) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Paragraph paragraph) { visitChildren(paragraph); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Heading heading) { visitChildren(heading); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Text text) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.SoftBreak softBreak) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.HardBreak hardBreak) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Emphasis emphasis) { visitChildren(emphasis); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.StrongEmphasis strongEmphasis) { visitChildren(strongEmphasis); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.BlockQuote blockQuote) { visitChildren(blockQuote); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.BulletList bulletList) { visitChildren(bulletList); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.OrderedList orderedList) { visitChildren(orderedList); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.ListItem listItem) { visitChildren(listItem); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Strikethrough strikethrough) { visitChildren(strikethrough); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Code code) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.ThematicBreak thematicBreak) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.CodeBlock codeBlock) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Link link) { visitChildren(link); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Image image) {}
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.Table table) { visitChildren(table); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.TableHead tableHead) { visitChildren(tableHead); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.TableBody tableBody) { visitChildren(tableBody); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.TableRow tableRow) { visitChildren(tableRow); }
-        @Override public void visit(com.icuxika.markdown.stream.render.core.ast.TableCell tableCell) { visitChildren(tableCell); }
+        public Object getResult() {
+            return null;
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Document document) {
+            visitChildren(document);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.HtmlBlock htmlBlock) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.HtmlInline htmlInline) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Paragraph paragraph) {
+            visitChildren(paragraph);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Heading heading) {
+            visitChildren(heading);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Text text) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.SoftBreak softBreak) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.HardBreak hardBreak) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Emphasis emphasis) {
+            visitChildren(emphasis);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.StrongEmphasis strongEmphasis) {
+            visitChildren(strongEmphasis);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.BlockQuote blockQuote) {
+            visitChildren(blockQuote);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.BulletList bulletList) {
+            visitChildren(bulletList);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.OrderedList orderedList) {
+            visitChildren(orderedList);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.ListItem listItem) {
+            visitChildren(listItem);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Strikethrough strikethrough) {
+            visitChildren(strikethrough);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Code code) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.ThematicBreak thematicBreak) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.CodeBlock codeBlock) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Link link) {
+            visitChildren(link);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Image image) {
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.Table table) {
+            visitChildren(table);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.TableHead tableHead) {
+            visitChildren(tableHead);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.TableBody tableBody) {
+            visitChildren(tableBody);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.TableRow tableRow) {
+            visitChildren(tableRow);
+        }
+
+        @Override
+        public void visit(com.icuxika.markdown.stream.render.core.ast.TableCell tableCell) {
+            visitChildren(tableCell);
+        }
 
         private void visitChildren(Node parent) {
             Node child = parent.getFirstChild();

@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SpecReader {
@@ -35,10 +34,10 @@ public class SpecReader {
             String line;
             String currentSection = "";
             int exampleCount = 0;
-            
+
             StringBuilder markdownBuffer = new StringBuilder();
             StringBuilder htmlBuffer = new StringBuilder();
-            
+
             boolean inExample = false;
             boolean readingHtml = false;
 
@@ -51,9 +50,9 @@ public class SpecReader {
                         htmlBuffer.setLength(0);
                         exampleCount++;
                     } else if (line.startsWith("#")) {
-                         // Simple header parsing to get section
-                         // e.g., "# Task list items"
-                         currentSection = line.replaceAll("^#+\\s*", "").trim();
+                        // Simple header parsing to get section
+                        // e.g., "# Task list items"
+                        currentSection = line.replaceAll("^#+\\s*", "").trim();
                     }
                 } else {
                     if (EXAMPLE_END.matcher(line).matches()) {

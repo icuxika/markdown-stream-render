@@ -4,7 +4,6 @@ import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.renderer.HtmlRenderer;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +26,7 @@ public class GfmBaselineAnalysis {
         }
 
         List<SpecReader.SpecExample> examples = SpecReader.readExamples(specStream);
-        
+
         Map<String, int[]> stats = new HashMap<>(); // Section -> [total, passed]
         int totalPassed = 0;
         int totalFailed = 0;
@@ -40,7 +39,7 @@ public class GfmBaselineAnalysis {
         for (SpecReader.SpecExample example : examples) {
             MarkdownParser parser = new MarkdownParser();
             HtmlRenderer renderer = new HtmlRenderer();
-            
+
             String actual = "";
             try {
                 parser.parse(new java.io.StringReader(example.markdown), renderer);
@@ -54,7 +53,7 @@ public class GfmBaselineAnalysis {
             actual = actual.replace("\r\n", "\n");
 
             boolean passed = expected.equals(actual);
-            
+
             // Update stats
             stats.putIfAbsent(example.section, new int[]{0, 0});
             stats.get(example.section)[0]++;
@@ -65,12 +64,12 @@ public class GfmBaselineAnalysis {
                 totalFailed++;
                 // Only log failures for key sections to keep report readable
                 if (isKeySection(example.section)) {
-                   if (!passed) {
-                       System.out.println("Failed: " + example.section + " Example " + example.exampleNumber);
-                       System.out.println("Markdown: [" + example.markdown.replace("\n", "\\n") + "]");
-                       System.out.println("Expected: [" + expected.replace("\n", "\\n") + "]");
-                       System.out.println("Actual:   [" + actual.replace("\n", "\\n") + "]");
-                   }
+                    if (!passed) {
+                        System.out.println("Failed: " + example.section + " Example " + example.exampleNumber);
+                        System.out.println("Markdown: [" + example.markdown.replace("\n", "\\n") + "]");
+                        System.out.println("Expected: [" + expected.replace("\n", "\\n") + "]");
+                        System.out.println("Actual:   [" + actual.replace("\n", "\\n") + "]");
+                    }
                 }
             }
         }
@@ -82,11 +81,11 @@ public class GfmBaselineAnalysis {
         System.out.println("Total Examples: " + examples.size());
         System.out.println("Passed: " + totalPassed);
         System.out.println("Failed: " + totalFailed);
-        System.out.println("Pass Rate: " + String.format("%.2f%%", (double)totalPassed / examples.size() * 100));
+        System.out.println("Pass Rate: " + String.format("%.2f%%", (double) totalPassed / examples.size() * 100));
         System.out.println("--------------------------------------------------");
         System.out.println(String.format("%-30s | %-10s | %-10s | %-10s", "Section", "Total", "Passed", "Rate"));
         System.out.println("--------------------------------------------------");
-        
+
         stats.entrySet().stream()
                 .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
                 .forEach(entry -> {
@@ -97,7 +96,7 @@ public class GfmBaselineAnalysis {
                     System.out.println(String.format("%-30s | %-10d | %-10d | %6.2f%%", section, total, pass, rate));
                 });
         System.out.println("==================================================");
-        
+
         // Write detailed report to file
         try (PrintWriter writer = new PrintWriter(new FileWriter("GFM_ANALYSIS.md"))) {
             writer.println("# GFM Baseline Analysis");
@@ -107,23 +106,23 @@ public class GfmBaselineAnalysis {
             writer.println("## Section Breakdown");
             writer.println("| Section | Total | Passed | Pass Rate |");
             writer.println("| :--- | :--- | :--- | :--- |");
-            
+
             stats.entrySet().stream()
-                .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
-                .forEach(entry -> {
-                    String section = entry.getKey();
-                    int total = entry.getValue()[0];
-                    int pass = entry.getValue()[1];
-                    double rate = (double) pass / total * 100;
-                    writer.println(String.format("| %s | %d | %d | %.2f%% |", section, total, pass, rate));
-                });
+                    .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
+                    .forEach(entry -> {
+                        String section = entry.getKey();
+                        int total = entry.getValue()[0];
+                        int pass = entry.getValue()[1];
+                        double rate = (double) pass / total * 100;
+                        writer.println(String.format("| %s | %d | %d | %.2f%% |", section, total, pass, rate));
+                    });
         }
     }
-    
+
     private boolean isKeySection(String section) {
-        return section.equalsIgnoreCase("Tables (extension)") || 
-               section.equalsIgnoreCase("Task list items (extension)") || 
-               section.equalsIgnoreCase("Strikethrough (extension)") ||
-               section.equalsIgnoreCase("Autolinks (extension)");
+        return section.equalsIgnoreCase("Tables (extension)") ||
+                section.equalsIgnoreCase("Task list items (extension)") ||
+                section.equalsIgnoreCase("Strikethrough (extension)") ||
+                section.equalsIgnoreCase("Autolinks (extension)");
     }
 }

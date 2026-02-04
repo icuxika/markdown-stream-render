@@ -12,7 +12,7 @@ public class ListItem extends Block {
     public void setEndsWithBlankLine(boolean endsWithBlankLine) {
         this.endsWithBlankLine = endsWithBlankLine;
     }
-    
+
     public boolean isTask() {
         return isTask;
     }
