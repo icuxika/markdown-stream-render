@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class StreamingGuiApp extends Application {
+public class StreamingFxDemo extends Application {
 
     private String fullMarkdown = "";
     private volatile int charIndex = 0;

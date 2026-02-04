@@ -12,15 +12,15 @@ import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-public class App {
+public class BatchHtmlDemo {
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Markdown Stream Renderer HTML Demo");
-        System.out.println("==================================");
+        System.out.println("Markdown Stream Renderer Batch HTML Demo");
+        System.out.println("========================================");
 
         // Load template.md
         String markdown = "";
-        try (InputStream is = App.class.getResourceAsStream("/template.md")) {
+        try (InputStream is = BatchHtmlDemo.class.getResourceAsStream("/template.md")) {
             if (is != null) {
                 markdown = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             } else {

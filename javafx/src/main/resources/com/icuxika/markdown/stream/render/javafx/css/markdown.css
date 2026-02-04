@@ -1,3 +1,4 @@
+/* Base Styles */
 .markdown-root {
     -fx-spacing: 10;
     -fx-padding: 20;
@@ -10,9 +11,26 @@
     -fx-fill: -md-fg-color;
 }
 
+/* Typography */
+.markdown-bold {
+    -fx-font-weight: bold;
+}
+
+.markdown-italic {
+    -fx-font-style: italic;
+}
+
+.markdown-strikethrough {
+    -fx-strikethrough: true;
+}
+
 /* Headers */
+.markdown-heading {
+    -fx-padding: 10 0 5 0;
+}
+
 .markdown-h1-text { -fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
-.markdown-h2-text { -fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h2-text { -fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: -md-fg-color; -fx-border-style: solid; -fx-border-width: 0 0 1 0; -fx-border-color: -md-border-color; }
 .markdown-h3-text { -fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
 .markdown-h4-text { -fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
 .markdown-h5-text { -fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
@@ -33,14 +51,12 @@
 /* Inline Code */
 .markdown-code {
     -fx-font-family: "Consolas", "Courier New", monospace;
-    -fx-text-fill: -md-fg-color; /* Label uses -fx-text-fill, not -fx-fill */
+    -fx-text-fill: -md-fg-color; /* Label uses -fx-text-fill */
+    -fx-fill: -md-fg-color; /* Text uses -fx-fill */
     -fx-background-color: -md-code-bg-color;
-    -fx-padding: 0 4; /* Top/Bottom 0 to align better with text baseline, Left/Right 4 */
+    -fx-padding: 0 4;
     -fx-background-radius: 4;
-    -fx-border-color: -md-border-color;
-    -fx-border-width: 1;
-    -fx-border-radius: 4;
-    -fx-font-size: 13px; /* Slightly smaller for code */
+    -fx-font-size: 13px;
 }
 
 /* Code Block */
@@ -64,9 +80,6 @@
     -fx-border-color: -md-quote-border-color;
     -fx-border-width: 0 0 0 4;
 }
-/* Note: Text inside quote should probably use a sub-color, but currently it inherits markdown-text. 
-   We might need a .markdown-quote .markdown-text selector if JavaFX supported it well, 
-   but for now let's leave it. */
 
 /* Lists */
 .markdown-list {
@@ -117,11 +130,7 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
 }
 
-.markdown-strikethrough {
-    -fx-strikethrough: true;
-}
-
-/* Default Colors (Fallback if light/dark css not loaded) */
+/* Default Variables (Fallback) */
 .root {
     -md-fg-color: #24292f;
     -md-bg-color: #ffffff;

@@ -13,7 +13,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-public class DeepSeekChatDemo extends Application {
+public class StreamingAiChatDemo extends Application {
 
     private final VBox chatContainer = new VBox();
     private final ScrollPane scrollPane = new ScrollPane(chatContainer);

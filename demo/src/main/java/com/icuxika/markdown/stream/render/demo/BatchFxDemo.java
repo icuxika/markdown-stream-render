@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import javafx.scene.control.ToolBar;
 
-public class GuiApp extends Application {
+public class BatchFxDemo extends Application {
 
     @Override
     public void start(Stage primaryStage) {

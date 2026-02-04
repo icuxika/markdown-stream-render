@@ -40,6 +40,12 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         blockStack.push(root);
         root.setSpacing(10);
         root.getStyleClass().add("markdown-root");
+        
+        // Load default stylesheet
+        java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
+        if (cssUrl != null) {
+            root.getStylesheets().add(cssUrl.toExternalForm());
+        }
     }
 
     @Override
@@ -413,44 +419,27 @@ public class JavaFxRenderer implements IMarkdownRenderer {
             t.getStyleClass().add("markdown-h" + headingLevel + "-text");
         }
 
-        StringBuilder style = new StringBuilder();
-        String currentStyle = t.getStyle();
-        if (currentStyle != null && !currentStyle.isEmpty()) {
-            style.append(currentStyle);
-            if (!currentStyle.endsWith(";")) style.append(";");
-        }
-
         if (bold) {
             t.getStyleClass().add("markdown-bold");
-            style.append("-fx-font-weight: bold;");
         }
         if (italic) {
             t.getStyleClass().add("markdown-italic");
-            style.append("-fx-font-style: italic;");
         }
         if (strike) {
             t.getStyleClass().add("markdown-strikethrough");
-            t.setStrikethrough(true);
         }
         if (codeVal) {
             t.getStyleClass().add("markdown-code");
-            style.append("-fx-font-family: 'Courier New', monospace;");
         }
 
         if (isLink) {
             t.getStyleClass().add("markdown-link");
-            style.append("-fx-fill: blue;");
-            t.setUnderline(true);
-            t.setCursor(javafx.scene.Cursor.HAND);
             
             final String dest = linkDestination;
             t.setOnMouseClicked(e -> {
+                // TODO: Provide a callback for link handling instead of just printing
                 System.out.println("Link clicked: " + dest);
             });
-        }
-
-        if (style.length() > 0) {
-            t.setStyle(style.toString());
         }
     }
 }

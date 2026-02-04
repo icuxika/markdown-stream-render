@@ -22,14 +22,57 @@
     *   **安全性**: 提供“安全模式” (Safe Mode)，通过过滤禁止的原始 HTML 来防止 XSS 攻击。
     *   **高性能**: 采用零分配行处理和真正的流式架构，速度极快。
 
+## 🎨 JavaFX 样式与主题
+
+JavaFX 渲染器采用了现代化的 CSS 样式系统。
+
+### 内置主题
+本库自带 `Light` (明亮) 和 `Dark` (暗黑) 两种主题。你可以使用 `MarkdownTheme` 辅助类轻松切换：
+
+```java
+MarkdownTheme theme = new MarkdownTheme();
+theme.apply(scene); // 应用默认的明亮主题
+theme.setTheme(MarkdownTheme.Theme.DARK); // 切换到暗黑主题
+```
+
+### 自定义样式
+你可以通过提供自己的 CSS 文件来覆盖默认样式。渲染器使用 **查找颜色 (Looked-up Colors)** 机制，无需重写所有规则即可轻松定制。
+
+**示例：创建自定义的 "复古 (Sepia)" 主题**
+
+1. 创建 `sepia.css` 文件：
+   ```css
+   .root {
+       -md-fg-color: #5f4b32;
+       -md-bg-color: #f4ecd8;
+       -md-link-color: #d2691e;
+       -md-code-bg-color: #eae0c9;
+       /* ... 根据需要覆盖其他变量 */
+   }
+   ```
+2. 在你的应用中加载它：
+   ```java
+   scene.getStylesheets().add("path/to/sepia.css");
+   ```
+
+### CSS 变量参考
+| 变量名 | 描述 | 默认值 (Light) |
+| :--- | :--- | :--- |
+| `-md-fg-color` | 主要文本颜色 | `#24292f` |
+| `-md-bg-color` | 背景颜色 | `#ffffff` |
+| `-md-link-color` | 链接颜色 | `#0969da` |
+| `-md-code-bg-color` | 行内代码/代码块背景 | `#f6f8fa` |
+| `-md-border-color` | 表格/区块边框颜色 | `#d0d7de` |
+
 ## 📂 项目结构
 
 *   **`core`**: 项目核心。包含 `MarkdownParser`（解析器）、AST 节点和 `HtmlRenderer`（HTML 渲染器）。
 *   **`javafx`**: 包含 `JavaFxRenderer`，用于将 Markdown 渲染为 JavaFX 节点。
 *   **`benchmark`**: JMH 性能基准测试模块。
 *   **`demo`**: 演示应用模块。
-    *   `GuiApp`: 一个简单的 JavaFX Markdown 编辑器。
-    *   `StreamingGuiApp`: 演示 JavaFX 流式渲染（模拟打字机效果）。
+    *   `BatchFxDemo`: 一个简单的 JavaFX Markdown 编辑器。
+    *   `BatchHtmlDemo`: 演示静态 HTML 渲染服务。
+    *   `StreamingFxDemo`: 演示 JavaFX 流式渲染（模拟打字机效果）。
     *   `StreamingHtmlDemo`: 本地 HTTP 服务器，通过 Server-Sent Events (SSE) 演示流式 HTML 渲染。
 
 ## 🚀 快速开始
@@ -45,31 +88,31 @@ mvn clean install
 
 ### 运行演示 (Demos)
 
-**1. JavaFX 流式渲染演示**
+**1. JavaFX 流式渲染演示 (Streaming Fx Demo)**
 在一个桌面窗口中模拟打字机效果，直观展示流式渲染能力。
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingGuiApp"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingFxDemo"
 ```
 
-**2. HTML 流式渲染演示**
+**2. HTML 流式渲染演示 (Streaming HTML Demo)**
 启动本地 Web 服务器。打开浏览器即可看到 Markdown 被实时渲染并推送到页面上。
 ```bash
 mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingHtmlDemo"
 ```
 
-**3. JavaFX 编辑器**
+**3. JavaFX 编辑器 (Batch Fx Demo)**
 一个基础的编辑器，你可以输入 Markdown 并实时查看结果。
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.GuiApp"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.BatchFxDemo"
 ```
 
-**4. DeepSeek 聊天演示 (AI 流式对话)**
+**4. AI 流式对话演示 (Streaming AI Chat Demo)**
 与 DeepSeek API 交互的聊天界面。需要设置 API Key。
 ```bash
 # 请先设置环境变量
 # Windows (PowerShell): $env:DEEPSEEK_API_KEY="your-key"
 # Linux/Mac: export DEEPSEEK_API_KEY="your-key"
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.DeepSeekChatDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingAiChatDemo"
 ```
 
 ## 📐 架构与设计
