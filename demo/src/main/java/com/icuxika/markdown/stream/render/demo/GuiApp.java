@@ -12,11 +12,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import javafx.scene.control.ToolBar;
+
 public class GuiApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();
+        MarkdownTheme theme = new MarkdownTheme();
 
         // Input Area
         TextArea inputArea = new TextArea();
@@ -43,9 +47,22 @@ public class GuiApp extends Application {
         // Render Button (or auto-render)
         Button renderBtn = new Button("Render");
         renderBtn.setOnAction(e -> render(inputArea.getText(), outputScroll));
+        
+        // Theme Switch Button
+        Button themeBtn = new Button("Switch Theme");
+        themeBtn.setOnAction(e -> {
+            if (theme.getTheme() == MarkdownTheme.Theme.LIGHT) {
+                theme.setTheme(MarkdownTheme.Theme.DARK);
+            } else {
+                theme.setTheme(MarkdownTheme.Theme.LIGHT);
+            }
+        });
+
+        // Toolbar for controls
+        ToolBar toolBar = new ToolBar(renderBtn, themeBtn);
 
         // Layout
-        VBox leftBox = new VBox(inputArea, renderBtn);
+        VBox leftBox = new VBox(toolBar, inputArea);
         javafx.scene.layout.VBox.setVgrow(inputArea, javafx.scene.layout.Priority.ALWAYS);
 
         SplitPane splitPane = new SplitPane();
@@ -57,7 +74,11 @@ public class GuiApp extends Application {
         // Initial Render
         render(inputArea.getText(), outputScroll);
 
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1024, 768);
+        
+        // Apply theme
+        theme.apply(scene);
+
         primaryStage.setTitle("Markdown Stream Renderer - JavaFX Demo");
         primaryStage.setScene(scene);
         primaryStage.show();

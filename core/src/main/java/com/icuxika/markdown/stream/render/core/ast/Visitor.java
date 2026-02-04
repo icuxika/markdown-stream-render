@@ -48,4 +48,6 @@ public interface Visitor {
     void visit(TableRow tableRow);
 
     void visit(TableCell tableCell);
+
+    void visit(Strikethrough strikethrough);
 }

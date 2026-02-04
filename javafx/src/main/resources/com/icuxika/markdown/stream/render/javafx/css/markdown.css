@@ -1,77 +1,134 @@
 .markdown-root {
     -fx-spacing: 10;
-    -fx-padding: 10;
+    -fx-padding: 20;
     -fx-background-color: -md-bg-color;
 }
 
 .markdown-text {
-    -fx-font-family: "System";
+    -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
     -fx-font-size: 14px;
     -fx-fill: -md-fg-color;
 }
 
-.markdown-h1 { -fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
-.markdown-h2 { -fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
-.markdown-h3 { -fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
-.markdown-h4 { -fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
-.markdown-h5 { -fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
-.markdown-h6 { -fx-font-size: 10px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+/* Headers */
+.markdown-h1-text { -fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h2-text { -fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h3-text { -fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h4-text { -fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h5-text { -fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: -md-fg-color; }
+.markdown-h6-text { -fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: -md-sub-text-color; }
 
+/* Paragraph */
+.markdown-paragraph {
+    -fx-padding: 0 0 10 0;
+}
+
+/* Links */
 .markdown-link {
     -fx-fill: -md-link-color;
     -fx-underline: true;
     -fx-cursor: hand;
 }
 
+/* Inline Code */
 .markdown-code {
-    -fx-font-family: "Courier New", monospace;
-    -fx-fill: -md-code-fg-color;
-    /* -fx-background-color: -md-code-bg-color; Inline code usually doesn't have bg in TextFlow in JavaFX easily without StackPane, but we can try */
-}
-
-.markdown-code-block {
-    -fx-font-family: "Courier New", monospace;
-    -fx-text-fill: -md-fg-color;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-text-fill: -md-fg-color; /* Label uses -fx-text-fill, not -fx-fill */
     -fx-background-color: -md-code-bg-color;
-    -fx-padding: 10;
+    -fx-padding: 0 4; /* Top/Bottom 0 to align better with text baseline, Left/Right 4 */
+    -fx-background-radius: 4;
     -fx-border-color: -md-border-color;
     -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-font-size: 13px; /* Slightly smaller for code */
 }
 
+/* Code Block */
+.markdown-code-block {
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-size: 13px;
+    -fx-text-fill: -md-fg-color;
+    -fx-background-color: -md-code-bg-color;
+    -fx-padding: 16;
+    -fx-border-color: -md-border-color;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-min-width: 400;
+}
+
+/* Blockquote */
 .markdown-quote {
-    -fx-background-color: -md-quote-bg-color;
-    -fx-padding: 10;
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 16;
     -fx-border-color: -md-quote-border-color;
     -fx-border-width: 0 0 0 4;
 }
+/* Note: Text inside quote should probably use a sub-color, but currently it inherits markdown-text. 
+   We might need a .markdown-quote .markdown-text selector if JavaFX supported it well, 
+   but for now let's leave it. */
 
+/* Lists */
+.markdown-list {
+    -fx-padding: 0 0 0 20;
+}
+
+.markdown-list-item {
+    -fx-alignment: TOP_LEFT;
+}
+
+.markdown-list-marker {
+    -fx-font-weight: bold;
+    -fx-text-fill: -md-fg-color;
+}
+
+/* Tables */
 .markdown-table {
     -fx-border-color: -md-border-color;
     -fx-border-width: 1;
-    -fx-padding: 5;
+    -fx-background-color: transparent;
+    -fx-padding: 10;
 }
 
 .markdown-table-cell {
-    -fx-padding: 5;
     -fx-border-color: -md-border-color;
     -fx-border-width: 0 0 1 0;
+    -fx-padding: 6 13;
+    -fx-background-color: -md-bg-color;
 }
 
 .markdown-table-header {
     -fx-font-weight: bold;
     -fx-background-color: -md-table-header-bg;
-    -fx-padding: 5;
 }
 
-/* Default (Fallback) */
+/* Separator */
+.markdown-separator {
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: -md-border-color;
+    -fx-background-color: transparent;
+    -fx-padding: 10 0;
+    -fx-pref-height: 1;
+}
+
+/* Images */
+.markdown-image {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.markdown-strikethrough {
+    -fx-strikethrough: true;
+}
+
+/* Default Colors (Fallback if light/dark css not loaded) */
 .root {
     -md-fg-color: #24292f;
     -md-bg-color: #ffffff;
+    -md-sub-text-color: #6a737d;
     -md-link-color: #0969da;
-    -md-code-fg-color: #cf222e;
     -md-code-bg-color: #f6f8fa;
     -md-border-color: #d0d7de;
-    -md-quote-bg-color: #f6f8fa;
-    -md-quote-border-color: #d0d7de;
+    -md-quote-border-color: #dfe2e5;
     -md-table-header-bg: #f6f8fa;
 }

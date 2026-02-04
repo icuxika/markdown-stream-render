@@ -118,6 +118,14 @@ public class HtmlRenderer implements IMarkdownRenderer {
     @Override
     public void visit(ListItem listItem) {
         sb.append("<li>");
+        
+        if (listItem.isTask()) {
+            sb.append("<input disabled=\"\" type=\"checkbox\"");
+            if (listItem.isChecked()) {
+                sb.append(" checked=\"\"");
+            }
+            sb.append("> ");
+        }
 
         boolean tight = false;
         Node parent = listItem.getParent();
@@ -236,6 +244,13 @@ public class HtmlRenderer implements IMarkdownRenderer {
         sb.append(">");
         visitChildren(tableCell);
         sb.append("</").append(tag).append(">\n");
+    }
+
+    @Override
+    public void visit(Strikethrough strikethrough) {
+        sb.append("<del>");
+        visitChildren(strikethrough);
+        sb.append("</del>");
     }
 
     private String encodeUrl(String url) {

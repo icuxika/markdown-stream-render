@@ -84,6 +84,7 @@ public class CommonMarkSpecTest {
                         "Example " + example.example + " (" + example.section + ")",
                         () -> {
                             MarkdownParser parser = new MarkdownParser();
+                            parser.getOptions().setGfm(false); // Disable GFM extensions for strict spec tests
                             HtmlRenderer renderer = new HtmlRenderer();
                             parser.parse(new java.io.StringReader(example.markdown), renderer);
                             String actual = (String) renderer.getResult();
@@ -125,6 +126,7 @@ public class CommonMarkSpecTest {
 
             try {
                 MarkdownParser parser = new MarkdownParser();
+                parser.getOptions().setGfm(false); // Disable GFM extensions for strict spec tests
                 HtmlRenderer renderer = new HtmlRenderer();
                 parser.parse(new java.io.StringReader(example.markdown), renderer);
                 String actual = (String) renderer.getResult();

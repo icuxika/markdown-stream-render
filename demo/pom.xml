@@ -31,7 +31,6 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.icuxika.markdown.stream.render.demo.App</mainClass>
                 </configuration>
             </plugin>
             <plugin>

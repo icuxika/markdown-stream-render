@@ -14,13 +14,26 @@ public class MarkdownParser {
 
     private static final Pattern ENTITY = Pattern.compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
 
+    private final MarkdownParserOptions options = new MarkdownParserOptions();
+
+    public MarkdownParserOptions getOptions() {
+        return options;
+    }
+
     public void parse(Reader reader, IMarkdownRenderer renderer) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        int c;
-        while ((c = reader.read()) != -1) {
-            sb.append((char) c);
+        Document doc = new Document();
+        BlockParserState state = new BlockParserState();
+
+        java.io.BufferedReader br = (reader instanceof java.io.BufferedReader) ? (java.io.BufferedReader) reader : new java.io.BufferedReader(reader);
+        String line;
+        while ((line = br.readLine()) != null) {
+            state.processLine(doc, expandTabs(line), line);
         }
-        Document doc = parse(sb.toString());
+        state.finalizeBlock(doc);
+
+        extractLinkReferenceDefinitions(doc);
+        parseInlines(doc, doc);
+
         doc.accept(renderer);
     }
 
@@ -28,20 +41,32 @@ public class MarkdownParser {
         Document doc = new Document();
         if (input == null) return doc;
 
-        // Split lines preserving empty lines
-        String[] lines = input.split("\r\n|\r|\n", -1);
-        int length = lines.length;
-        if (input.endsWith("\n") || input.endsWith("\r")) {
-            if (length > 0 && lines[length - 1].isEmpty()) {
-                length--;
+        BlockParserState state = new BlockParserState();
+
+        int len = input.length();
+        if (len == 0) {
+            state.processLine(doc, "", "");
+        } else {
+            int start = 0;
+            for (int i = 0; i < len; i++) {
+                char c = input.charAt(i);
+                if (c == '\n' || c == '\r') {
+                    String line = input.substring(start, i);
+                    state.processLine(doc, expandTabs(line), line);
+
+                    if (c == '\r' && i + 1 < len && input.charAt(i + 1) == '\n') {
+                        i++;
+                    }
+                    start = i + 1;
+                }
+            }
+
+            if (start < len) {
+                String line = input.substring(start);
+                state.processLine(doc, expandTabs(line), line);
             }
         }
 
-        BlockParserState state = new BlockParserState();
-
-        for (int i = 0; i < length; i++) {
-            state.processLine(doc, expandTabs(lines[i]), lines[i]);
-        }
         state.finalizeBlock(doc);
 
         extractLinkReferenceDefinitions(doc);
@@ -343,12 +368,58 @@ public class MarkdownParser {
                         }
 
                         ListItem li = new ListItem();
+                        
+                        // Check for Task List Item
+                        // GFM: A task list item is a list item where the first block is a paragraph...
+                        // and begins with a task list item marker.
+                        // Marker: [ ] or [x] or [X]
+                        // Must be followed by a space.
+                        
+                        // We check the remaining contentLine (after marker).
+                        String remaining = "";
+                        if (marker.nextIndex < line.length()) {
+                            remaining = line.substring(marker.nextIndex);
+                        }
+                        // Be careful about whitespace.
+                        // parseListMarker sets marker.nextIndex to the start of content.
+                        // But wait, parseListMarker logic might have skipped spaces.
+                        // contentLine includes the marker.
+                        
+                        // We need to inspect the text *after* the list marker.
+                        // The `remaining` string starts at `marker.nextIndex`.
+                        
+                        if (remaining.startsWith("[ ] ") || remaining.startsWith("[x] ") || remaining.startsWith("[X] ")) {
+                            li.setTask(true);
+                            if (remaining.charAt(1) != ' ') {
+                                li.setChecked(true);
+                            }
+                            
+                            // Adjust content: strip the task marker
+                            // GFM: "The task list item marker is treated as block-level content."
+                            // But for simplicity in parser, we can strip it and just mark the ListItem.
+                            // The text content should not contain [ ] 
+                            
+                            // Adjust marker nextIndex?
+                            // No, we are creating a ListItem here. The content will be parsed into blocks (Paragraphs) later.
+                            // But wait, the `remaining` text is passed to process subsequent blocks?
+                            // Actually, line 364: contentLine = line.substring(i);
+                            // `i` was updated to `marker.nextIndex`.
+                            
+                            // So if we modify `i` here, we can skip the task marker.
+                            marker.nextIndex += 4; // [ ] + space
+                        } else if (remaining.equals("[ ]") || remaining.equals("[x]") || remaining.equals("[X]")) {
+                             // Case where the item content is JUST the checkbox
+                             li.setTask(true);
+                             if (remaining.charAt(1) != ' ') li.setChecked(true);
+                             marker.nextIndex += 3; // No trailing space
+                        }
+
                         Node listParent = openContainers.get(openContainers.size() - 1);
                         checkLooseList(listParent);
                         listParent.appendChild(li);
                         openContainers.add(li);
                         int contentIndent = marker.indent + marker.markerLength + marker.padding;
-                        System.out.println("Adding ListItem: contentIndent=" + contentIndent + ", markerIndent=" + marker.indent + ", len=" + marker.markerLength + ", pad=" + marker.padding);
+                        // System.out.println("Adding ListItem: contentIndent=" + contentIndent + ", markerIndent=" + marker.indent + ", len=" + marker.markerLength + ", pad=" + marker.padding);
                         openContainerBlockIndents.add(contentIndent);
 
                         i = marker.nextIndex;
@@ -391,6 +462,13 @@ public class MarkdownParser {
                     inTable = false;
                     tableAlignments.clear();
                     // Fall through to process as normal block/line
+                } else if (!contentLine.contains("|")) {
+                    // Table row must contain a pipe (unless it's a 1-column table? GFM is vague, but commonmark-java requires pipe)
+                    // If no pipe, it terminates the table.
+                    finalizeCurrentLeaf();
+                    inTable = false;
+                    tableAlignments.clear();
+                    // Fall through
                 } else {
                     // Parse Table Row
                     if (currentLeaf instanceof TableBody) {
@@ -851,82 +929,80 @@ public class MarkdownParser {
             return row;
         }
 
+        int findCodeSpanEnd(String row, int start, int runLength) {
+            int i = start;
+            while (i < row.length()) {
+                if (row.charAt(i) == '`') {
+                    int s = i;
+                    while (i < row.length() && row.charAt(i) == '`') i++;
+                    int len = i - s;
+                    if (len == runLength) return s;
+                    i = s; 
+                } else if (row.charAt(i) == '\\') {
+                    i += 2;
+                } else {
+                    i++;
+                }
+            }
+            return -1;
+        }
+
         List<String> splitTableCells(String row) {
             List<String> cells = new ArrayList<>();
             StringBuilder current = new StringBuilder();
             boolean escaped = false;
 
-            for (int i = 0; i < row.length(); i++) {
+            int i = 0;
+            boolean lastCharWasDelimiter = false;
+            
+            while (i < row.length()) {
                 char c = row.charAt(i);
+                lastCharWasDelimiter = false;
+                
                 if (escaped) {
                     current.append(c);
                     escaped = false;
-                } else {
-                    if (c == '\\') {
-                        current.append(c);
-                        escaped = true;
-                    } else if (c == '|') {
-                        cells.add(current.toString());
-                        current.setLength(0);
-                    } else {
-                        current.append(c);
-                    }
+                    i++;
+                    continue;
                 }
+                
+                if (c == '\\') {
+                    current.append(c);
+                    escaped = true;
+                    i++;
+                    continue;
+                }
+                
+                if (c == '`') {
+                    int start = i;
+                    while (i < row.length() && row.charAt(i) == '`') i++;
+                    int runLength = i - start;
+                    
+                    for (int k = 0; k < runLength; k++) current.append('`');
+                    
+                    int match = findCodeSpanEnd(row, i, runLength);
+                    if (match != -1) {
+                        current.append(row.substring(i, match));
+                        for (int k = 0; k < runLength; k++) current.append('`');
+                        i = match + runLength;
+                    }
+                    continue;
+                }
+                
+                if (c == '|') {
+                    cells.add(current.toString());
+                    current.setLength(0);
+                    lastCharWasDelimiter = true;
+                    i++;
+                    continue;
+                }
+                
+                current.append(c);
+                i++;
             }
-            // Add last cell
-            // Note: If row ends with unescaped pipe, we treat it as trailing pipe (ignore last empty cell?)
-            // GFM: "The final pipe is optional."
-            // If the row string passed here HAS trailing pipe stripped, then we just add current.
-            // But we didn't strip it robustly above.
-
-            // Let's handle trailing pipe detection here.
-            // If the last char processed was | (implied by loop finish), then we have an empty `current`.
-            // But wait, if row ends with |, the loop adds the content before it to `cells`, clears `current`.
-            // Then loop finishes. `current` is empty.
-            // If row was "a|b|", cells=["a", "b"], current="".
-            // We should NOT add empty current if it corresponds to trailing pipe.
-            // But "a|b|" could mean 3 columns? "a", "b", "".
-            // GFM: "A trailing pipe | is also optional... If a row ends with |, that | is stripped."
-            // So "a|b|" is effectively "a|b". Two cells.
-
-            // So if the input string ended with `|` (unescaped), we should ignore the final empty buffer?
-            // Yes.
-
-            // But we need to know if the last char was indeed an unescaped pipe.
-            // Check original string.
-            boolean endedWithPipe = false;
-            if (row.length() > 0) {
-                // Check backwards for unescaped pipe
-                int idx = row.length() - 1;
-                int backslashes = 0;
-                while (idx >= 0 && row.charAt(idx) == '\\') {
-                    backslashes++;
-                    idx--;
-                }
-                // If odd backslashes, last char is escaped.
-                // Wait, we are looking at the LAST character of string.
-                if (row.charAt(row.length() - 1) == '|') {
-                    // Check preceding backslashes
-                    int j = row.length() - 2;
-                    int bs = 0;
-                    while (j >= 0 && row.charAt(j) == '\\') {
-                        bs++;
-                        j--;
-                    }
-                    if (bs % 2 == 0) {
-                        endedWithPipe = true;
-                    }
-                }
-            }
-
-            if (endedWithPipe) {
-                // If we ended with pipe, the loop would have added the cell before it.
-                // And `current` would be empty.
-                // We just discard `current`.
-            } else {
+            if (!lastCharWasDelimiter) {
                 cells.add(current.toString());
             }
-
             return cells;
         }
 
@@ -1552,7 +1628,7 @@ public class MarkdownParser {
                 String content = ((Text) first).getLiteral();
                 first.unlink();
 
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences());
+                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options);
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
                     p.appendChild(inline);
@@ -1565,7 +1641,7 @@ public class MarkdownParser {
                 String content = ((Text) first).getLiteral();
                 first.unlink();
 
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences());
+                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options);
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
                     h.appendChild(inline);
@@ -1578,7 +1654,7 @@ public class MarkdownParser {
                 String content = ((Text) first).getLiteral();
                 first.unlink();
 
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences());
+                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options);
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
                     c.appendChild(inline);

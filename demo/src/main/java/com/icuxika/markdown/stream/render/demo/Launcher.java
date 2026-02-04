@@ -3,6 +3,6 @@ package com.icuxika.markdown.stream.render.demo;
 public class Launcher {
 
     static void main(String[] args) {
-        DeepSeekChatDemo.main(args);
+        GuiApp.main(args);
     }
 }

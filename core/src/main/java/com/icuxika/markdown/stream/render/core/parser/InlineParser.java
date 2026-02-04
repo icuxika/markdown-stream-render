@@ -28,19 +28,21 @@ public class InlineParser {
 
     private final String text;
     private final java.util.Map<String, LinkReference> references;
+    private final MarkdownParserOptions options;
     private int index = 0;
     private final List<Node> nodes = new ArrayList<>();
 
     // Emphasis delimiter stack
     private Delimiter lastDelimiter = null;
 
-    public InlineParser(String text) {
-        this(text, java.util.Collections.emptyMap());
+    public InlineParser(String text, MarkdownParserOptions options) {
+        this(text, java.util.Collections.emptyMap(), options);
     }
 
-    public InlineParser(String text, java.util.Map<String, LinkReference> references) {
+    public InlineParser(String text, java.util.Map<String, LinkReference> references, MarkdownParserOptions options) {
         this.text = text;
         this.references = references;
+        this.options = options != null ? options : new MarkdownParserOptions();
     }
 
     public List<Node> parse() {
@@ -57,7 +59,7 @@ public class InlineParser {
                 handleBacktick();
             } else if (c == '&') {
                 handleEntity();
-            } else if (c == '*' || c == '_') {
+            } else if (c == '*' || c == '_' || c == '~') {
                 handleEmphasis(c);
             } else if (c == '[') {
                 handleLeftSquareBracket();
@@ -417,7 +419,7 @@ public class InlineParser {
                 Link link = new Link(destination, title != null ? title : "");
 
                 // Parse text content recursively
-                InlineParser parser = new InlineParser(textContent, references);
+                InlineParser parser = new InlineParser(textContent, references, options);
                 List<Node> children = parser.parse();
                 for (Node child : children) {
                     link.appendChild(child);
@@ -466,7 +468,7 @@ public class InlineParser {
                 LinkReference ref = references.get(normalizedLabel);
                 Link link = new Link(ref.getDestination(), ref.getTitle());
 
-                InlineParser parser = new InlineParser(textContent, references);
+                InlineParser parser = new InlineParser(textContent, references, options);
                 List<Node> children = parser.parse();
                 for (Node child : children) {
                     link.appendChild(child);
@@ -575,7 +577,7 @@ public class InlineParser {
                 if (valid) {
                     Image image = new Image(destination, title != null ? title : "");
 
-                    InlineParser parser = new InlineParser(altText, references);
+                    InlineParser parser = new InlineParser(altText, references, options);
                     List<Node> children = parser.parse();
                     for (Node child : children) {
                         image.appendChild(child);
@@ -613,7 +615,7 @@ public class InlineParser {
                     LinkReference ref = references.get(normalizedLabel);
                     Image image = new Image(ref.getDestination(), ref.getTitle());
 
-                    InlineParser parser = new InlineParser(altText, references);
+                    InlineParser parser = new InlineParser(altText, references, options);
                     List<Node> children = parser.parse();
                     for (Node child : children) {
                         image.appendChild(child);
@@ -906,14 +908,146 @@ public class InlineParser {
         int start = index;
         while (index < text.length()) {
             char c = text.charAt(index);
-            if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '[' || c == '!') {
+            if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '[' || c == '!' || c == '~') {
                 break;
             }
             index++;
         }
         if (index > start) {
-            nodes.add(new Text(text.substring(start, index)));
+            String content = text.substring(start, index);
+            processAutolinks(content);
         }
+    }
+
+    private static final Pattern EXTENDED_AUTOLINK_URI = Pattern.compile(
+            "(^|\\s)(?:(https?|ftp)://|www\\.)[a-zA-Z0-9.+-]+(?:/[a-zA-Z0-9._+/?#@!$&'()*+,;=-]*)?",
+            Pattern.CASE_INSENSITIVE
+    );
+    
+    private static final Pattern EXTENDED_AUTOLINK_EMAIL = Pattern.compile(
+            "(^|\\s)[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+            Pattern.CASE_INSENSITIVE
+    );
+
+    private void processAutolinks(String content) {
+        if (!options.isGfm()) {
+            nodes.add(new Text(content));
+            return;
+        }
+
+        // Simple scanner for now.
+        // We look for patterns.
+        // Note: This is simplified. GFM has complex rules about trailing punctuation.
+        // Also, we need to handle both URI and Email.
+        
+        int lastPos = 0;
+        
+        // Combine regex? Or iterative?
+        // Let's use a simpler approach: Match URIs, then check Emails in remaining text?
+        // Actually, emails are distinct.
+        
+        // Let's iterate through the content finding matches.
+        // We use a custom matcher that finds the earliest match of either type.
+        
+        Matcher uriMatcher = EXTENDED_AUTOLINK_URI.matcher(content);
+        Matcher emailMatcher = EXTENDED_AUTOLINK_EMAIL.matcher(content);
+        
+        while (lastPos < content.length()) {
+            int uriStart = -1;
+            int emailStart = -1;
+            
+            if (uriMatcher.find(lastPos)) uriStart = uriMatcher.start();
+            if (emailMatcher.find(lastPos)) emailStart = emailMatcher.start();
+            
+            if (uriStart == -1 && emailStart == -1) {
+                nodes.add(new Text(content.substring(lastPos)));
+                break;
+            }
+            
+            int start = -1;
+            int end = -1;
+            boolean isEmail = false;
+            String match = "";
+            String linkDest = "";
+            
+            // Prioritize earliest match
+            if (uriStart != -1 && (emailStart == -1 || uriStart <= emailStart)) {
+                start = uriStart;
+                match = uriMatcher.group();
+                end = uriMatcher.end();
+                
+                // Regex might include leading whitespace due to (^|\\s)
+                if (Character.isWhitespace(match.charAt(0))) {
+                    start++;
+                    match = match.substring(1);
+                }
+                
+                // Trim trailing punctuation (., ?, !, :, ;, *, ~) if not paired?
+                // GFM rule: Trailing punctuation should not be part of the link
+                // unless it is a closing paren ) and there is an opening paren ( in the link.
+                
+                match = trimTrailingPunctuation(match);
+                end = start + match.length();
+                
+                if (match.toLowerCase().startsWith("www.")) {
+                    linkDest = "http://" + match;
+                } else {
+                    linkDest = match;
+                }
+            } else {
+                start = emailStart;
+                match = emailMatcher.group();
+                end = emailMatcher.end();
+                isEmail = true;
+                
+                if (Character.isWhitespace(match.charAt(0))) {
+                    start++;
+                    match = match.substring(1);
+                }
+                
+                // Email usually doesn't have complex trailing punctuation issues if regex is strict.
+                // But let's apply trim just in case.
+                match = trimTrailingPunctuation(match);
+                end = start + match.length();
+                
+                linkDest = "mailto:" + match;
+            }
+            
+            // Add text before
+            if (start > lastPos) {
+                nodes.add(new Text(content.substring(lastPos, start)));
+            }
+            
+            Link link = new Link(linkDest, "");
+            link.appendChild(new Text(match));
+            nodes.add(link);
+            
+            lastPos = end;
+        }
+    }
+    
+    private String trimTrailingPunctuation(String s) {
+        int end = s.length();
+        while (end > 0) {
+            char c = s.charAt(end - 1);
+            if (isPunctuation(c)) {
+                if (c == ')') {
+                    // Check for balanced parens
+                    int open = 0;
+                    int close = 0;
+                    for (int i = 0; i < end; i++) {
+                        if (s.charAt(i) == '(') open++;
+                        if (s.charAt(i) == ')') close++;
+                    }
+                    if (open >= close) break; // Balanced or more open, keep it
+                }
+                // Strip
+                end--;
+            } else {
+                break;
+            }
+        }
+        return s.substring(0, end);
     }
 
     private boolean isUnicodeWhitespace(char c) {
@@ -964,6 +1098,7 @@ public class InlineParser {
             canOpen = leftFlanking && (!rightFlanking || isUnicodePunctuation(before));
             canClose = rightFlanking && (!leftFlanking || isUnicodePunctuation(after));
         } else {
+            // For * and ~
             canOpen = leftFlanking;
             canClose = rightFlanking;
         }
@@ -1003,6 +1138,15 @@ public class InlineParser {
                         opener = opener.previous;
                         continue;
                     }
+                    
+                    // GFM Strikethrough check
+                    if (d.c == '~') {
+                         if (opener.length < 2 || d.length < 2) {
+                             // Must have at least 2 tildes
+                             opener = opener.previous;
+                             continue;
+                         }
+                    }
 
                     found = true;
                     break;
@@ -1013,22 +1157,23 @@ public class InlineParser {
             if (found) {
                 // Match found!
 
-                // Remove intervening delimiters
-                Delimiter temp = d.previous;
-                while (temp != null && temp != opener) {
-                    Delimiter nextTemp = temp.previous;
-                    removeDelimiter(temp);
-                    temp = nextTemp;
-                }
-
                 // Determine usage
                 int useDelims = (d.length >= 2 && opener.length >= 2) ? 2 : 1;
+                
+                if (d.c == '~') {
+                    useDelims = 2; // Always use 2 for strikethrough
+                }
 
                 // Create emphasis node
                 Node openerNode = opener.node;
                 Node closerNode = d.node;
 
-                Node emphasis = (useDelims == 2) ? new StrongEmphasis() : new Emphasis();
+                Node emphasis;
+                if (d.c == '~') {
+                    emphasis = new Strikethrough();
+                } else {
+                    emphasis = (useDelims == 2) ? new StrongEmphasis() : new Emphasis();
+                }
 
                 int openerIndex = nodes.indexOf(openerNode);
                 int closerIndex = nodes.indexOf(closerNode);
@@ -1050,6 +1195,14 @@ public class InlineParser {
                     // Update opener/closer
                     String openerText = ((Text) openerNode).getLiteral();
                     String closerText = ((Text) closerNode).getLiteral();
+
+                    // Remove intervening delimiters
+                    Delimiter temp = d.previous;
+                    while (temp != null && temp != opener) {
+                        Delimiter prev = temp.previous;
+                        removeDelimiter(temp);
+                        temp = prev;
+                    }
 
                     // Handle Opener
                     if (opener.length == useDelims) {
@@ -1078,6 +1231,7 @@ public class InlineParser {
                         // We continue with the SAME closer 'd' to see if it can close more.
                         current = d;
                     }
+
                 } else {
                     // Indices not valid? Should not happen if logic is correct.
                     current = current.next;

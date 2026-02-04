@@ -180,25 +180,58 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         javafx.scene.layout.HBox itemBox = new javafx.scene.layout.HBox();
         itemBox.setSpacing(5);
         itemBox.getStyleClass().add("markdown-list-item");
-
-        String markerText = "\u2022";
+        
+        // 1. Determine Bullet/Number Marker
+        boolean isOrdered = false;
+        int index = 0;
+        char delimiter = '.';
+        
         if (!listStack.isEmpty()) {
             ListState state = listStack.peek();
-            if (state.isOrdered) {
-                markerText = state.index + String.valueOf(state.delimiter);
+            isOrdered = state.isOrdered;
+            index = state.index;
+            delimiter = state.delimiter;
+            
+            // Increment index for next item
+            if (isOrdered) {
                 state.index++;
             }
         }
-
-        Label marker = new Label(markerText);
-        marker.getStyleClass().add("markdown-list-marker");
-        marker.setMinWidth(20); // Fixed width for alignment
-        marker.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
-
+        
+        java.util.List<javafx.scene.Node> markers = new java.util.ArrayList<>();
+        
+        if (isOrdered) {
+             String markerText = index + String.valueOf(delimiter);
+             Label markerLabel = new Label(markerText);
+             markerLabel.getStyleClass().add("markdown-list-marker");
+             markerLabel.setMinWidth(20);
+             markerLabel.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+             markers.add(markerLabel);
+        } else if (!listItem.isTask()) {
+            // Only show bullet if NOT a task (GitHub style: bullet replaced by checkbox)
+            String markerText = "\u2022";
+            Label markerLabel = new Label(markerText);
+            markerLabel.getStyleClass().add("markdown-list-marker");
+            markerLabel.setMinWidth(20);
+            markerLabel.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+            markers.add(markerLabel);
+        }
+        
+        // 2. Add Checkbox if Task
+        if (listItem.isTask()) {
+            javafx.scene.control.CheckBox checkBox = new javafx.scene.control.CheckBox();
+            checkBox.setSelected(listItem.isChecked());
+            checkBox.setDisable(true); // Read-only
+            checkBox.getStyleClass().add("markdown-task-checkbox");
+            markers.add(checkBox);
+        }
+        
         VBox contentBox = new VBox();
         contentBox.getStyleClass().add("markdown-list-content");
-        itemBox.getChildren().addAll(marker, contentBox);
-
+        
+        itemBox.getChildren().addAll(markers);
+        itemBox.getChildren().add(contentBox);
+        
         blockStack.peek().getChildren().add(itemBox);
         blockStack.push(contentBox);
         visitChildren(listItem);
@@ -206,14 +239,35 @@ public class JavaFxRenderer implements IMarkdownRenderer {
     }
 
     @Override
+    public void visit(Strikethrough strikethrough) {
+        boolean old = strike;
+        strike = true;
+        visitChildren(strikethrough);
+        strike = old;
+    }
+    
+    private boolean strike = false;
+
+    @Override
     public void visit(Code code) {
         boolean old = codeVal;
         codeVal = true;
-        javafx.scene.text.Text t = new javafx.scene.text.Text(code.getLiteral());
-        applyStyle(t);
+        
+        // Use Label for inline code to support background color and padding
+        Label codeLabel = new Label(code.getLiteral());
+        codeLabel.getStyleClass().add("markdown-code");
+        
+        // We still need to respect parent styles (like bold/italic if nested, though code usually resets font)
+        // But for simplicity, we just use the label.
+        // Issue: Label inside TextFlow?
+        // TextFlow can contain any Node.
+        
         if (currentTextFlow != null) {
-            currentTextFlow.getChildren().add(t);
+            currentTextFlow.getChildren().add(codeLabel);
+        } else {
+            blockStack.peek().getChildren().add(codeLabel);
         }
+        
         codeVal = old;
     }
 
@@ -359,25 +413,44 @@ public class JavaFxRenderer implements IMarkdownRenderer {
             t.getStyleClass().add("markdown-h" + headingLevel + "-text");
         }
 
+        StringBuilder style = new StringBuilder();
+        String currentStyle = t.getStyle();
+        if (currentStyle != null && !currentStyle.isEmpty()) {
+            style.append(currentStyle);
+            if (!currentStyle.endsWith(";")) style.append(";");
+        }
+
         if (bold) {
             t.getStyleClass().add("markdown-bold");
-            t.setStyle(t.getStyle() + "-fx-font-weight: bold;"); // Fallback if css not enough for text node inside TextFlow?
-            // Actually, for Text nodes in TextFlow, style class works if defined properly.
-            // But -fx-font-weight works on Text.
+            style.append("-fx-font-weight: bold;");
         }
         if (italic) {
             t.getStyleClass().add("markdown-italic");
-            t.setStyle(t.getStyle() + "-fx-font-style: italic;");
+            style.append("-fx-font-style: italic;");
+        }
+        if (strike) {
+            t.getStyleClass().add("markdown-strikethrough");
+            t.setStrikethrough(true);
         }
         if (codeVal) {
             t.getStyleClass().add("markdown-code");
+            style.append("-fx-font-family: 'Courier New', monospace;");
         }
 
         if (isLink) {
             t.getStyleClass().add("markdown-link");
+            style.append("-fx-fill: blue;");
+            t.setUnderline(true);
+            t.setCursor(javafx.scene.Cursor.HAND);
+            
+            final String dest = linkDestination;
             t.setOnMouseClicked(e -> {
-                System.out.println("Link clicked: " + linkDestination);
+                System.out.println("Link clicked: " + dest);
             });
+        }
+
+        if (style.length() > 0) {
+            t.setStyle(style.toString());
         }
     }
 }

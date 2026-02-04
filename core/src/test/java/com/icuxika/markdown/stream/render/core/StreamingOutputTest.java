@@ -155,6 +155,11 @@ public class StreamingOutputTest {
                 visitChildren(image);
             }
 
+            @Override
+            public void visit(Strikethrough strikethrough) {
+                visitChildren(strikethrough);
+            }
+
             private void visitChildren(Node parent) {
                 Node child = parent.getFirstChild();
                 while (child != null) {
