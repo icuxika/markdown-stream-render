@@ -21,6 +21,13 @@ import java.util.regex.Pattern;
  * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
  * </p>
  */
+/**
+ * 核心 Markdown 解析器。
+ * <p>
+ * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。
+ * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
+ * </p>
+ */
 public class MarkdownParser {
 
     private static final Pattern ENTITY = Pattern.compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
@@ -97,6 +104,16 @@ public class MarkdownParser {
      * </p>
      *
      * @param reader   输入流
+     * @param renderer 渲染器
+     * @throws IOException 如果读取失败
+     */
+    /**
+     * 解析 Reader 输入，并使用指定的渲染器进行处理。
+     * <p>
+     * 这种方式支持边解析边渲染（流式处理），尽管目前的实现主要还是先构建完 AST。
+     * </p>
+     *
+     * @param reader 输入流
      * @param renderer 渲染器
      * @throws IOException 如果读取失败
      */
@@ -206,7 +223,25 @@ public class MarkdownParser {
         return sb.toString();
     }
 
-    private static class BlockParserState {
+    // Making BlockParserState accessible for StreamMarkdownParser
+    public static class BlockParserState {
+        // Callback for streaming
+        private java.util.function.Consumer<Node> onBlockFinalized;
+        private java.util.function.Consumer<Node> onBlockStarted;
+        private java.util.function.Consumer<Node> onBlockClosed;
+
+        public void setOnBlockFinalized(java.util.function.Consumer<Node> onBlockFinalized) {
+            this.onBlockFinalized = onBlockFinalized;
+        }
+
+        public void setOnBlockStarted(java.util.function.Consumer<Node> onBlockStarted) {
+            this.onBlockStarted = onBlockStarted;
+        }
+
+        public void setOnBlockClosed(java.util.function.Consumer<Node> onBlockClosed) {
+            this.onBlockClosed = onBlockClosed;
+        }
+
         List<Node> openContainers = new ArrayList<>();
         List<Integer> openContainerBlockIndents = new ArrayList<>();
 
@@ -322,6 +357,7 @@ public class MarkdownParser {
                 openContainerBlockIndents.add(0);
                 // Document start line is always 0
                 if (doc.getStartLine() == -1) doc.setStartLine(0);
+                if (onBlockStarted != null) onBlockStarted.accept(doc);
             }
 
             int i = 0;
@@ -474,7 +510,8 @@ public class MarkdownParser {
             if (!lazyContinuation) {
                 while (openContainers.size() > matches + 1) {
                     finalizeCurrentLeaf(lineNumber - 1);
-                    openContainers.remove(openContainers.size() - 1);
+                    Node removed = openContainers.remove(openContainers.size() - 1);
+                    if (onBlockClosed != null) onBlockClosed.accept(removed);
                     openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                 }
             }
@@ -523,6 +560,7 @@ public class MarkdownParser {
                                 checkLooseList(openContainers.get(openContainers.size() - 1));
                                 openContainers.get(openContainers.size() - 1).appendChild(block);
                                 openContainers.add(block);
+                                if (onBlockStarted != null) onBlockStarted.accept(block);
                                 activeBlockParsers.put(block, bp);
 
                                 int newIndent = start.getNewIndent();
@@ -558,6 +596,7 @@ public class MarkdownParser {
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(quote);
                         openContainers.add(quote);
+                        if (onBlockStarted != null) onBlockStarted.accept(quote);
                         openContainerBlockIndents.add(0);
                         currentContentDepth = openContainers.size() - 1;
                         continue;
@@ -594,7 +633,8 @@ public class MarkdownParser {
                             // If parent is a List, close it!
                             Node parentNode = openContainers.get(openContainers.size() - 1);
                             if (parentNode instanceof BulletList || parentNode instanceof OrderedList) {
-                                openContainers.remove(openContainers.size() - 1);
+                                Node removed = openContainers.remove(openContainers.size() - 1);
+                                if (onBlockClosed != null) onBlockClosed.accept(removed);
                                 openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                             }
 
@@ -614,6 +654,7 @@ public class MarkdownParser {
                             checkLooseList(openContainers.get(openContainers.size() - 1));
                             openContainers.get(openContainers.size() - 1).appendChild(newList);
                             openContainers.add(newList);
+                            if (onBlockStarted != null) onBlockStarted.accept(newList);
                             openContainerBlockIndents.add(0);
                         }
 
@@ -642,6 +683,7 @@ public class MarkdownParser {
                         checkLooseList(listParent);
                         listParent.appendChild(li);
                         openContainers.add(li);
+                        if (onBlockStarted != null) onBlockStarted.accept(li);
                         int contentIndent = marker.indent + marker.markerLength + marker.padding;
                         openContainerBlockIndents.add(contentIndent);
 
@@ -663,7 +705,8 @@ public class MarkdownParser {
                 Node last = openContainers.get(openContainers.size() - 1);
                 if ((last instanceof BulletList || last instanceof OrderedList) && currentLeaf == null) {
                     // We closed the last ListItem, and didn't open a new one.
-                    openContainers.remove(openContainers.size() - 1);
+                    Node removed = openContainers.remove(openContainers.size() - 1);
+                    if (onBlockClosed != null) onBlockClosed.accept(removed);
                     openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                 }
             }
@@ -681,15 +724,27 @@ public class MarkdownParser {
                         || parseListMarker(contentLine, 0) != null
                         || getHtmlBlockStartCondition(contentLine) > 0) {
 
+                    Node tableNode = currentLeaf.getParent(); // TableBody -> Table
                     finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
+                    
+                    if (onBlockFinalized != null && tableNode instanceof Table) {
+                        onBlockFinalized.accept(tableNode);
+                    }
+                    
                     // Fall through to process as normal block/line
                 } else if (!contentLine.contains("|")) {
                     // Table row must contain a pipe
+                    Node tableNode = currentLeaf.getParent();
                     finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
+                    
+                    if (onBlockFinalized != null && tableNode instanceof Table) {
+                        onBlockFinalized.accept(tableNode);
+                    }
+                    
                     // Fall through
                 } else {
                     // Parse Table Row
@@ -902,6 +957,8 @@ public class MarkdownParser {
                 Node parent = openContainers.get(openContainers.size() - 1);
                 currentLeaf.unlink(); // Remove paragraph
                 parent.appendChild(heading);
+                
+                if (onBlockFinalized != null) onBlockFinalized.accept(heading);
 
                 currentLeaf = null;
                 currentLeafContent.setLength(0);
@@ -917,6 +974,9 @@ public class MarkdownParser {
                 tb.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(tb);
+                
+                if (onBlockFinalized != null) onBlockFinalized.accept(tb);
+                
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
             }
@@ -929,6 +989,11 @@ public class MarkdownParser {
                 heading.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(heading);
+                
+                if (onBlockFinalized != null) {
+                    onBlockFinalized.accept(heading);
+                }
+                
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
             }
@@ -1024,18 +1089,37 @@ public class MarkdownParser {
                 } else if (currentLeaf instanceof HtmlBlock) {
                     ((HtmlBlock) currentLeaf).setLiteral(currentLeafContent.toString());
                 }
+                Node finalized = currentLeaf;
                 currentLeaf = null;
                 currentLeafContent.setLength(0);
                 inFencedCodeBlock = false;
                 inIndentedCodeBlock = false;
                 inHtmlBlock = false;
+                
+                if (onBlockFinalized != null) {
+                    onBlockFinalized.accept(finalized);
+                }
             }
         }
 
         void finalizeBlock(Document doc, int lastLineNumber) {
-            finalizeCurrentLeaf(lastLineNumber - 1);
+            if (inTable && currentLeaf instanceof TableBody) {
+                Node tableNode = currentLeaf.getParent();
+                finalizeCurrentLeaf(lastLineNumber - 1);
+                if (onBlockFinalized != null && tableNode instanceof Table) {
+                    onBlockFinalized.accept(tableNode);
+                }
+                inTable = false;
+            } else {
+                finalizeCurrentLeaf(lastLineNumber - 1);
+            }
             // Close all containers? 
             // They are already in the tree.
+            if (onBlockClosed != null) {
+                for (int i = openContainers.size() - 1; i >= 0; i--) {
+                    onBlockClosed.accept(openContainers.get(i));
+                }
+            }
             openContainers.clear();
         }
 
@@ -1811,10 +1895,9 @@ public class MarkdownParser {
         }
     }
 
-    private void processInlineContainer(Document doc, Node container) {
+    public static void processInlineContainerStatic(Document doc, Node container, MarkdownParserOptions options, List<InlineContentParserFactory> factories) {
         Node first = container.getFirstChild();
         if (first instanceof Text) {
-            // Merge all text nodes if there are multiple (though usually BlockParser produces just one)
             StringBuilder sb = new StringBuilder();
             Node current = first;
             while (current instanceof Text) {
@@ -1822,9 +1905,7 @@ public class MarkdownParser {
                 current = current.getNext();
             }
 
-            // If we consumed all children
             if (current == null) {
-                // Clear container
                 Node child = container.getFirstChild();
                 while (child != null) {
                     Node next = child.getNext();
@@ -1833,13 +1914,17 @@ public class MarkdownParser {
                 }
 
                 String content = sb.toString();
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options, inlineParserFactories);
+                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options, factories);
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
                     container.appendChild(inline);
                 }
             }
         }
+    }
+
+    private void processInlineContainer(Document doc, Node container) {
+        processInlineContainerStatic(doc, container, options, inlineParserFactories);
     }
 
     private int parseLinkReferenceDefinitions(String text, Node node) {

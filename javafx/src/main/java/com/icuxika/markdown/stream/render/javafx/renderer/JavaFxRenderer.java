@@ -2,6 +2,8 @@ package com.icuxika.markdown.stream.render.javafx.renderer;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
 import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
+import com.icuxika.markdown.stream.render.javafx.extension.admonition.AdmonitionJavaFxRenderer;
+import com.icuxika.markdown.stream.render.javafx.extension.math.MathJavaFxRenderer;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
@@ -44,11 +46,24 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
             root.getStylesheets().add(cssUrl.toExternalForm());
         }
 
+        // Load extension stylesheets
+        java.net.URL admCss = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css");
+        if (admCss != null) root.getStylesheets().add(admCss.toExternalForm());
+        
+        java.net.URL mathCss = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css");
+        if (mathCss != null) root.getStylesheets().add(mathCss.toExternalForm());
+
         // Add core renderer
         List<JavaFxNodeRendererFactory> allFactories = new ArrayList<>();
         allFactories.add(context -> new CoreJavaFxNodeRenderer(context, link -> {
             if (onLinkClick != null) onLinkClick.accept(link);
         }));
+        
+        // Add default extension renderers
+        allFactories.add(context -> new AdmonitionJavaFxRenderer(context));
+        allFactories.add(context -> new MathJavaFxRenderer(context));
+        System.out.println("[INFO] JavaFxRenderer: Loaded default extensions (Admonition, Math)");
+        
         allFactories.addAll(builder.nodeRendererFactories);
 
         // Initialize renderers
@@ -103,7 +118,7 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         }
     }
 
-    private void render(Node node) {
+    void render(Node node) {
         JavaFxNodeRenderer renderer = rendererMap.get(node.getClass());
         if (renderer != null) {
             renderer.render(node);

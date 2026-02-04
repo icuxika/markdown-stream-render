@@ -1,6 +1,7 @@
 package com.icuxika.markdown.stream.render.demo;
 
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownExtensions;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import javafx.application.Application;
@@ -110,15 +111,12 @@ public class BatchFxDemo extends Application {
     }
 
     private void render(String markdown, ScrollPane outputScroll) {
-        MarkdownParser parser = MarkdownParser.builder()
-                .blockParserFactory(new BlockPluginDemo.AdmonitionBlockParserFactory())
-                .inlineParserFactory(new InlinePluginDemo.MathParserFactory())
-                .build();
+        MarkdownParser.Builder parserBuilder = MarkdownParser.builder();
+        MarkdownExtensions.addDefaults(parserBuilder);
+        MarkdownParser parser = parserBuilder.build();
 
-        JavaFxRenderer renderer = JavaFxRenderer.builder()
-                .nodeRendererFactory(context -> new BlockPluginDemo.AdmonitionJavaFxRenderer(context))
-                .nodeRendererFactory(context -> new InlinePluginDemo.MathJavaFxRenderer(context))
-                .build();
+        // JavaFxRenderer loads default extensions automatically in its constructor
+        JavaFxRenderer renderer = new JavaFxRenderer();
         this.renderer = renderer;
 
         try {

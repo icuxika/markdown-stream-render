@@ -120,11 +120,11 @@
     -fx-background-color: -md-table-header-bg;
 }
 
-/* Zebra Striping - needs Java support to add alternate classes */
-.markdown-table-row-even .markdown-table-cell {
+/* Zebra Striping */
+.markdown-table-row-even {
     -fx-background-color: -md-bg-color;
 }
-.markdown-table-row-odd .markdown-table-cell {
+.markdown-table-row-odd {
     -fx-background-color: -md-table-row-odd-bg;
 }
 

@@ -1,0 +1,42 @@
+/* Admonition Styles */
+.admonition {
+    -fx-border-color: #ddd;
+    -fx-border-width: 0 0 0 4;
+    -fx-background-color: #f9f9f9;
+    -fx-padding: 10;
+    -fx-spacing: 5;
+}
+
+.admonition-title {
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 5 0;
+}
+
+/* Info Type */
+.admonition-info {
+    -fx-border-left-color: #448aff;
+}
+
+.admonition-info .admonition-title {
+    -fx-text-fill: #448aff;
+}
+
+/* Warning Type */
+.admonition-warning {
+    -fx-border-left-color: #ffc107;
+}
+
+.admonition-warning .admonition-title {
+    -fx-text-fill: #ffc107;
+}
+
+/* Error Type */
+.admonition-error {
+    -fx-border-left-color: #f44336;
+}
+
+.admonition-error .admonition-title {
+    -fx-text-fill: #f44336;
+}

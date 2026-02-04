@@ -1,0 +1,9 @@
+/* Inline Math Styles */
+.markdown-math {
+    -fx-font-family: "Times New Roman", "Serif";
+    -fx-font-style: italic;
+    -fx-font-size: 16px;
+    -fx-background-color: #f0f0f0;
+    -fx-padding: 0 4;
+    -fx-background-radius: 3;
+}
