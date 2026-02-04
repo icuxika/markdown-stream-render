@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
  * </p>
  */
+
 /**
  * 核心 Markdown 解析器。
  * <p>
@@ -113,7 +114,7 @@ public class MarkdownParser {
      * 这种方式支持边解析边渲染（流式处理），尽管目前的实现主要还是先构建完 AST。
      * </p>
      *
-     * @param reader 输入流
+     * @param reader   输入流
      * @param renderer 渲染器
      * @throws IOException 如果读取失败
      */
@@ -728,11 +729,11 @@ public class MarkdownParser {
                     finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
-                    
+
                     if (onBlockFinalized != null && tableNode instanceof Table) {
                         onBlockFinalized.accept(tableNode);
                     }
-                    
+
                     // Fall through to process as normal block/line
                 } else if (!contentLine.contains("|")) {
                     // Table row must contain a pipe
@@ -740,11 +741,11 @@ public class MarkdownParser {
                     finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
-                    
+
                     if (onBlockFinalized != null && tableNode instanceof Table) {
                         onBlockFinalized.accept(tableNode);
                     }
-                    
+
                     // Fall through
                 } else {
                     // Parse Table Row
@@ -957,7 +958,7 @@ public class MarkdownParser {
                 Node parent = openContainers.get(openContainers.size() - 1);
                 currentLeaf.unlink(); // Remove paragraph
                 parent.appendChild(heading);
-                
+
                 if (onBlockFinalized != null) onBlockFinalized.accept(heading);
 
                 currentLeaf = null;
@@ -974,9 +975,9 @@ public class MarkdownParser {
                 tb.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(tb);
-                
+
                 if (onBlockFinalized != null) onBlockFinalized.accept(tb);
-                
+
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
             }
@@ -989,11 +990,11 @@ public class MarkdownParser {
                 heading.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(heading);
-                
+
                 if (onBlockFinalized != null) {
                     onBlockFinalized.accept(heading);
                 }
-                
+
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
             }
@@ -1095,7 +1096,7 @@ public class MarkdownParser {
                 inFencedCodeBlock = false;
                 inIndentedCodeBlock = false;
                 inHtmlBlock = false;
-                
+
                 if (onBlockFinalized != null) {
                     onBlockFinalized.accept(finalized);
                 }

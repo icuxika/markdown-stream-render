@@ -9,7 +9,7 @@ import com.icuxika.markdown.stream.render.core.ast.Node;
  * </p>
  */
 public interface IStreamMarkdownRenderer {
-    
+
     /**
      * 当一个节点解析完成时调用。
      * <p>
@@ -26,12 +26,14 @@ public interface IStreamMarkdownRenderer {
      *
      * @param node 开始的节点
      */
-    default void openBlock(Node node) {}
+    default void openBlock(Node node) {
+    }
 
     /**
      * 当一个容器块结束时调用。
      *
      * @param node 结束的节点
      */
-    default void closeBlock(Node node) {}
+    default void closeBlock(Node node) {
+    }
 }

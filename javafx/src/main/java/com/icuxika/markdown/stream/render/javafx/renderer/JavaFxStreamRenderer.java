@@ -31,7 +31,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
         this.internalRenderer = new JavaFxRenderer();
         initStyles();
     }
-    
+
     public JavaFxStreamRenderer(VBox root, JavaFxRenderer.Builder builder) {
         this.root = root;
         this.internalRenderer = builder.build();
@@ -45,11 +45,11 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
                 root.getStylesheets().add(sheet);
             }
         }
-        
+
         if (!root.getStyleClass().contains("markdown-root")) {
             root.getStyleClass().add("markdown-root");
         }
-        
+
         java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
         if (cssUrl != null) {
             String cssPath = cssUrl.toExternalForm();
@@ -82,14 +82,14 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
 
         Pane parent = containerStack.peek();
         VBox tempContainer = new VBox();
-        
+
         internalRenderer.pushContainer(tempContainer);
         try {
             internalRenderer.render(node);
         } finally {
             internalRenderer.popContainer();
         }
-        
+
         parent.getChildren().addAll(tempContainer.getChildren());
     }
 
@@ -122,7 +122,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             HBox itemBox = new HBox();
             itemBox.setSpacing(5);
             itemBox.getStyleClass().add("markdown-list-item");
-            
+
             javafx.scene.Node marker = createListMarker((ListItem) node);
             if (marker != null) {
                 itemBox.getChildren().add(marker);
@@ -132,24 +132,24 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             contentBox.getStyleClass().add("markdown-list-content");
             HBox.setHgrow(contentBox, Priority.ALWAYS);
             itemBox.getChildren().add(contentBox);
-            
+
             newContainer = itemBox;
             contentContainer = contentBox;
         } else if (node instanceof AdmonitionBlock) {
             AdmonitionBlock ab = (AdmonitionBlock) node;
             VBox admonitionBox = new VBox();
             admonitionBox.getStyleClass().addAll("admonition", "admonition-" + ab.getType().toLowerCase());
-            
+
             if (ab.getTitle() != null && !ab.getTitle().isEmpty()) {
                 Label titleLabel = new Label(ab.getTitle());
                 titleLabel.getStyleClass().add("admonition-title");
                 admonitionBox.getChildren().add(titleLabel);
             }
-            
+
             VBox contentBox = new VBox();
             contentBox.getStyleClass().add("admonition-content");
             admonitionBox.getChildren().add(contentBox);
-            
+
             newContainer = admonitionBox;
             contentContainer = contentBox;
         }
@@ -196,7 +196,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
                 index++;
                 prev = prev.getPrevious();
             }
-            
+
             String markerText = index + String.valueOf(ol.getDelimiter());
             Label markerLabel = new Label(markerText);
             markerLabel.getStyleClass().add("markdown-list-marker");

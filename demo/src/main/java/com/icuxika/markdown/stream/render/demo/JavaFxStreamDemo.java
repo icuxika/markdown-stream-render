@@ -1,6 +1,8 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
 import com.icuxika.markdown.stream.render.javafx.MarkdownExtensions;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.application.Application;
@@ -9,18 +11,22 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class StreamFxDemo extends Application {
+public class JavaFxStreamDemo extends Application {
 
     private StreamMarkdownParser parser;
     private ScheduledExecutorService executor;
+    private TextArea logArea;
 
     @Override
     public void start(Stage primaryStage) {
@@ -30,60 +36,74 @@ public class StreamFxDemo extends Application {
         // Output Area
         VBox outputBox = new VBox();
         outputBox.setSpacing(10);
-        // outputBox.setStyle("-fx-background-color: white;"); // Removed to use CSS
-        outputBox.getStyleClass().add("markdown-root"); // Add root style class
-        
-        // Load Stylesheet - MOVED TO SCENE
-        
+        outputBox.getStyleClass().add("markdown-root");
+
         ScrollPane scrollPane = new ScrollPane(outputBox);
         scrollPane.setFitToWidth(true);
         root.setCenter(scrollPane);
 
         // Control Area
-        Button startButton = new Button("Start Streaming Simulation");
-        root.setBottom(startButton);
+        VBox bottomBox = new VBox(10);
+        Button startButton = new Button("Start Streaming Simulation (Slow)");
+
+        logArea = new TextArea();
+        logArea.setPrefHeight(150);
+        logArea.setEditable(false);
+        logArea.setPromptText("Logs will appear here...");
+
+        bottomBox.getChildren().addAll(startButton, logArea);
+        root.setBottom(bottomBox);
 
         // Setup Renderer and Parser
-        // 1. Initialize Stream Renderer (Defaults will be loaded automatically)
-        JavaFxStreamRenderer renderer = new JavaFxStreamRenderer(outputBox);
-        
-        // 2. Initialize Parser with default extensions
+        JavaFxStreamRenderer realRenderer = new JavaFxStreamRenderer(outputBox);
+
+        // Proxy Renderer for Logging
+        IStreamMarkdownRenderer loggingRenderer = new IStreamMarkdownRenderer() {
+            @Override
+            public void renderNode(Node node) {
+                log("RENDER: " + node.getClass().getSimpleName());
+                realRenderer.renderNode(node);
+            }
+
+            @Override
+            public void openBlock(Node node) {
+                log("OPEN: " + node.getClass().getSimpleName());
+                realRenderer.openBlock(node);
+            }
+
+            @Override
+            public void closeBlock(Node node) {
+                log("CLOSE: " + node.getClass().getSimpleName());
+                realRenderer.closeBlock(node);
+            }
+        };
+
         StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder()
-                .renderer(renderer);
-        
-        // Load default extension parsers
+                .renderer(loggingRenderer);
+
         MarkdownExtensions.addDefaults(parserBuilder);
-        
+
         parser = parserBuilder.build();
 
         startButton.setOnAction(e -> {
             startButton.setDisable(true);
             outputBox.getChildren().clear();
+            logArea.clear();
             startStreaming();
         });
 
-        Scene scene = new Scene(root, 800, 600);
-        
-        // Load Stylesheet (Add to Scene to ensure .root variables work)
-        java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
-        if (cssUrl != null) {
-            scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Warning: CSS file not found!");
-        }
+        Scene scene = new Scene(root, 800, 800);
 
-        primaryStage.setTitle("Markdown Stream JavaFX Demo");
+        primaryStage.setTitle("Markdown Stream JavaFX Demo - Incremental Verification");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
-        // Auto-scroll logic
+
         outputBox.heightProperty().addListener((observable, oldValue, newValue) -> {
             scrollPane.setVvalue(1.0);
         });
     }
 
     private void startStreaming() {
-        // Read template.md from resources
         String content = "";
         try (java.io.InputStream is = getClass().getResourceAsStream("/template.md")) {
             if (is != null) {
@@ -95,30 +115,45 @@ public class StreamFxDemo extends Application {
             content = "# Error\n\n" + e.getMessage();
         }
 
-        // Split content into chunks (e.g., by lines to simulate typing/streaming)
-        // We use lookahead to keep delimiters or just split by newlines
         String[] chunks = content.split("(?<=\\n)");
-        
+
         executor = Executors.newSingleThreadScheduledExecutor();
         final int[] index = {0};
         final String[] finalChunks = chunks;
 
+        // Slow down to 200ms to visualize incremental parsing
         executor.scheduleAtFixedRate(() -> {
             if (index[0] < finalChunks.length) {
-                String chunk = finalChunks[index[0]++];
+                String chunk = finalChunks[index[0]];
+                // Log push event
+                Platform.runLater(() -> log("PUSH Chunk " + index[0] + ": " + escape(chunk)));
+
                 try {
                     parser.push(chunk);
+                    index[0]++;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
+                log("Stream Closed");
                 parser.close();
                 executor.shutdown();
                 Platform.runLater(() -> {
-                    // Re-enable button after done (optional, requires reference to button)
+                    // button re-enable logic if stored in field
                 });
             }
-        }, 0, 50, TimeUnit.MILLISECONDS); // Faster speed (50ms) for larger file
+        }, 0, 200, TimeUnit.MILLISECONDS);
+    }
+
+    private void log(String msg) {
+        String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+        Platform.runLater(() -> {
+            logArea.appendText("[" + time + "] " + msg + "\n");
+        });
+    }
+
+    private String escape(String s) {
+        return s.replace("\n", "\\n").replace("\r", "\\r");
     }
 
     @Override

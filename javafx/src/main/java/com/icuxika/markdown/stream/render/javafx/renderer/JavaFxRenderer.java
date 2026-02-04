@@ -49,7 +49,7 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         // Load extension stylesheets
         java.net.URL admCss = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css");
         if (admCss != null) root.getStylesheets().add(admCss.toExternalForm());
-        
+
         java.net.URL mathCss = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css");
         if (mathCss != null) root.getStylesheets().add(mathCss.toExternalForm());
 
@@ -58,12 +58,12 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         allFactories.add(context -> new CoreJavaFxNodeRenderer(context, link -> {
             if (onLinkClick != null) onLinkClick.accept(link);
         }));
-        
+
         // Add default extension renderers
         allFactories.add(context -> new AdmonitionJavaFxRenderer(context));
         allFactories.add(context -> new MathJavaFxRenderer(context));
         System.out.println("[INFO] JavaFxRenderer: Loaded default extensions (Admonition, Math)");
-        
+
         allFactories.addAll(builder.nodeRendererFactories);
 
         // Initialize renderers

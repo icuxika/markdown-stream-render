@@ -18,7 +18,7 @@ import jfx.incubator.scene.control.richtext.CodeArea;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class BatchFxDemo extends Application {
+public class JavaFxBatchDemo extends Application {
 
     private JavaFxRenderer renderer;
     private ScrollPane outputScroll;

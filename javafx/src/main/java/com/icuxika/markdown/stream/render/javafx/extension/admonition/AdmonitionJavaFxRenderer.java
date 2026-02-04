@@ -3,7 +3,6 @@ package com.icuxika.markdown.stream.render.javafx.extension.admonition;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -29,7 +28,7 @@ public class AdmonitionJavaFxRenderer implements JavaFxNodeRenderer {
         VBox box = new VBox();
         box.getStyleClass().add("admonition");
         box.getStyleClass().add("admonition-" + admonition.getType());
-        
+
         // CSS file handles base styles (border, padding, background)
         // Type-specific colors are handled by specific CSS classes
 

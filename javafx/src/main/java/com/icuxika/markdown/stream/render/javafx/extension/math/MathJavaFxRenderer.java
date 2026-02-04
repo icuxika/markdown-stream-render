@@ -26,7 +26,7 @@ public class MathJavaFxRenderer implements JavaFxNodeRenderer {
 
         Label label = new Label(math.getContent());
         label.getStyleClass().add("markdown-math");
-        
+
         // Base styles moved to CSS
         // -fx-font-family: "Times New Roman"; 
         // -fx-font-style: italic;

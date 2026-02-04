@@ -144,7 +144,7 @@
 }
 
 /* Default Variables (Fallback) */
-.root {
+.root, .markdown-root {
     -md-fg-color: #24292f;
     -md-bg-color: #ffffff;
     -md-sub-text-color: #6a737d;

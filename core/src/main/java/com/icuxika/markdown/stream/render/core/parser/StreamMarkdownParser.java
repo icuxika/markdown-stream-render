@@ -1,10 +1,6 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.ast.Paragraph;
-import com.icuxika.markdown.stream.render.core.ast.Heading;
-import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.*;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
@@ -39,7 +35,7 @@ public class StreamMarkdownParser {
 
         this.doc = new Document();
         this.doc.setStartLine(0);
-        
+
         this.state = new MarkdownParser.BlockParserState(blockParserFactories);
         this.state.setOnBlockFinalized(this::onBlockFinalized);
         this.state.setOnBlockStarted(this::onBlockStarted);
@@ -63,12 +59,12 @@ public class StreamMarkdownParser {
             char c = buffer.charAt(i);
             if (c == '\n' || c == '\r') {
                 String line = buffer.substring(start, i);
-                
+
                 // Handle CRLF
                 if (c == '\r' && i + 1 < len && buffer.charAt(i + 1) == '\n') {
                     i++;
                 }
-                
+
                 processLine(line);
                 start = i + 1;
             }
@@ -100,7 +96,7 @@ public class StreamMarkdownParser {
     private void onBlockFinalized(Node node) {
         // Recursive inline parsing for complex blocks like Table
         traverseAndParseInlines(node);
-        
+
         if (renderer != null) {
             renderer.renderNode(node);
         }
@@ -122,14 +118,14 @@ public class StreamMarkdownParser {
         if (node instanceof Paragraph || node instanceof Heading || node instanceof TableCell) {
             MarkdownParser.processInlineContainerStatic(doc, node, options, inlineParserFactories);
         }
-        
+
         Node child = node.getFirstChild();
         while (child != null) {
             traverseAndParseInlines(child);
             child = child.getNext();
         }
     }
-    
+
     private String expandTabs(String s) {
         if (s.indexOf('\t') == -1) return s;
         StringBuilder sb = new StringBuilder();
@@ -149,7 +145,7 @@ public class StreamMarkdownParser {
         }
         return sb.toString();
     }
-    
+
     public static Builder builder() {
         return new Builder();
     }
@@ -174,7 +170,7 @@ public class StreamMarkdownParser {
             this.inlineParserFactories.add(factory);
             return this;
         }
-        
+
         public Builder renderer(IStreamMarkdownRenderer renderer) {
             this.renderer = renderer;
             return this;
