@@ -1,9 +1,11 @@
 package com.icuxika.markdown.stream.render.demo;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -47,11 +49,25 @@ public class Launcher extends Application {
 
         Button htmlStreamBtn = new Button("HTML Streaming Server");
         htmlStreamBtn.setPrefWidth(250);
-        htmlStreamBtn.setOnAction(e -> launchDemo(new HtmlStreamServerDemo()));
+        htmlStreamBtn.setOnAction(e -> launchServer(() -> {
+            try {
+                HtmlStreamServerDemo.startServer();
+                showInfo("Streaming Server Started", "Server running at http://localhost:8082/");
+            } catch (Exception ex) {
+                showError("Error", ex.getMessage());
+            }
+        }));
 
         Button htmlBatchBtn = new Button("HTML Batch Server");
         htmlBatchBtn.setPrefWidth(250);
-        htmlBatchBtn.setOnAction(e -> launchDemo(new HtmlBatchServerDemo()));
+        htmlBatchBtn.setOnAction(e -> launchServer(() -> {
+            try {
+                HtmlBatchServerDemo.startServer();
+                showInfo("Batch Server Started", "Server running at http://localhost:8081/");
+            } catch (Exception ex) {
+                showError("Error", ex.getMessage());
+            }
+        }));
 
         root.getChildren().addAll(
                 title,
@@ -74,5 +90,29 @@ public class Launcher extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void launchServer(Runnable serverTask) {
+        new Thread(serverTask).start();
+    }
+
+    private void showInfo(String title, String content) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
+    }
+
+    private void showError(String title, String content) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
     }
 }

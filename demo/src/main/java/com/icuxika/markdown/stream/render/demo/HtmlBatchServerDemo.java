@@ -5,70 +5,53 @@ import com.icuxika.markdown.stream.render.core.renderer.HtmlRenderer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-public class HtmlBatchServerDemo extends Application {
+public class HtmlBatchServerDemo {
 
-    private HttpServer server;
     private static final int PORT = 8081;
 
-    @Override
-    public void start(Stage primaryStage) {
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(30));
-        root.setAlignment(Pos.CENTER);
-
-        Label statusLabel = new Label("Click Start to launch HTTP Server");
-        Button startButton = new Button("Start Batch Server & Open Browser");
-
-        startButton.setOnAction(e -> {
-            try {
-                startServer();
-                statusLabel.setText("Server running at http://localhost:" + PORT + "/");
-                getHostServices().showDocument("http://localhost:" + PORT + "/");
-                startButton.setDisable(true);
-            } catch (IOException ex) {
-                statusLabel.setText("Error: " + ex.getMessage());
-                ex.printStackTrace();
-            }
-        });
-
-        root.getChildren().addAll(statusLabel, startButton);
-
-        Scene scene = new Scene(root, 400, 200);
-        primaryStage.setTitle("HTML Batch Server Demo");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+    public static void main(String[] args) {
+        try {
+            startServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void startServer() throws IOException {
-        server = HttpServer.create(new InetSocketAddress(PORT), 0);
+    public static void startServer() throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/", new BatchHandler());
         server.setExecutor(null);
         server.start();
         System.out.println("Batch Server started on port " + PORT);
+        String url = "http://localhost:" + PORT + "/";
+        System.out.println("Please visit: " + url);
+        
+        // Try to open browser
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(url));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to open browser automatically: " + e.getMessage());
+        }
     }
 
-    private class BatchHandler implements HttpHandler {
+    private static class BatchHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
             String markdown = loadTemplate();
 
             // Render
-            MarkdownParser parser = new MarkdownParser();
+            MarkdownParser parser = MarkdownParser.builder().build();
             com.icuxika.markdown.stream.render.core.ast.Document doc = parser.parse(markdown);
             HtmlRenderer renderer = new HtmlRenderer();
             renderer.render(doc);
@@ -97,8 +80,8 @@ public class HtmlBatchServerDemo extends Application {
         }
     }
 
-    private String loadTemplate() {
-        try (InputStream is = getClass().getResourceAsStream("/template.md")) {
+    private static String loadTemplate() {
+        try (InputStream is = HtmlBatchServerDemo.class.getResourceAsStream("/template.md")) {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
@@ -106,13 +89,5 @@ public class HtmlBatchServerDemo extends Application {
             e.printStackTrace();
         }
         return "# Error\nCould not load template.md";
-    }
-
-    @Override
-    public void stop() throws Exception {
-        super.stop();
-        if (server != null) {
-            server.stop(0);
-        }
     }
 }
