@@ -16,14 +16,17 @@ A high-performance, **CommonMark-compliant**, streaming Markdown parser and rend
     *   **JavaFX**: Renders directly to a JavaFX Scene Graph (`VBox`, `TextFlow`, `GridPane`) for rich desktop applications.
 *   **Zero Dependencies (Core)**: The core module has no external dependencies, making it lightweight and easy to embed.
 *   **Advanced Features**:
-    *   **Tables**: Supports GFM-style tables with alignment.
+    *   **GitHub Flavored Markdown (GFM)**: Supports Tables, Task Lists, Strikethrough, and Extended Autolinks.
     *   **Robust Parsing**: Correctly handles edge cases like tab expansion, nested lists, and complex block interactions.
     *   **Image Caching**: JavaFX renderer includes smart caching to prevent flickering during streaming updates.
+    *   **Secure**: Includes a "Safe Mode" to sanitize output by filtering disallowed raw HTML (XSS prevention).
+    *   **High Performance**: Optimized for speed with zero-allocation line processing and true streaming architecture.
 
 ## 📂 Project Structure
 
 *   **`core`**: The heart of the project. Contains the `MarkdownParser`, AST nodes, and `HtmlRenderer`.
 *   **`javafx`**: Contains the `JavaFxRenderer` for rendering Markdown to JavaFX nodes.
+*   **`benchmark`**: JMH benchmarks for performance testing.
 *   **`demo`**: Example applications demonstrating usage.
     *   `GuiApp`: A simple JavaFX Markdown editor.
     *   `StreamingGuiApp`: Demonstrates streaming rendering in JavaFX (simulates typing).
@@ -87,9 +90,9 @@ The project follows a modular, event-driven architecture to support streaming:
 
 ## 🔮 Future Roadmap
 
-*   **Performance Optimization**: Introduce memoization and optimize regex patterns for deep nesting.
-*   **Enhanced JavaFX Styling**: Add support for complex table borders, background colors, and syntax highlighting for code blocks.
-*   **GFM Extensions**: Add support for Task Lists (`[ ]`), Strikethrough (`~~`), and other GitHub Flavored Markdown features.
+*   **Enhanced JavaFX Styling**: Add support for complex table borders and syntax highlighting for code blocks.
+*   **Source Mapping**: Track source positions for AST nodes to enable synchronized scrolling.
+*   **Plugin System**: Allow custom extensions to the parser and renderer.
 
 ## 📊 Spec Compliance Report
 

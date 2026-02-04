@@ -16,14 +16,17 @@
     *   **JavaFX**: 直接渲染为 JavaFX 场景图 (`VBox`, `TextFlow`, `GridPane`)，适用于富桌面应用。
 *   **零依赖 (Core)**: 核心模块没有任何外部依赖，轻量且易于嵌入。
 *   **高级功能**:
-    *   **表格**: 支持 GFM 风格的表格及对齐方式。
+    *   **GitHub Flavored Markdown (GFM)**: 支持表格、任务列表、删除线和扩展自动链接。
     *   **健壮的解析**: 正确处理边缘情况，如制表符展开、列表嵌套和复杂的块级交互。
     *   **图片缓存**: JavaFX 渲染器内置智能缓存，防止流式更新时的图片闪烁。
+    *   **安全性**: 提供“安全模式” (Safe Mode)，通过过滤禁止的原始 HTML 来防止 XSS 攻击。
+    *   **高性能**: 采用零分配行处理和真正的流式架构，速度极快。
 
 ## 📂 项目结构
 
 *   **`core`**: 项目核心。包含 `MarkdownParser`（解析器）、AST 节点和 `HtmlRenderer`（HTML 渲染器）。
 *   **`javafx`**: 包含 `JavaFxRenderer`，用于将 Markdown 渲染为 JavaFX 节点。
+*   **`benchmark`**: JMH 性能基准测试模块。
 *   **`demo`**: 演示应用模块。
     *   `GuiApp`: 一个简单的 JavaFX Markdown 编辑器。
     *   `StreamingGuiApp`: 演示 JavaFX 流式渲染（模拟打字机效果）。
@@ -87,9 +90,9 @@ mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo
 
 ## 🔮 未来路线图
 
-*   **性能优化**: 引入记忆化 (Memoization) 并优化正则表达式以处理深层嵌套。
-*   **增强 JavaFX 样式**: 支持复杂的表格边框、背景色以及代码块的语法高亮。
-*   **GFM 扩展**: 支持任务列表 (`[ ]`)、删除线 (`~~`) 以及其他 GitHub Flavored Markdown 特性。
+*   **增强 JavaFX 样式**: 支持复杂的表格边框以及代码块的语法高亮。
+*   **源码映射 (Source Mapping)**: 跟踪 AST 节点的源码位置，以支持同步滚动。
+*   **插件系统**: 允许自定义解析器和渲染器扩展。
 
 ## 📊 规范兼容性报告
 

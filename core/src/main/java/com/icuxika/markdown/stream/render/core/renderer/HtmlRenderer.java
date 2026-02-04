@@ -1,9 +1,20 @@
 package com.icuxika.markdown.stream.render.core.renderer;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 
 public class HtmlRenderer implements IMarkdownRenderer {
     private final StringBuilder sb = new StringBuilder();
+
+    private final MarkdownParserOptions options;
+
+    public HtmlRenderer() {
+        this(new MarkdownParserOptions());
+    }
+
+    public HtmlRenderer(MarkdownParserOptions options) {
+        this.options = options;
+    }
 
     @Override
     public Object getResult() {
@@ -21,12 +32,20 @@ public class HtmlRenderer implements IMarkdownRenderer {
 
     @Override
     public void visit(HtmlBlock htmlBlock) {
-        sb.append(htmlBlock.getLiteral());
+        if (options.isSafeMode()) {
+            sb.append("<!-- Raw HTML Omitted -->\n");
+        } else {
+            sb.append(htmlBlock.getLiteral());
+        }
     }
 
     @Override
     public void visit(HtmlInline htmlInline) {
-        sb.append(htmlInline.getLiteral());
+        if (options.isSafeMode()) {
+            sb.append("<!-- Raw HTML Omitted -->");
+        } else {
+            sb.append(htmlInline.getLiteral());
+        }
     }
 
     @Override
