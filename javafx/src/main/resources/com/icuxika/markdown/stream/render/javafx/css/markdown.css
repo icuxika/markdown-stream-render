@@ -65,18 +65,16 @@
     -fx-font-size: 13px;
     -fx-text-fill: -md-fg-color;
     -fx-background-color: -md-code-bg-color;
-    -fx-padding: 16;
-    -fx-border-color: -md-border-color;
-    -fx-border-width: 1;
-    -fx-border-radius: 6;
+    -fx-padding: 12;
     -fx-background-radius: 6;
-    -fx-min-width: 400;
+    -fx-min-width: 400; /* Optional: ensure some width */
+    -fx-display-caret: false; /* If it were a TextArea */
 }
 
 /* Blockquote */
 .markdown-quote {
-    -fx-background-color: transparent;
-    -fx-padding: 0 0 0 16;
+    -fx-background-color: -md-quote-bg-color;
+    -fx-padding: 8 16;
     -fx-border-color: -md-quote-border-color;
     -fx-border-width: 0 0 0 4;
 }
@@ -93,26 +91,41 @@
 .markdown-list-marker {
     -fx-font-weight: bold;
     -fx-text-fill: -md-fg-color;
+    -fx-font-size: 14px; /* Ensure same size as text */
+    -fx-padding: 0 4 0 0; /* Add some space and adjust vertical alignment if needed */
 }
 
 /* Tables */
 .markdown-table {
     -fx-border-color: -md-border-color;
-    -fx-border-width: 1;
+    -fx-border-width: 1 0 0 1; /* Top Left */
     -fx-background-color: transparent;
-    -fx-padding: 10;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    /* Ensure no gaps that might show background */
+    -fx-hgap: 0;
+    -fx-vgap: 0;
 }
 
 .markdown-table-cell {
     -fx-border-color: -md-border-color;
-    -fx-border-width: 0 0 1 0;
+    -fx-border-width: 0 1 1 0; /* Right Bottom */
     -fx-padding: 6 13;
     -fx-background-color: -md-bg-color;
+    -fx-background-insets: 0;
 }
 
 .markdown-table-header {
     -fx-font-weight: bold;
     -fx-background-color: -md-table-header-bg;
+}
+
+/* Zebra Striping - needs Java support to add alternate classes */
+.markdown-table-row-even .markdown-table-cell {
+    -fx-background-color: -md-bg-color;
+}
+.markdown-table-row-odd .markdown-table-cell {
+    -fx-background-color: -md-table-row-odd-bg;
 }
 
 /* Separator */
@@ -140,4 +153,5 @@
     -md-border-color: #d0d7de;
     -md-quote-border-color: #dfe2e5;
     -md-table-header-bg: #f6f8fa;
+    -md-table-row-odd-bg: #ffffff;
 }

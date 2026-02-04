@@ -1,13 +1,16 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParser;
+import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
+import com.icuxika.markdown.stream.render.core.parser.inline.InlineParserState;
+import com.icuxika.markdown.stream.render.core.parser.inline.ParsedInline;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InlineParser {
+public class InlineParser implements InlineParserState {
 
     private static final Pattern HTML_TAG = Pattern.compile("^<([A-Za-z][A-Za-z0-9-]*)((?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:[^\"'=<>`\\s]+|'[^']*'|\"[^\"]*\"))?)*)\\s*/?>");
     private static final Pattern HTML_CLOSE_TAG = Pattern.compile("^</([A-Za-z][A-Za-z0-9-]*)\\s*>");
@@ -27,27 +30,62 @@ public class InlineParser {
     private static final Pattern AUTOLINK_EMAIL = Pattern.compile("^<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>");
 
     private final String text;
-    private final java.util.Map<String, LinkReference> references;
+    private final Map<String, LinkReference> references;
     private final MarkdownParserOptions options;
     private int index = 0;
     private final List<Node> nodes = new ArrayList<>();
+
+    private final List<InlineContentParserFactory> inlineParserFactories;
+    private final Map<Character, List<InlineContentParser>> customParsers;
 
     // Emphasis delimiter stack
     private Delimiter lastDelimiter = null;
 
     public InlineParser(String text, MarkdownParserOptions options) {
-        this(text, java.util.Collections.emptyMap(), options);
+        this(text, Collections.emptyMap(), options, Collections.emptyList());
     }
 
-    public InlineParser(String text, java.util.Map<String, LinkReference> references, MarkdownParserOptions options) {
+    public InlineParser(String text, Map<String, LinkReference> references, MarkdownParserOptions options) {
+        this(text, references, options, Collections.emptyList());
+    }
+
+    public InlineParser(String text, Map<String, LinkReference> references, MarkdownParserOptions options, List<InlineContentParserFactory> inlineParserFactories) {
         this.text = text;
         this.references = references;
         this.options = options != null ? options : new MarkdownParserOptions();
+        this.inlineParserFactories = inlineParserFactories != null ? inlineParserFactories : Collections.emptyList();
+
+        // Initialize custom parsers map
+        this.customParsers = new HashMap<>();
+        for (InlineContentParserFactory factory : this.inlineParserFactories) {
+            InlineContentParser parser = factory.create();
+            for (Character c : factory.getTriggerCharacters()) {
+                customParsers.computeIfAbsent(c, k -> new ArrayList<>()).add(parser);
+            }
+        }
     }
 
     public List<Node> parse() {
         while (index < text.length()) {
             char c = text.charAt(index);
+
+            // Check custom parsers first
+            List<InlineContentParser> parsers = customParsers.get(c);
+            boolean handled = false;
+            if (parsers != null) {
+                for (InlineContentParser parser : parsers) {
+                    ParsedInline parsed = parser.tryParse(text, index, this);
+                    if (parsed != null) {
+                        if (parsed.getNode() != null) {
+                            nodes.add(parsed.getNode());
+                        }
+                        index = parsed.getNewIndex();
+                        handled = true;
+                        break;
+                    }
+                }
+            }
+            if (handled) continue;
 
             if (c == '\n') {
                 handleNewLine();
@@ -908,7 +946,7 @@ public class InlineParser {
         int start = index;
         while (index < text.length()) {
             char c = text.charAt(index);
-            if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '[' || c == '!' || c == '~') {
+            if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '[' || c == '!' || c == '~' || customParsers.containsKey(c)) {
                 break;
             }
             index++;

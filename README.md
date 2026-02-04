@@ -17,6 +17,8 @@ A high-performance, **CommonMark-compliant**, streaming Markdown parser and rend
 *   **Zero Dependencies (Core)**: The core module has no external dependencies, making it lightweight and easy to embed.
 *   **Advanced Features**:
     *   **GitHub Flavored Markdown (GFM)**: Supports Tables, Task Lists, Strikethrough, and Extended Autolinks.
+    *   **Rich JavaFX Styling**: Includes enhanced styling for Tables (zebra striping, borders), Blockquotes, and Code Blocks.
+    *   **Syntax Highlighting (Demo)**: Demonstrates real-time Markdown syntax highlighting in the JavaFX editor demo.
     *   **Robust Parsing**: Correctly handles edge cases like tab expansion, nested lists, and complex block interactions.
     *   **Image Caching**: JavaFX renderer includes smart caching to prevent flickering during streaming updates.
     *   **Secure**: Includes a "Safe Mode" to sanitize output by filtering disallowed raw HTML (XSS prevention).
@@ -139,8 +141,8 @@ The project follows a modular, event-driven architecture to support streaming:
 
 ## 🔮 Future Roadmap
 
-*   **Enhanced JavaFX Styling**: Add support for complex table borders and syntax highlighting for code blocks.
-*   **Source Mapping**: Track source positions for AST nodes to enable synchronized scrolling.
+*   **Source Mapping**: Track source positions for AST nodes to enable synchronized scrolling (partially implemented).
+*   **Incremental Parsing**: True incremental AST updates for editing large documents.
 *   **Plugin System**: Allow custom extensions to the parser and renderer.
 
 ## 📊 Spec Compliance Report

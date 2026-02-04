@@ -110,8 +110,17 @@ public class BatchFxDemo extends Application {
     }
 
     private void render(String markdown, ScrollPane outputScroll) {
-        MarkdownParser parser = new MarkdownParser();
-        renderer = new JavaFxRenderer();
+        MarkdownParser parser = MarkdownParser.builder()
+                .blockParserFactory(new BlockPluginDemo.AdmonitionBlockParserFactory())
+                .inlineParserFactory(new InlinePluginDemo.MathParserFactory())
+                .build();
+
+        JavaFxRenderer renderer = JavaFxRenderer.builder()
+                .nodeRendererFactory(context -> new BlockPluginDemo.AdmonitionJavaFxRenderer(context))
+                .nodeRendererFactory(context -> new InlinePluginDemo.MathJavaFxRenderer(context))
+                .build();
+        this.renderer = renderer;
+
         try {
             parser.parse(new java.io.StringReader(markdown), renderer);
             VBox result = (VBox) renderer.getResult();

@@ -1,13 +1,10 @@
 package com.icuxika.markdown.stream.render.benchmark;
 
 import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.HtmlRenderer;
 import org.openjdk.jmh.annotations.*;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.AverageTime)
@@ -23,12 +20,25 @@ public class MarkdownParserBenchmark {
 
     private String markdownInput;
     private MarkdownParser parser;
-    private NoOpRenderer renderer;
+    private HtmlRenderer htmlRenderer;
+    private Document preParsedDoc;
 
     @Setup
     public void setup() {
         parser = new MarkdownParser();
-        renderer = new NoOpRenderer();
+        // Create a fresh renderer for each iteration? No, renderer is usually stateless or reset.
+        // HtmlRenderer accumulates result in StringBuilder. It is NOT stateless.
+        // So we need to create it inside the benchmark or reset it.
+        // HtmlRenderer implementation shows: private final StringBuilder sb = new StringBuilder();
+        // It does NOT have a reset method.
+        // So we should create it inside the benchmark method or use a fresh one.
+        // Creating it might add overhead.
+        // But for "render", we want to measure rendering.
+
+        // Let's check HtmlRenderer again. It seems designed for single use or we need to clear sb.
+        // It has no clear method.
+        // So we will instantiate it in the benchmark method for correctness, 
+        // OR we assume the overhead of instantiation is negligible compared to rendering.
 
         switch (size) {
             case "SMALL":
@@ -54,6 +64,8 @@ public class MarkdownParserBenchmark {
                 markdownInput = sb2.toString();
                 break;
         }
+
+        preParsedDoc = parser.parse(markdownInput);
     }
 
     @Benchmark
@@ -62,139 +74,18 @@ public class MarkdownParserBenchmark {
     }
 
     @Benchmark
-    public void parseAndRender() throws IOException {
-        parser.parse(new StringReader(markdownInput), renderer);
+    public String renderHtmlOnly() {
+        // HtmlRenderer is stateful (StringBuilder), so we must create a new one each time
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        preParsedDoc.accept(renderer);
+        return (String) renderer.getResult();
     }
 
-    // Dummy renderer that does nothing
-    private static class NoOpRenderer implements IMarkdownRenderer {
-        @Override
-        public Object getResult() {
-            return null;
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Document document) {
-            visitChildren(document);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.HtmlBlock htmlBlock) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.HtmlInline htmlInline) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Paragraph paragraph) {
-            visitChildren(paragraph);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Heading heading) {
-            visitChildren(heading);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Text text) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.SoftBreak softBreak) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.HardBreak hardBreak) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Emphasis emphasis) {
-            visitChildren(emphasis);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.StrongEmphasis strongEmphasis) {
-            visitChildren(strongEmphasis);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.BlockQuote blockQuote) {
-            visitChildren(blockQuote);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.BulletList bulletList) {
-            visitChildren(bulletList);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.OrderedList orderedList) {
-            visitChildren(orderedList);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.ListItem listItem) {
-            visitChildren(listItem);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Strikethrough strikethrough) {
-            visitChildren(strikethrough);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Code code) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.ThematicBreak thematicBreak) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.CodeBlock codeBlock) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Link link) {
-            visitChildren(link);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Image image) {
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.Table table) {
-            visitChildren(table);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.TableHead tableHead) {
-            visitChildren(tableHead);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.TableBody tableBody) {
-            visitChildren(tableBody);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.TableRow tableRow) {
-            visitChildren(tableRow);
-        }
-
-        @Override
-        public void visit(com.icuxika.markdown.stream.render.core.ast.TableCell tableCell) {
-            visitChildren(tableCell);
-        }
-
-        private void visitChildren(Node parent) {
-            Node child = parent.getFirstChild();
-            while (child != null) {
-                child.accept(this);
-                child = child.getNext();
-            }
-        }
+    @Benchmark
+    public String parseAndRenderHtml() {
+        Document doc = parser.parse(markdownInput);
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        doc.accept(renderer);
+        return (String) renderer.getResult();
     }
 }

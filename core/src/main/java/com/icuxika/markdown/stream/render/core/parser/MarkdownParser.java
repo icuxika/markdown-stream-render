@@ -1,28 +1,108 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.parser.block.*;
+import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 核心 Markdown 解析器。
+ * <p>
+ * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。
+ * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
+ * </p>
+ */
 public class MarkdownParser {
 
     private static final Pattern ENTITY = Pattern.compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
 
-    private final MarkdownParserOptions options = new MarkdownParserOptions();
+    private final MarkdownParserOptions options;
+    private final List<BlockParserFactory> blockParserFactories;
+    private final List<InlineContentParserFactory> inlineParserFactories;
+
+    public MarkdownParser() {
+        this(new Builder());
+    }
+
+    public MarkdownParser(Builder builder) {
+        this.options = builder.options;
+        this.blockParserFactories = builder.blockParserFactories;
+        this.inlineParserFactories = builder.inlineParserFactories;
+    }
+
+    /**
+     * 获取解析器构建器。
+     *
+     * @return 新的 Builder 实例
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * 解析器构建器，用于配置选项和注册插件。
+     */
+    public static class Builder {
+        private MarkdownParserOptions options = new MarkdownParserOptions();
+        private List<BlockParserFactory> blockParserFactories = new ArrayList<>();
+        private List<InlineContentParserFactory> inlineParserFactories = new ArrayList<>();
+
+        public Builder options(MarkdownParserOptions options) {
+            this.options = options;
+            return this;
+        }
+
+        /**
+         * 注册自定义块级解析器工厂。
+         *
+         * @param factory 块解析器工厂
+         */
+        public Builder blockParserFactory(BlockParserFactory factory) {
+            this.blockParserFactories.add(factory);
+            return this;
+        }
+
+        /**
+         * 注册自定义行内解析器工厂。
+         *
+         * @param factory 行内解析器工厂
+         */
+        public Builder inlineParserFactory(InlineContentParserFactory factory) {
+            this.inlineParserFactories.add(factory);
+            return this;
+        }
+
+        public MarkdownParser build() {
+            return new MarkdownParser(this);
+        }
+    }
 
     public MarkdownParserOptions getOptions() {
         return options;
     }
 
+    /**
+     * 解析 Reader 输入，并使用指定的渲染器进行处理。
+     * <p>
+     * 这种方式支持边解析边渲染（流式处理），尽管目前的实现主要还是先构建完 AST。
+     * </p>
+     *
+     * @param reader   输入流
+     * @param renderer 渲染器
+     * @throws IOException 如果读取失败
+     */
     public void parse(Reader reader, IMarkdownRenderer renderer) throws IOException {
         Document doc = new Document();
-        BlockParserState state = new BlockParserState();
+        BlockParserState state = new BlockParserState(blockParserFactories);
 
         java.io.BufferedReader br = (reader instanceof java.io.BufferedReader) ? (java.io.BufferedReader) reader : new java.io.BufferedReader(reader);
         String line;
@@ -38,11 +118,17 @@ public class MarkdownParser {
         doc.accept(renderer);
     }
 
+    /**
+     * 解析字符串输入，返回完整的 AST 文档对象。
+     *
+     * @param input Markdown 源码字符串
+     * @return 解析后的文档根节点
+     */
     public Document parse(String input) {
         Document doc = new Document();
         if (input == null) return doc;
 
-        BlockParserState state = new BlockParserState();
+        BlockParserState state = new BlockParserState(blockParserFactories);
         int lineNumber = 0;
 
         int len = input.length();
@@ -123,6 +209,11 @@ public class MarkdownParser {
     private static class BlockParserState {
         List<Node> openContainers = new ArrayList<>();
         List<Integer> openContainerBlockIndents = new ArrayList<>();
+
+        // New: Support for custom Block Parsers
+        Map<Node, BlockParser> activeBlockParsers = new HashMap<>();
+        List<BlockParserFactory> blockParserFactories;
+
         Node currentLeaf = null; // Paragraph, CodeBlock, etc.
         StringBuilder currentLeafContent = new StringBuilder();
         int lastLineContentDepth = Integer.MAX_VALUE;
@@ -144,8 +235,82 @@ public class MarkdownParser {
         boolean inTable = false;
         List<TableCell.Alignment> tableAlignments = new ArrayList<>();
 
-        BlockParserState() {
-            // Document is added lazily or handled as root
+        BlockParserState(List<BlockParserFactory> blockParserFactories) {
+            this.blockParserFactories = blockParserFactories != null ? blockParserFactories : new ArrayList<>();
+        }
+
+        // Inner class implementation for ParserState
+        private class ParserStateImpl implements ParserState {
+            private final String line;
+            private final int index;
+            private final int indent;
+
+            public ParserStateImpl(String line, int index, int indent) {
+                this.line = line;
+                this.index = index;
+                this.indent = indent;
+            }
+
+            @Override
+            public CharSequence getLine() {
+                return line;
+            }
+
+            @Override
+            public int getIndex() {
+                return index;
+            }
+
+            @Override
+            public int getNextNonSpaceIndex() {
+                int i = index;
+                while (i < line.length() && line.charAt(i) == ' ') i++;
+                return i;
+            }
+
+            @Override
+            public int getIndent() {
+                // Approximate indent based on spaces
+                // Or use pre-calculated indent passed in?
+                // The indent passed in constructor is relative to... what?
+                // The 'indent' passed in constructor is likely current line indent.
+                return indent;
+            }
+
+            @Override
+            public boolean isBlank() {
+                return line.trim().isEmpty();
+            }
+
+            @Override
+            public BlockParser getActiveBlockParser() {
+                // Return the parser for the deepest open container if available
+                if (openContainers.isEmpty()) return null;
+                Node node = openContainers.get(openContainers.size() - 1);
+                return activeBlockParsers.get(node);
+            }
+        }
+
+        // Inner class for MatchedBlockParser
+        private class MatchedBlockParserImpl implements MatchedBlockParser {
+            private final BlockParser parser;
+
+            public MatchedBlockParserImpl(BlockParser parser) {
+                this.parser = parser;
+            }
+
+            @Override
+            public BlockParser getBlockParser() {
+                return parser;
+            }
+
+            @Override
+            public CharSequence getParagraphContent() {
+                if (currentLeaf instanceof Paragraph) {
+                    return currentLeafContent;
+                }
+                return null;
+            }
         }
 
         void processLine(Document doc, String line, String originalLine, int lineNumber) {
@@ -165,12 +330,39 @@ public class MarkdownParser {
             boolean isListMarkerLine = false;
             boolean lastMatchedContainerHadMarker = false;
 
-            // 1. Check open containers (BlockQuote)
+            // 1. Check open containers (BlockQuote, Custom Blocks)
             // Skip root (index 0)
             for (int k = 1; k < openContainers.size(); k++) {
                 Node container = openContainers.get(k);
                 // Update end line for container as we are still inside it
                 container.setEndLine(lineNumber);
+
+                // Check for custom BlockParser
+                BlockParser parser = activeBlockParsers.get(container);
+                if (parser != null) {
+                    int indent = countIndent(line.substring(i));
+                    ParserState state = new ParserStateImpl(line, i, indent);
+                    BlockContinue cont = parser.tryContinue(state);
+                    if (cont != null) {
+                        matches++;
+                        currentContentDepth = k;
+                        if (cont.getNewIndex() != -1) {
+                            i = cont.getNewIndex();
+                        }
+                        if (cont.isFinalize()) {
+                            // finalize? Not supported in tryContinue normally.
+                            // But we can support it.
+                            // If finalized, we should close it?
+                            // Usually tryContinue just says "matched".
+                        }
+                        lastMatchedContainerHadMarker = true; // Assume true for custom blocks? Or false?
+                        // Depends on block.
+                        continue;
+                    } else {
+                        // Mismatch
+                        break;
+                    }
+                }
 
                 if (container instanceof BlockQuote) {
                     int indent = 0;
@@ -292,13 +484,63 @@ public class MarkdownParser {
                 finalizeCurrentLeaf(lineNumber - 1);
             }
 
-            // 3. Parse new containers (BlockQuote, List)
+            // 3. Parse new containers (BlockQuote, List, Custom Blocks)
             // Only if we are not in a Fenced Code Block (Leaf)
             // Or if currentLeaf is null
             if (!inFencedCodeBlock && !inIndentedCodeBlock && !lazyContinuation) {
                 while (true) {
                     int indent = 0;
                     int startI = i;
+
+                    // Check Custom Block Factories
+                    boolean startedCustom = false;
+                    for (BlockParserFactory factory : blockParserFactories) {
+                        ParserState state = new ParserStateImpl(line, i, countIndent(line.substring(i)));
+                        // Determine parent parser (legacy node handling is tricky)
+                        MatchedBlockParser matched = null;
+                        if (!openContainers.isEmpty()) {
+                            Node parentNode = openContainers.get(openContainers.size() - 1);
+                            BlockParser parentParser = activeBlockParsers.get(parentNode);
+                            if (parentParser != null) {
+                                matched = new MatchedBlockParserImpl(parentParser);
+                            }
+                        }
+
+                        BlockStart start = factory.tryStart(state, matched);
+                        if (start != null) {
+                            finalizeCurrentLeaf(lineNumber - 1);
+
+                            // Handle replacement
+                            if (start.isReplaceActiveBlockParser() && !openContainers.isEmpty()) {
+                                Node removed = openContainers.remove(openContainers.size() - 1);
+                                openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
+                                activeBlockParsers.remove(removed);
+                            }
+
+                            for (BlockParser bp : start.getBlockParsers()) {
+                                Node block = bp.getBlock();
+                                block.setStartLine(lineNumber);
+                                checkLooseList(openContainers.get(openContainers.size() - 1));
+                                openContainers.get(openContainers.size() - 1).appendChild(block);
+                                openContainers.add(block);
+                                activeBlockParsers.put(block, bp);
+
+                                int newIndent = start.getNewIndent();
+                                if (newIndent == -1) newIndent = 0; // Default
+                                openContainerBlockIndents.add(newIndent);
+                            }
+
+                            if (start.getNewIndex() != -1) {
+                                i = start.getNewIndex();
+                            }
+                            startedCustom = true;
+                            break; // Restart loop to check for nested blocks
+                        }
+                    }
+                    if (startedCustom) {
+                        currentContentDepth = openContainers.size() - 1;
+                        continue;
+                    }
 
                     // Check BlockQuote
                     while (i < line.length() && line.charAt(i) == ' ' && indent < 3) {
@@ -1559,41 +1801,42 @@ public class MarkdownParser {
 
         if (node instanceof Paragraph) {
             Paragraph p = (Paragraph) node;
-            Node first = p.getFirstChild();
-            if (first instanceof Text && first.getNext() == null) {
-                String content = ((Text) first).getLiteral();
-                first.unlink();
-
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options);
-                List<Node> inlines = parser.parse();
-                for (Node inline : inlines) {
-                    p.appendChild(inline);
-                }
-            }
+            processInlineContainer(doc, p);
         } else if (node instanceof Heading) {
             Heading h = (Heading) node;
-            Node first = h.getFirstChild();
-            if (first instanceof Text && first.getNext() == null) {
-                String content = ((Text) first).getLiteral();
-                first.unlink();
-
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options);
-                List<Node> inlines = parser.parse();
-                for (Node inline : inlines) {
-                    h.appendChild(inline);
-                }
-            }
+            processInlineContainer(doc, h);
         } else if (node instanceof TableCell) {
             TableCell c = (TableCell) node;
-            Node first = c.getFirstChild();
-            if (first instanceof Text && first.getNext() == null) {
-                String content = ((Text) first).getLiteral();
-                first.unlink();
+            processInlineContainer(doc, c);
+        }
+    }
 
-                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options);
+    private void processInlineContainer(Document doc, Node container) {
+        Node first = container.getFirstChild();
+        if (first instanceof Text) {
+            // Merge all text nodes if there are multiple (though usually BlockParser produces just one)
+            StringBuilder sb = new StringBuilder();
+            Node current = first;
+            while (current instanceof Text) {
+                sb.append(((Text) current).getLiteral());
+                current = current.getNext();
+            }
+
+            // If we consumed all children
+            if (current == null) {
+                // Clear container
+                Node child = container.getFirstChild();
+                while (child != null) {
+                    Node next = child.getNext();
+                    child.unlink();
+                    child = next;
+                }
+
+                String content = sb.toString();
+                InlineParser parser = new InlineParser(content, doc.getLinkReferences(), options, inlineParserFactories);
                 List<Node> inlines = parser.parse();
                 for (Node inline : inlines) {
-                    c.appendChild(inline);
+                    container.appendChild(inline);
                 }
             }
         }
