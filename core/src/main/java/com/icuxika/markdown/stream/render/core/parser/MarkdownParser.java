@@ -26,10 +26,11 @@ public class MarkdownParser {
 
         java.io.BufferedReader br = (reader instanceof java.io.BufferedReader) ? (java.io.BufferedReader) reader : new java.io.BufferedReader(reader);
         String line;
+        int lineNumber = 0;
         while ((line = br.readLine()) != null) {
-            state.processLine(doc, expandTabs(line), line);
+            state.processLine(doc, expandTabs(line), line, lineNumber++);
         }
-        state.finalizeBlock(doc);
+        state.finalizeBlock(doc, lineNumber);
 
         extractLinkReferenceDefinitions(doc);
         parseInlines(doc, doc);
@@ -42,17 +43,18 @@ public class MarkdownParser {
         if (input == null) return doc;
 
         BlockParserState state = new BlockParserState();
+        int lineNumber = 0;
 
         int len = input.length();
         if (len == 0) {
-            state.processLine(doc, "", "");
+            state.processLine(doc, "", "", lineNumber++);
         } else {
             int start = 0;
             for (int i = 0; i < len; i++) {
                 char c = input.charAt(i);
                 if (c == '\n' || c == '\r') {
                     String line = input.substring(start, i);
-                    state.processLine(doc, expandTabs(line), line);
+                    state.processLine(doc, expandTabs(line), line, lineNumber++);
 
                     if (c == '\r' && i + 1 < len && input.charAt(i + 1) == '\n') {
                         i++;
@@ -63,11 +65,11 @@ public class MarkdownParser {
 
             if (start < len) {
                 String line = input.substring(start);
-                state.processLine(doc, expandTabs(line), line);
+                state.processLine(doc, expandTabs(line), line, lineNumber++);
             }
         }
 
-        state.finalizeBlock(doc);
+        state.finalizeBlock(doc, lineNumber);
 
         extractLinkReferenceDefinitions(doc);
         parseInlines(doc, doc);
@@ -146,13 +148,15 @@ public class MarkdownParser {
             // Document is added lazily or handled as root
         }
 
-        void processLine(Document doc, String line, String originalLine) {
+        void processLine(Document doc, String line, String originalLine, int lineNumber) {
             int currentContentDepth = 0;
             boolean inImplicitMode = false;
 
             if (openContainers.isEmpty()) {
                 openContainers.add(doc);
                 openContainerBlockIndents.add(0);
+                // Document start line is always 0
+                if (doc.getStartLine() == -1) doc.setStartLine(0);
             }
 
             int i = 0;
@@ -165,6 +169,9 @@ public class MarkdownParser {
             // Skip root (index 0)
             for (int k = 1; k < openContainers.size(); k++) {
                 Node container = openContainers.get(k);
+                // Update end line for container as we are still inside it
+                container.setEndLine(lineNumber);
+                
                 if (container instanceof BlockQuote) {
                     int indent = 0;
                     int startI = i;
@@ -276,7 +283,7 @@ public class MarkdownParser {
 
             if (!lazyContinuation) {
                 while (openContainers.size() > matches + 1) {
-                    finalizeCurrentLeaf();
+                    finalizeCurrentLeaf(lineNumber - 1);
                     openContainers.remove(openContainers.size() - 1);
                     openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                 }
@@ -284,7 +291,7 @@ public class MarkdownParser {
 
             // Check if Indented Code Block ends
             if (inIndentedCodeBlock && countIndent(contentLine) < 4 && !contentLine.trim().isEmpty()) {
-                finalizeCurrentLeaf();
+                finalizeCurrentLeaf(lineNumber - 1);
             }
 
             // 3. Parse new containers (BlockQuote, List)
@@ -305,8 +312,9 @@ public class MarkdownParser {
                         if (i < line.length() && line.charAt(i) == ' ') {
                             i++;
                         }
-                        finalizeCurrentLeaf();
+                        finalizeCurrentLeaf(lineNumber - 1); // Previous line ended the leaf
                         BlockQuote quote = new BlockQuote();
+                        quote.setStartLine(lineNumber);
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(quote);
                         openContainers.add(quote);
@@ -326,7 +334,7 @@ public class MarkdownParser {
                     // Check List Item
                     ListMarker marker = parseListMarker(line, i);
                     if (marker != null) {
-                        finalizeCurrentLeaf();
+                        finalizeCurrentLeaf(lineNumber - 1);
 
                         boolean matchesCurrentList = false;
                         Node parent = openContainers.get(openContainers.size() - 1);
@@ -353,11 +361,13 @@ public class MarkdownParser {
                             Node newList;
                             if (marker.isOrdered) {
                                 OrderedList ol = new OrderedList();
+                                ol.setStartLine(lineNumber);
                                 ol.setStartNumber(marker.startNumber);
                                 ol.setDelimiter(marker.delimiter);
                                 newList = ol;
                             } else {
                                 BulletList bl = new BulletList();
+                                bl.setStartLine(lineNumber);
                                 bl.setBulletChar(marker.bulletChar);
                                 newList = bl;
                             }
@@ -368,47 +378,21 @@ public class MarkdownParser {
                         }
 
                         ListItem li = new ListItem();
+                        li.setStartLine(lineNumber);
                         
                         // Check for Task List Item
-                        // GFM: A task list item is a list item where the first block is a paragraph...
-                        // and begins with a task list item marker.
-                        // Marker: [ ] or [x] or [X]
-                        // Must be followed by a space.
-                        
-                        // We check the remaining contentLine (after marker).
                         String remaining = "";
                         if (marker.nextIndex < line.length()) {
                             remaining = line.substring(marker.nextIndex);
                         }
-                        // Be careful about whitespace.
-                        // parseListMarker sets marker.nextIndex to the start of content.
-                        // But wait, parseListMarker logic might have skipped spaces.
-                        // contentLine includes the marker.
-                        
-                        // We need to inspect the text *after* the list marker.
-                        // The `remaining` string starts at `marker.nextIndex`.
                         
                         if (remaining.startsWith("[ ] ") || remaining.startsWith("[x] ") || remaining.startsWith("[X] ")) {
                             li.setTask(true);
                             if (remaining.charAt(1) != ' ') {
                                 li.setChecked(true);
                             }
-                            
-                            // Adjust content: strip the task marker
-                            // GFM: "The task list item marker is treated as block-level content."
-                            // But for simplicity in parser, we can strip it and just mark the ListItem.
-                            // The text content should not contain [ ] 
-                            
-                            // Adjust marker nextIndex?
-                            // No, we are creating a ListItem here. The content will be parsed into blocks (Paragraphs) later.
-                            // But wait, the `remaining` text is passed to process subsequent blocks?
-                            // Actually, line 364: contentLine = line.substring(i);
-                            // `i` was updated to `marker.nextIndex`.
-                            
-                            // So if we modify `i` here, we can skip the task marker.
                             marker.nextIndex += 4; // [ ] + space
                         } else if (remaining.equals("[ ]") || remaining.equals("[x]") || remaining.equals("[X]")) {
-                             // Case where the item content is JUST the checkbox
                              li.setTask(true);
                              if (remaining.charAt(1) != ' ') li.setChecked(true);
                              marker.nextIndex += 3; // No trailing space
@@ -419,7 +403,6 @@ public class MarkdownParser {
                         listParent.appendChild(li);
                         openContainers.add(li);
                         int contentIndent = marker.indent + marker.markerLength + marker.padding;
-                        // System.out.println("Adding ListItem: contentIndent=" + contentIndent + ", markerIndent=" + marker.indent + ", len=" + marker.markerLength + ", pad=" + marker.padding);
                         openContainerBlockIndents.add(contentIndent);
 
                         i = marker.nextIndex;
@@ -458,14 +441,13 @@ public class MarkdownParser {
                         || parseListMarker(contentLine, 0) != null
                         || getHtmlBlockStartCondition(contentLine) > 0) {
 
-                    finalizeCurrentLeaf();
+                    finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
                     // Fall through to process as normal block/line
                 } else if (!contentLine.contains("|")) {
-                    // Table row must contain a pipe (unless it's a 1-column table? GFM is vague, but commonmark-java requires pipe)
-                    // If no pipe, it terminates the table.
-                    finalizeCurrentLeaf();
+                    // Table row must contain a pipe
+                    finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
                     // Fall through
@@ -487,20 +469,21 @@ public class MarkdownParser {
 
             // Fenced Code Block (Continuation)
             if (inFencedCodeBlock) {
-                // Check for closing fence
-                // The indent of the closing fence is relative to the current container.
-                // We already stripped container markers.
-                // But we need to check indent < 4 relative to start of contentLine?
-                // Yes.
-
                 int currentIndent = countIndent(contentLine);
                 if (currentIndent < 4 && isClosingFence(contentLine, fenceChar, fenceLength)) {
                     if (currentLeaf instanceof CodeBlock) {
                         ((CodeBlock) currentLeaf).setLiteral(currentLeafContent.toString());
                     }
-                    currentLeaf = null;
-                    currentLeafContent.setLength(0);
-                    inFencedCodeBlock = false;
+                    finalizeCurrentLeaf(lineNumber); // Ends on this line
+                    // Wait, finalizeCurrentLeaf sets currentLeaf to null.
+                    // But we already did logic.
+                    // Let's use finalizeCurrentLeaf(lineNumber) but it does logic.
+                    // Actually, if we call finalizeCurrentLeaf(lineNumber), it sets literal from content.
+                    // But we already set literal in line 510?
+                    // Line 510 in original: ((CodeBlock) currentLeaf).setLiteral(currentLeafContent.toString());
+                    // My new finalizeCurrentLeaf(lineNumber) does that too.
+                    // So I can just call finalizeCurrentLeaf(lineNumber) and return.
+                    
                     lastLineContentDepth = Integer.MAX_VALUE;
                     return;
                 }
@@ -524,10 +507,7 @@ public class MarkdownParser {
                     if (htmlBlockCondition < 6) {
                         currentLeafContent.append(getSubstringForColumn(originalLine, i)).append("\n");
                     }
-                    ((HtmlBlock) currentLeaf).setLiteral(currentLeafContent.toString());
-                    currentLeaf = null;
-                    currentLeafContent.setLength(0);
-                    inHtmlBlock = false;
+                    finalizeCurrentLeaf(lineNumber); // Ends on this line
                     lastLineContentDepth = Integer.MAX_VALUE;
                 } else {
                     currentLeafContent.append(getSubstringForColumn(originalLine, i)).append("\n");
@@ -540,8 +520,9 @@ public class MarkdownParser {
             if (indent < 4) {
                 FencedCodeStart start = parseFencedCodeStart(contentLine);
                 if (start != null) {
-                    finalizeCurrentLeaf();
+                    finalizeCurrentLeaf(lineNumber - 1);
                     CodeBlock codeBlock = new CodeBlock("");
+                    codeBlock.setStartLine(lineNumber);
                     codeBlock.setInfo(start.info);
                     checkLooseList(openContainers.get(openContainers.size() - 1));
                     openContainers.get(openContainers.size() - 1).appendChild(codeBlock);
@@ -562,8 +543,9 @@ public class MarkdownParser {
                     if (condition == 7 && currentLeaf instanceof Paragraph) {
                         // Type 7 cannot interrupt a paragraph
                     } else {
-                        finalizeCurrentLeaf();
+                        finalizeCurrentLeaf(lineNumber - 1);
                         HtmlBlock htmlBlock = new HtmlBlock("");
+                        htmlBlock.setStartLine(lineNumber);
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(htmlBlock);
                         currentLeaf = htmlBlock;
@@ -572,10 +554,7 @@ public class MarkdownParser {
 
                         if (isHtmlBlockEnd(contentLine, condition)) {
                             currentLeafContent.append(getSubstringForColumn(originalLine, i)).append("\n");
-                            htmlBlock.setLiteral(currentLeafContent.toString());
-                            currentLeaf = null;
-                            currentLeafContent.setLength(0);
-                            inHtmlBlock = false;
+                            finalizeCurrentLeaf(lineNumber);
                         } else {
                             currentLeafContent.append(getSubstringForColumn(originalLine, i)).append("\n");
                         }
@@ -586,8 +565,6 @@ public class MarkdownParser {
             }
 
             // Indented Code Block
-            // If indent >= 4
-            // But we must check if we are already in Indented Code Block
             if (indent >= 4) {
                 if (inIndentedCodeBlock) {
                     currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
@@ -596,8 +573,9 @@ public class MarkdownParser {
                 } else if ((lastLineContentDepth == Integer.MAX_VALUE || currentLeaf == null) && !(currentLeaf instanceof Paragraph)) {
                     // Start new indented code block
                     if (!contentLine.trim().isEmpty()) {
-                        finalizeCurrentLeaf();
+                        finalizeCurrentLeaf(lineNumber - 1);
                         CodeBlock codeBlock = new CodeBlock("");
+                        codeBlock.setStartLine(lineNumber);
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(codeBlock);
                         currentLeaf = codeBlock;
@@ -613,66 +591,39 @@ public class MarkdownParser {
                     lastLineContentDepth = currentContentDepth;
                     return;
                 } else {
-                    finalizeCurrentLeaf();
+                    finalizeCurrentLeaf(lineNumber - 1);
                 }
             }
 
             // Table (Start)
-            // Check if current line is a delimiter row and previous line (currentLeaf) is a paragraph
             if (indent < 4 && currentLeaf instanceof Paragraph) {
                 List<TableCell.Alignment> alignments = parseTableDelimiterRow(contentLine);
                 if (alignments != null) {
-                    // We found a table!
-                    // 1. Get header content from Paragraph
                     Paragraph p = (Paragraph) currentLeaf;
-                    // We assume paragraph has single line of text for header
-                    // If paragraph has multiple lines, GFM says:
-                    // "The header row consists of the line of text immediately preceding the delimiter row."
-                    // So we take the last line of the paragraph?
-                    // Or must the paragraph ONLY contain one line?
-                    // GFM: "It consists of a single line of text containing no block-level structures"
-                    // "A table cannot interrupt a paragraph." -> WAIT.
-                    // GFM: "The header row ... must match the delimiter row in number of columns?" No.
-                    // Actually, GFM says: "Tables can interrupt a paragraph."
-                    // "The line immediately preceding the delimiter row is the header row."
-                    // If the paragraph has multiple lines, only the LAST line becomes the header row.
-                    // The preceding lines remain in the paragraph.
-
+                    int pStartLine = p.getStartLine();
+                    
                     String paragraphContent = currentLeafContent.toString();
                     String[] lines = paragraphContent.split("\n");
                     String headerLine = lines[lines.length - 1];
 
-                    // 2. Finalize paragraph (remove last line)
+                    // Finalize paragraph (remove last line)
                     if (lines.length > 1) {
                         StringBuilder remaining = new StringBuilder();
                         for (int k = 0; k < lines.length - 1; k++) {
                             remaining.append(lines[k]).append("\n");
                         }
-                        // Update paragraph content
                         currentLeafContent.setLength(0);
                         currentLeafContent.append(remaining);
-                        finalizeCurrentLeaf();
-                        // The paragraph is now finalized with previous lines.
+                        finalizeCurrentLeaf(lineNumber - 1);
                     } else {
-                        // Paragraph fully consumed
-                        currentLeafContent.setLength(0);
-                        // We need to unlink the paragraph?
-                        // finalizeCurrentLeaf() sets currentLeaf=null, but it creates Text node.
-                        // We don't want to create Text node for the header line.
-                        // But we might have already added Text nodes if we finalized incrementally?
-                        // In this parser, we only finalize at end of block.
-                        // So we just discard the paragraph if it was single line.
-                        // But finalizeCurrentLeaf() adds children.
-                        // We should just unlink the paragraph node if it becomes empty.
-
-                        // Hack: finalize then remove if empty?
-                        // Better: manually handle switch
                         currentLeaf.unlink();
                         currentLeaf = null;
+                        currentLeafContent.setLength(0);
                     }
 
-                    // 3. Create Table structure
+                    // Create Table structure
                     Table table = new Table();
+                    table.setStartLine(pStartLine != -1 ? pStartLine : lineNumber - 1);
                     checkLooseList(openContainers.get(openContainers.size() - 1));
                     openContainers.get(openContainers.size() - 1).appendChild(table);
 
@@ -685,7 +636,7 @@ public class MarkdownParser {
                     TableBody body = new TableBody();
                     table.appendChild(body);
 
-                    currentLeaf = body; // Set current leaf to body so we append rows to it
+                    currentLeaf = body; 
                     inTable = true;
                     tableAlignments = alignments;
                     lastLineContentDepth = Integer.MAX_VALUE;
@@ -705,6 +656,8 @@ public class MarkdownParser {
                 int level = contentLine.trim().startsWith("=") ? 1 : 2;
                 Heading heading = new Heading(level);
                 heading.appendChild(new Text(headingContent.trim()));
+                heading.setStartLine(currentLeaf.getStartLine());
+                heading.setEndLine(lineNumber);
 
                 Node parent = openContainers.get(openContainers.size() - 1);
                 currentLeaf.unlink(); // Remove paragraph
@@ -718,17 +671,22 @@ public class MarkdownParser {
 
             // Thematic Break
             if (indent < 4 && isThematicBreak(contentLine)) {
-                finalizeCurrentLeaf();
+                finalizeCurrentLeaf(lineNumber - 1);
+                ThematicBreak tb = new ThematicBreak();
+                tb.setStartLine(lineNumber);
+                tb.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
-                openContainers.get(openContainers.size() - 1).appendChild(new ThematicBreak());
+                openContainers.get(openContainers.size() - 1).appendChild(tb);
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
             }
 
             // ATX Heading
             if (indent < 4 && isAtxHeading(contentLine)) {
-                finalizeCurrentLeaf();
+                finalizeCurrentLeaf(lineNumber - 1);
                 Node heading = parseAtxHeading(contentLine);
+                heading.setStartLine(lineNumber);
+                heading.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(heading);
                 lastLineContentDepth = Integer.MAX_VALUE;
@@ -737,9 +695,6 @@ public class MarkdownParser {
 
             // Blank Line
             if (contentLine.trim().isEmpty()) {
-                // If we are in a List Item that is empty (no children), and we hit a blank line,
-                // it means we have two blank lines at the start (one from marker line, one here).
-                // So we close the list item.
                 if (!openContainers.isEmpty()) {
                     Node last = openContainers.get(openContainers.size() - 1);
                     if (!isListMarkerLine && last instanceof ListItem && last.getFirstChild() == null) {
@@ -749,7 +704,7 @@ public class MarkdownParser {
                 }
 
                 if (currentLeaf instanceof Paragraph) {
-                    finalizeCurrentLeaf();
+                    finalizeCurrentLeaf(lineNumber - 1);
                 }
 
                 if (lastMatchedContainerHadMarker || isListMarkerLine) {
@@ -765,8 +720,9 @@ public class MarkdownParser {
                 currentLeafContent.append("\n").append(trimLeading(getSubstringForColumn(originalLine, i)));
                 lastLineContentDepth = Integer.MAX_VALUE;
             } else {
-                finalizeCurrentLeaf();
+                finalizeCurrentLeaf(lineNumber - 1);
                 Paragraph p = new Paragraph();
+                p.setStartLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(p);
                 currentLeaf = p;
@@ -805,8 +761,9 @@ public class MarkdownParser {
             }
         }
 
-        void finalizeCurrentLeaf() {
+        void finalizeCurrentLeaf(int endLine) {
             if (currentLeaf != null) {
+                currentLeaf.setEndLine(endLine);
                 if (currentLeaf instanceof Paragraph) {
                     ((Paragraph) currentLeaf).appendChild(new Text(currentLeafContent.toString()));
                 } else if (currentLeaf instanceof CodeBlock) {
@@ -835,8 +792,8 @@ public class MarkdownParser {
             }
         }
 
-        void finalizeBlock(Document doc) {
-            finalizeCurrentLeaf();
+        void finalizeBlock(Document doc, int lastLineNumber) {
+            finalizeCurrentLeaf(lastLineNumber - 1);
             // Close all containers? 
             // They are already in the tree.
             openContainers.clear();
@@ -848,14 +805,6 @@ public class MarkdownParser {
 
         List<TableCell.Alignment> parseTableDelimiterRow(String line) {
             String s = line.trim();
-
-            // GFM: A delimiter row must contain at least one pipe `|`
-            // OR it must contain both dashes and colons to distinguish from Setext
-            // Actually, strict GFM requires pipe if it's a 1-column table?
-            // But for multi-column, spaces are allowed.
-            // However, to avoid conflict with Setext `---`, we require that if no pipe is present,
-            // it must NOT look like a Setext heading.
-            // Setext heading: `^ {0,3}(=+|-+)\s*$`
 
             if (!s.contains("|") && s.matches("^[-=\\s]+$")) {
                 return null; // Looks like Setext
@@ -873,10 +822,6 @@ public class MarkdownParser {
             for (String part : parts) {
                 String cell = part.trim();
                 if (cell.isEmpty()) {
-                    // If we have "||", it's an empty cell?
-                    // GFM: "The delimiter row consists of cells... each containing at least 3 dashes"
-                    // Actually GFM allows less?
-                    // But commonmark-java implementation checks for at least one dash.
                     return null;
                 }
 
@@ -911,10 +856,6 @@ public class MarkdownParser {
             // We should use a proper split function that respects escaped pipes.
 
             List<String> cells = splitTableCells(s);
-
-            // Adjust cells to match alignments?
-            // GFM: "If there are more cells in the row than in the delimiter row, the extra cells are ignored."
-            // "If there are fewer cells... empty cells are inserted."
 
             for (int i = 0; i < alignments.size(); i++) {
                 TableCell cell = new TableCell();
@@ -1386,9 +1327,6 @@ public class MarkdownParser {
                 } else {
                     // Boolean attribute (no value)
                     i = afterName; // Backtrack to just after name (and whitespace)
-                    // Actually, we consumed whitespace after name.
-                    // If no =, we stay at i.
-                    // The loop continues, next iteration checks for whitespace or >.
                 }
 
                 requireWhitespace = true;

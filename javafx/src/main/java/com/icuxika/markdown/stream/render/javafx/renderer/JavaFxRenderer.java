@@ -9,10 +9,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 import java.util.Stack;
+import java.util.TreeMap;
 
 public class JavaFxRenderer implements IMarkdownRenderer {
     private final VBox root = new VBox();
     private final Stack<Pane> blockStack = new Stack<>();
+    
+    // Map start line number to JavaFX Node
+    private final TreeMap<Integer, javafx.scene.Node> lineToNodeMap = new TreeMap<>();
 
     // For inlines
     private TextFlow currentTextFlow;
@@ -52,6 +56,18 @@ public class JavaFxRenderer implements IMarkdownRenderer {
     public Object getResult() {
         return root;
     }
+    
+    public TreeMap<Integer, javafx.scene.Node> getLineToNodeMap() {
+        return lineToNodeMap;
+    }
+
+    private void registerNode(Node astNode, javafx.scene.Node fxNode) {
+        if (astNode.getStartLine() >= 0) {
+            lineToNodeMap.put(astNode.getStartLine(), fxNode);
+            // Also store AST node in user data for reverse lookup if needed
+            fxNode.setUserData(astNode);
+        }
+    }
 
     @Override
     public void visit(Document document) {
@@ -64,6 +80,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         text.getStyleClass().add("markdown-text");
         text.getStyleClass().add("markdown-html-block");
         blockStack.peek().getChildren().add(text);
+        registerNode(htmlBlock, text);
     }
 
     @Override
@@ -81,6 +98,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         TextFlow flow = new TextFlow();
         flow.getStyleClass().add("markdown-paragraph");
         blockStack.peek().getChildren().add(flow);
+        registerNode(paragraph, flow);
+        
         currentTextFlow = flow;
         visitChildren(paragraph);
         currentTextFlow = null;
@@ -92,6 +111,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         flow.getStyleClass().add("markdown-heading");
         flow.getStyleClass().add("markdown-h" + heading.getLevel());
         blockStack.peek().getChildren().add(flow);
+        registerNode(heading, flow);
+        
         currentTextFlow = flow;
 
         int oldLevel = headingLevel;
@@ -150,6 +171,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         VBox quoteBox = new VBox();
         quoteBox.getStyleClass().add("markdown-quote");
         blockStack.peek().getChildren().add(quoteBox);
+        registerNode(blockQuote, quoteBox);
+        
         blockStack.push(quoteBox);
         visitChildren(blockQuote);
         blockStack.pop();
@@ -161,6 +184,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         listBox.getStyleClass().add("markdown-list");
         listBox.setSpacing(5);
         blockStack.peek().getChildren().add(listBox);
+        registerNode(bulletList, listBox);
+        
         blockStack.push(listBox);
         listStack.push(new ListState(false, 0, '.'));
         visitChildren(bulletList);
@@ -174,6 +199,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         listBox.getStyleClass().add("markdown-list");
         listBox.setSpacing(5);
         blockStack.peek().getChildren().add(listBox);
+        registerNode(orderedList, listBox);
+        
         blockStack.push(listBox);
         listStack.push(new ListState(true, orderedList.getStartNumber(), orderedList.getDelimiter()));
         visitChildren(orderedList);
@@ -239,6 +266,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         itemBox.getChildren().add(contentBox);
         
         blockStack.peek().getChildren().add(itemBox);
+        registerNode(listItem, itemBox);
+        
         blockStack.push(contentBox);
         visitChildren(listItem);
         blockStack.pop();
@@ -263,11 +292,6 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         Label codeLabel = new Label(code.getLiteral());
         codeLabel.getStyleClass().add("markdown-code");
         
-        // We still need to respect parent styles (like bold/italic if nested, though code usually resets font)
-        // But for simplicity, we just use the label.
-        // Issue: Label inside TextFlow?
-        // TextFlow can contain any Node.
-        
         if (currentTextFlow != null) {
             currentTextFlow.getChildren().add(codeLabel);
         } else {
@@ -284,6 +308,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         javafx.scene.control.Separator sep = new javafx.scene.control.Separator();
         sep.getStyleClass().add("markdown-separator");
         blockStack.peek().getChildren().add(sep);
+        registerNode(thematicBreak, sep);
     }
 
     @Override
@@ -291,6 +316,7 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         Label l = new Label(codeBlock.getLiteral());
         l.getStyleClass().add("markdown-code-block");
         blockStack.peek().getChildren().add(l);
+        registerNode(codeBlock, l);
     }
 
     @Override
@@ -340,6 +366,8 @@ public class JavaFxRenderer implements IMarkdownRenderer {
         grid.setVgap(5);
 
         blockStack.peek().getChildren().add(grid);
+        registerNode(table, grid);
+        
         blockStack.push(grid);
         tableRowIndex = 0;
         visitChildren(table);

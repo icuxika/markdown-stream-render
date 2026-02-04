@@ -7,7 +7,26 @@ public abstract class Node {
     private Node next;
     private Node previous;
 
+    private int startLine = -1;
+    private int endLine = -1;
+
     public abstract void accept(Visitor visitor);
+
+    public int getStartLine() {
+        return startLine;
+    }
+
+    public void setStartLine(int startLine) {
+        this.startLine = startLine;
+    }
+
+    public int getEndLine() {
+        return endLine;
+    }
+
+    public void setEndLine(int endLine) {
+        this.endLine = endLine;
+    }
 
     public Node getParent() {
         return parent;

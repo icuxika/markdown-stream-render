@@ -23,6 +23,11 @@
             <artifactId>markdown-stream-render-javafx</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>jfx-incubator-richtext</artifactId>
+            <version>25</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

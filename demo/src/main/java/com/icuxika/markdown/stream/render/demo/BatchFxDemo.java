@@ -1,21 +1,27 @@
 package com.icuxika.markdown.stream.render.demo;
 
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import jfx.incubator.scene.control.richtext.CodeArea;
 
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import javafx.scene.control.ToolBar;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class BatchFxDemo extends Application {
+
+    private JavaFxRenderer renderer;
+    private ScrollPane outputScroll;
+    private VBox outputBox;
 
     @Override
     public void start(Stage primaryStage) {
@@ -23,31 +29,32 @@ public class BatchFxDemo extends Application {
         MarkdownTheme theme = new MarkdownTheme();
 
         // Input Area
-        TextArea inputArea = new TextArea();
-        inputArea.setWrapText(true);
+        CodeArea inputArea = new CodeArea();
+        inputArea.setLineNumbersEnabled(true);
+        // inputArea.setWrapText(true); // CodeArea might not support wrapping the same way
 
         // Load template.md
         try (java.io.InputStream is = getClass().getResourceAsStream("/template.md")) {
             if (is != null) {
                 String template = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-                inputArea.setText(template);
+                appendText(inputArea, template);
             } else {
-                inputArea.setText("# Hello Markdown\n\nType **markdown** here and click Render.");
+                appendText(inputArea, "# Hello Markdown\n\nType **markdown** here and click Render.");
             }
         } catch (java.io.IOException e) {
-            inputArea.setText("# Error Loading Template\n\n" + e.getMessage());
+            appendText(inputArea, "# Error Loading Template\n\n" + e.getMessage());
         }
 
         // Output Area
-        ScrollPane outputScroll = new ScrollPane();
+        outputScroll = new ScrollPane();
         outputScroll.setFitToWidth(true);
-        VBox outputBox = new VBox();
+        outputBox = new VBox();
         outputScroll.setContent(outputBox);
 
         // Render Button (or auto-render)
         Button renderBtn = new Button("Render");
-        renderBtn.setOnAction(e -> render(inputArea.getText(), outputScroll));
-        
+        renderBtn.setOnAction(e -> render(getText(inputArea), outputScroll));
+
         // Theme Switch Button
         Button themeBtn = new Button("Switch Theme");
         themeBtn.setOnAction(e -> {
@@ -72,10 +79,18 @@ public class BatchFxDemo extends Application {
         root.setCenter(splitPane);
 
         // Initial Render
-        render(inputArea.getText(), outputScroll);
+        render(getText(inputArea), outputScroll);
+
+        // Sync Scroll Listener
+        inputArea.caretPositionProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                int lineNumber = newVal.index(); // Corrected
+                syncScrollToPreview(lineNumber);
+            }
+        });
 
         Scene scene = new Scene(root, 1024, 768);
-        
+
         // Apply theme
         theme.apply(scene);
 
@@ -84,12 +99,22 @@ public class BatchFxDemo extends Application {
         primaryStage.show();
     }
 
+    private void appendText(CodeArea area, String text) {
+        area.appendText(text);
+    }
+
+    private String getText(CodeArea area) {
+        // common API
+        return area.getText();
+    }
+
     private void render(String markdown, ScrollPane outputScroll) {
         MarkdownParser parser = new MarkdownParser();
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        renderer = new JavaFxRenderer();
         try {
             parser.parse(new java.io.StringReader(markdown), renderer);
             VBox result = (VBox) renderer.getResult();
+            outputBox = result;
             outputScroll.setContent(result);
         } catch (java.io.IOException e) {
             e.printStackTrace();
@@ -97,6 +122,41 @@ public class BatchFxDemo extends Application {
             VBox errorBox = new VBox();
             errorBox.getChildren().add(new javafx.scene.control.Label("Error rendering markdown: " + e.getMessage()));
             outputScroll.setContent(errorBox);
+        }
+    }
+
+    private void syncScrollToPreview(int lineNumber) {
+        if (renderer == null) return;
+
+        TreeMap<Integer, javafx.scene.Node> map = renderer.getLineToNodeMap();
+        if (map.isEmpty()) return;
+
+        // Find the closest line number <= current line number
+        Map.Entry<Integer, javafx.scene.Node> entry = map.floorEntry(lineNumber);
+        if (entry != null) {
+            javafx.scene.Node node = entry.getValue();
+            scrollToNode(node);
+        }
+    }
+
+    private void scrollToNode(javafx.scene.Node node) {
+        // Calculate Y position of the node relative to the content
+        double y = 0;
+        javafx.scene.Node current = node;
+        while (current != null && current != outputBox) {
+            y += current.getBoundsInParent().getMinY();
+            current = current.getParent();
+        }
+
+        // ScrollPane height (viewport)
+        double viewportHeight = outputScroll.getViewportBounds().getHeight();
+        double contentHeight = outputBox.getBoundsInLocal().getHeight();
+
+        double maxScroll = contentHeight - viewportHeight;
+        if (maxScroll <= 0) {
+            outputScroll.setVvalue(0);
+        } else {
+            outputScroll.setVvalue(Math.max(0, Math.min(1, y / maxScroll)));
         }
     }
 
