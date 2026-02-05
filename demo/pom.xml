@@ -52,7 +52,12 @@
                     <launcher>JavaFXSample</launcher>
                     <jlinkImageName>build-link</jlinkImageName>
                     <jlinkZipName>sample-zip</jlinkZipName>
-                    <mainClass>com.icuxika.markdown.stream.render.demo.Launcher</mainClass>
+                    <mainClass>
+                        com.icuxika.markdown.stream.render.demo/com.icuxika.markdown.stream.render.demo.Launcher
+                    </mainClass>
+                    <options>
+                        <option>--enable-native-access=javafx.graphics</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>
