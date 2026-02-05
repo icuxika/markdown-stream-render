@@ -1,9 +1,9 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
-import com.icuxika.markdown.stream.render.javafx.MarkdownExtensions;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -81,7 +81,7 @@ public class JavaFxStreamDemo extends Application {
         StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder()
                 .renderer(loggingRenderer);
 
-        MarkdownExtensions.addDefaults(parserBuilder);
+        CoreExtension.addDefaults(parserBuilder);
 
         parser = parserBuilder.build();
 

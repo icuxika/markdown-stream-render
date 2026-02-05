@@ -8,12 +8,12 @@ import java.util.Set;
 /**
  * The default renderer that handles all core CommonMark nodes.
  */
-public class CoreHtmlNodeRenderer implements NodeRenderer {
+public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
 
-    private final NodeRendererContext context;
+    private final HtmlNodeRendererContext context;
     private final HtmlWriter html;
 
-    public CoreHtmlNodeRenderer(NodeRendererContext context) {
+    public CoreHtmlNodeRenderer(HtmlNodeRendererContext context) {
         this.context = context;
         this.html = context.getWriter();
     }

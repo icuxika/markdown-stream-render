@@ -70,11 +70,12 @@ Three or more hyphens, asterisks, or underscores:
 ## 4. Links and Images
 
 ### Links
+
+[ref]: https://google.com
+
 *   [Standard Link](https://google.com)
 *   [Reference Link][ref]
 *   [Link with Title](https://example.com "Hover me!")
-
-[ref]: https://google.com
 
 ### Autolinks
 *   Standard: <http://example.com>

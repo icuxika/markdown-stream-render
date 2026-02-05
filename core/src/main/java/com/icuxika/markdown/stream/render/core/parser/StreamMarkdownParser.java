@@ -94,6 +94,42 @@ public class StreamMarkdownParser {
     }
 
     private void onBlockFinalized(Node node) {
+        // Try to extract Link Reference Definitions
+        if (node instanceof Paragraph) {
+            Paragraph p = (Paragraph) node;
+            Node firstChild = p.getFirstChild();
+            if (firstChild instanceof Text) {
+                Text textNode = (Text) firstChild;
+                String content = textNode.getLiteral();
+                if (content != null) {
+                    int consumed = MarkdownParser.parseLinkReferenceDefinitions(content, doc);
+                    if (consumed > 0) {
+                        if (consumed >= content.length()) {
+                            // Fully consumed, remove the paragraph content
+                            // We cannot unlink the node itself because it's already in the renderer's stack/tree
+                            // But we can clear its children so it renders as empty?
+                            // Or we should update the text node?
+                            textNode.setLiteral("");
+                            // If we empty the text node, traverseAndParseInlines will see empty text.
+                            // But the paragraph node still exists.
+                            // Renderer.renderNode(p) will be called.
+                            // If p has empty text child, it might render empty block.
+
+                            // Better: unlink the text node?
+                            textNode.unlink();
+                        } else {
+                            String remaining = content.substring(consumed);
+                            if (remaining.trim().isEmpty()) {
+                                textNode.unlink();
+                            } else {
+                                textNode.setLiteral(remaining.trim());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Recursive inline parsing for complex blocks like Table
         traverseAndParseInlines(node);
 

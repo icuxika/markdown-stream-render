@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Renders a specific set of node types.
  */
-public interface NodeRenderer {
+public interface HtmlNodeRenderer {
 
     /**
      * @return the set of node types that this renderer handles

@@ -1,9 +1,9 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
 /**
- * Factory for creating a {@link NodeRenderer}.
+ * Factory for creating a {@link HtmlNodeRenderer}.
  */
-public interface NodeRendererFactory {
+public interface HtmlNodeRendererFactory {
 
     /**
      * Create a new node renderer context.
@@ -11,5 +11,5 @@ public interface NodeRendererFactory {
      * @param context the context for rendering (e.g. provides access to HTML writer)
      * @return a node renderer
      */
-    NodeRenderer create(NodeRendererContext context);
+    HtmlNodeRenderer create(HtmlNodeRendererContext context);
 }

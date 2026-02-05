@@ -1,7 +1,7 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownExtensions;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import javafx.application.Application;
@@ -112,7 +112,7 @@ public class JavaFxBatchDemo extends Application {
 
     private void render(String markdown, ScrollPane outputScroll) {
         MarkdownParser.Builder parserBuilder = MarkdownParser.builder();
-        MarkdownExtensions.addDefaults(parserBuilder);
+        CoreExtension.addDefaults(parserBuilder);
         MarkdownParser parser = parserBuilder.build();
 
         // JavaFxRenderer loads default extensions automatically in its constructor

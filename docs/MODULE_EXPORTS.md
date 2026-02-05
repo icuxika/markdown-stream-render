@@ -46,7 +46,7 @@
 
 **exports (导出):**
 
-* `com.icuxika.markdown.stream.render.javafx`: 包含 `MarkdownExtensions`, `MarkdownTheme`。
+* `com.icuxika.markdown.stream.render.javafx`: 包含 `MarkdownTheme`。
 * `com.icuxika.markdown.stream.render.javafx.renderer`: **核心 API**。包含 `JavaFxRenderer`。
 
 **opens (开放反射):**

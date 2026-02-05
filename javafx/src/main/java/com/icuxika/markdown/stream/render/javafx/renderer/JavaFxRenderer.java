@@ -118,7 +118,7 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         }
     }
 
-    void render(Node node) {
+    public void render(Node node) {
         JavaFxNodeRenderer renderer = rendererMap.get(node.getClass());
         if (renderer != null) {
             renderer.render(node);

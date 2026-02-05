@@ -139,15 +139,19 @@ parser.close();
 
 ```java
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
-import com.icuxika.markdown.stream.render.javafx.MarkdownExtensions;
+import com.icuxika.markdown.stream.render.core.CoreExtension;
 import javafx.scene.layout.VBox;
 
-// 1. 创建渲染器并注册扩展
+// 1. 创建渲染器
 JavaFxRenderer renderer = new JavaFxRenderer();
-MarkdownExtensions.addDefaults(renderer); // 注册 Admonition, Math 等渲染器
+// (JavaFxRenderer 默认已内置了 Admonition 和 Math 的渲染支持)
 
 // 2. 解析并渲染
-// 注意：parser 同样需要注册 CoreExtension
+// 注意：parser 需要注册 CoreExtension 以识别扩展语法
+MarkdownParser.Builder builder = MarkdownParser.builder();
+CoreExtension.addDefaults(builder);
+MarkdownParser parser = builder.build();
+
 parser.parse(markdown, renderer);
 
 // 3. 获取结果 (通常是 VBox)

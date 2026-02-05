@@ -3,10 +3,10 @@ package com.icuxika.markdown.stream.render.html.renderer;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 
 /**
- * Context passed to {@link NodeRenderer} during rendering.
+ * Context passed to {@link HtmlNodeRenderer} during rendering.
  * Provides access to the writer and sub-rendering capabilities.
  */
-public interface NodeRendererContext {
+public interface HtmlNodeRendererContext {
 
     /**
      * @return the writer to write HTML to

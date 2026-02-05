@@ -1692,7 +1692,7 @@ public class MarkdownParser {
         }
     }
 
-    private static boolean isLinkReferenceDefinitions(String text) {
+    public static boolean isLinkReferenceDefinitions(String text) {
         int index = 0;
         while (index < text.length()) {
             while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
@@ -1928,16 +1928,7 @@ public class MarkdownParser {
         processInlineContainerStatic(doc, container, options, inlineParserFactories);
     }
 
-    private int parseLinkReferenceDefinitions(String text, Node node) {
-        Document doc = null;
-        Node parent = node;
-        while (parent != null) {
-            if (parent instanceof Document) {
-                doc = (Document) parent;
-                break;
-            }
-            parent = parent.getParent();
-        }
+    public static int parseLinkReferenceDefinitions(String text, Document doc) {
         if (doc == null) return 0;
 
         int index = 0;

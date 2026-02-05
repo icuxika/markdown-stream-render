@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HtmlRenderer implements IMarkdownRenderer, NodeRendererContext {
+public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext {
     private final StringBuilder sb = new StringBuilder();
     private final HtmlWriter htmlWriter;
     private final MarkdownParserOptions options;
-    private final List<NodeRenderer> nodeRenderers = new ArrayList<>();
-    private final Map<Class<? extends Node>, NodeRenderer> rendererMap = new HashMap<>();
+    private final List<HtmlNodeRenderer> nodeRenderers = new ArrayList<>();
+    private final Map<Class<? extends Node>, HtmlNodeRenderer> rendererMap = new HashMap<>();
 
     public HtmlRenderer(Builder builder) {
         this.options = builder.options;
@@ -27,13 +27,13 @@ public class HtmlRenderer implements IMarkdownRenderer, NodeRendererContext {
         // We want user extensions to override core.
         // So we add core factory to the beginning of the list, or iterate it first.
 
-        List<NodeRendererFactory> allFactories = new ArrayList<>();
+        List<HtmlNodeRendererFactory> allFactories = new ArrayList<>();
         allFactories.add(context -> new CoreHtmlNodeRenderer(context));
         allFactories.addAll(builder.nodeRendererFactories);
 
         // Create renderers
-        for (NodeRendererFactory factory : allFactories) {
-            NodeRenderer renderer = factory.create(this);
+        for (HtmlNodeRendererFactory factory : allFactories) {
+            HtmlNodeRenderer renderer = factory.create(this);
             nodeRenderers.add(renderer);
             for (Class<? extends Node> nodeType : renderer.getNodeTypes()) {
                 rendererMap.put(nodeType, renderer);
@@ -47,14 +47,14 @@ public class HtmlRenderer implements IMarkdownRenderer, NodeRendererContext {
 
     public static class Builder {
         private MarkdownParserOptions options = new MarkdownParserOptions();
-        private List<NodeRendererFactory> nodeRendererFactories = new ArrayList<>();
+        private List<HtmlNodeRendererFactory> nodeRendererFactories = new ArrayList<>();
 
         public Builder options(MarkdownParserOptions options) {
             this.options = options;
             return this;
         }
 
-        public Builder nodeRendererFactory(NodeRendererFactory factory) {
+        public Builder nodeRendererFactory(HtmlNodeRendererFactory factory) {
             this.nodeRendererFactories.add(factory);
             return this;
         }
@@ -95,7 +95,7 @@ public class HtmlRenderer implements IMarkdownRenderer, NodeRendererContext {
     }
 
     public void render(Node node) {
-        NodeRenderer renderer = rendererMap.get(node.getClass());
+        HtmlNodeRenderer renderer = rendererMap.get(node.getClass());
         if (renderer != null) {
             renderer.render(node);
         } else {
