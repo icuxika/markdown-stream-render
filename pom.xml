@@ -14,6 +14,7 @@
         <module>demo</module>
         <module>javafx</module>
         <module>benchmark</module>
+        <module>html</module>
     </modules>
 
     <properties>

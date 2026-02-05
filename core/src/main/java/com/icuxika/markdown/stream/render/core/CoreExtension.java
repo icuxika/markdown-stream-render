@@ -1,14 +1,11 @@
-package com.icuxika.markdown.stream.render.javafx;
+package com.icuxika.markdown.stream.render.core;
 
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlockParserFactory;
 import com.icuxika.markdown.stream.render.core.extension.math.MathParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 
-/**
- * Utility class to configure Markdown Parsers with JavaFX default extensions.
- */
-public class MarkdownExtensions {
+public class CoreExtension {
 
     public static void addDefaults(MarkdownParser.Builder builder) {
         builder.blockParserFactory(new AdmonitionBlockParserFactory());

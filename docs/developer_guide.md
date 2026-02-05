@@ -7,14 +7,16 @@
 `markdown-stream-render` 是一个基于流式处理的 Markdown 解析和渲染库。它设计为模块化，核心解析逻辑与渲染逻辑分离，目前支持 HTML 和 JavaFX 渲染。
 
 主要模块：
-*   **core**: 核心解析器、AST 定义和基础渲染接口。
-*   **javafx**: 基于 JavaFX 的渲染实现，支持 CSS 样式和自定义节点渲染。
+
+* **core**: 核心解析器、AST 定义和基础渲染接口。不依赖任何 UI 库。
+* **html**: 基于 HTML 字符串构建的渲染实现，支持 CSS 样式，适用于 Web 服务端渲染或生成静态页面。
+* **javafx**: 基于 JavaFX 的渲染实现，支持 CSS 样式和自定义节点渲染，适用于桌面应用。
 
 ## 2. 引入依赖
 
-在您的 Maven 项目中，可以通过以下方式引入 `core` 和 `javafx` 模块。
+在您的 Maven 项目中，可以通过以下方式引入所需模块。
 
-### 引入 Core 模块 (仅解析或自定义渲染)
+### 2.1 引入 Core 模块 (仅解析或自定义渲染)
 
 ```xml
 <dependency>
@@ -24,7 +26,17 @@
 </dependency>
 ```
 
-### 引入 JavaFX 模块 (用于 JavaFX 应用)
+### 2.2 引入 HTML 模块 (用于 Web/服务端渲染)
+
+```xml
+<dependency>
+    <groupId>com.icuxika</groupId>
+    <artifactId>markdown-stream-render-html</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+### 2.3 引入 JavaFX 模块 (用于 JavaFX 桌面应用)
 
 ```xml
 <dependency>
@@ -45,16 +57,20 @@
 ```java
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.CoreExtension;
 
-// 1. 创建解析器实例
-MarkdownParser parser = MarkdownParser.builder().build();
+// 1. 创建解析器构建器
+MarkdownParser.Builder builder = MarkdownParser.builder();
 
-// 2. 解析 Markdown 文本
-String markdown = "# Hello World";
+// 2. (可选) 注册核心扩展（如 Admonition, Math）
+CoreExtension.addDefaults(builder);
+
+// 3. 构建解析器
+MarkdownParser parser = builder.build();
+
+// 4. 解析 Markdown 文本
+String markdown = "# Hello World\n!!! warning\nAlert\n!!!";
 Document document = parser.parse(markdown);
-
-// 3. (可选) 遍历 AST
-// document.accept(new MyVisitor());
 ```
 
 ### 3.2 自定义插件扩展
@@ -71,20 +87,67 @@ MarkdownParser parser = MarkdownParser.builder()
         .build();
 ```
 
-## 4. JavaFX 渲染 API
+## 4. HTML 渲染 API
 
-### 4.1 JavaFxRenderer (渲染器)
+### 4.1 HtmlRenderer (全量渲染)
+
+```java
+import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
+import com.icuxika.markdown.stream.render.html.HtmlRendererExtension;
+import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
+
+// 1. 创建渲染器构建器并注册默认扩展
+HtmlRenderer.Builder htmlBuilder = HtmlRenderer.builder();
+HtmlRendererExtension.addDefaults(htmlBuilder);
+HtmlRenderer renderer = htmlBuilder.build();
+
+// 2. 渲染文档
+renderer.render(document);
+String htmlBody = (String) renderer.getResult();
+
+// 3. 获取完整 HTML (包含 CSS)
+String fullHtml = "<html><head><style>" + 
+                  HtmlCssProvider.getAllCss() + 
+                  "</style></head><body>" + 
+                  htmlBody + 
+                  "</body></html>";
+```
+
+### 4.2 HtmlStreamRenderer (流式渲染)
+
+```java
+import com.icuxika.markdown.stream.render.html.renderer.HtmlStreamRenderer;
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+
+StringBuilder buffer = new StringBuilder();
+HtmlStreamRenderer renderer = new HtmlStreamRenderer(buffer);
+
+StreamMarkdownParser parser = StreamMarkdownParser.builder()
+        .renderer(renderer)
+        .build();
+
+parser.push("Chunk 1...");
+parser.push("Chunk 2...");
+parser.close();
+```
+
+## 5. JavaFX 渲染 API
+
+### 5.1 JavaFxRenderer (渲染器)
 
 `JavaFxRenderer` 负责将 Markdown AST 转换为 JavaFX 节点树。
 
 ```java
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import com.icuxika.markdown.stream.render.javafx.MarkdownExtensions;
 import javafx.scene.layout.VBox;
 
-// 1. 创建渲染器
+// 1. 创建渲染器并注册扩展
 JavaFxRenderer renderer = new JavaFxRenderer();
+MarkdownExtensions.addDefaults(renderer); // 注册 Admonition, Math 等渲染器
 
 // 2. 解析并渲染
+// 注意：parser 同样需要注册 CoreExtension
 parser.parse(markdown, renderer);
 
 // 3. 获取结果 (通常是 VBox)
@@ -94,37 +157,26 @@ VBox result = (VBox) renderer.getResult();
 root.getChildren().add(result);
 ```
 
-### 4.2 自定义节点渲染
+### 5.2 样式定制 (CSS)
 
-如果您扩展了 AST 节点，可以通过 `JavaFxNodeRenderer` 定义其在 JavaFX 中的显示方式。
+JavaFX 模块提供了默认主题 `MarkdownTheme.LIGHT` 和 `MarkdownTheme.DARK`。
 
 ```java
-JavaFxRenderer renderer = JavaFxRenderer.builder()
-        .nodeRendererFactory(context -> new MyCustomNodeRenderer(context))
-        .build();
+scene.getStylesheets().add(MarkdownTheme.LIGHT.getCssPath());
 ```
 
-### 4.3 样式定制 (CSS)
-
-默认样式定义在 `markdown.css` 中。您可以通过 CSS 类名来定制外观：
-
-*   `.markdown-root`: 根容器
-*   `.markdown-h1-text` 到 `.markdown-h6-text`: 标题
-*   `.markdown-paragraph`: 段落
-*   `.markdown-code-block`: 代码块
-*   `.markdown-link`: 链接
-
-## 5. 功能特性
+## 6. 功能特性
 
 *   **流式解析**: 虽然目前主要接口是全量解析，但架构设计支持流式输入。
 *   **AST (抽象语法树)**: 完整的节点层级结构，易于遍历和修改。
 *   **可扩展性**: 支持自定义 Block 和 Inline 解析器。
-*   **平台无关性**: Core 模块不依赖任何 UI 框架，可轻松移植到 Swing, Android 或 Web (生成 HTML)。
+* **平台无关性**: Core 模块不依赖任何 UI 框架，可轻松移植到 Swing, Android 或 Web。
 
-## 6. 示例代码
+## 7. 示例代码
 
 请参考 `demo` 模块下的示例：
 
-*   `SimpleDemo.java`: 基础控制台输出示例。
+* `HtmlBatchServerDemo.java`: HTML 全量渲染 Web 服务示例。
+* `HtmlStreamServerDemo.java`: HTML 流式渲染 Web 服务示例。
 *   `JavaFxDemo.java`: 基础 JavaFX 渲染示例。
 *   `VisualPluginDemo.java`: 展示自定义插件（警告块和数学公式）的 JavaFX 示例。

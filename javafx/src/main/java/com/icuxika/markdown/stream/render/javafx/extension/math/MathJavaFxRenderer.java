@@ -1,6 +1,7 @@
 package com.icuxika.markdown.stream.render.javafx.extension.math;
 
 import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.extension.math.MathNode;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
 import javafx.scene.control.Label;

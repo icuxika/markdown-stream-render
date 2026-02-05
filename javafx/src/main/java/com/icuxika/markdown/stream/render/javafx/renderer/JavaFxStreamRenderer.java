@@ -1,8 +1,8 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
-import com.icuxika.markdown.stream.render.javafx.extension.admonition.AdmonitionBlock;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;

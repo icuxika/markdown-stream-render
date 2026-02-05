@@ -2,7 +2,7 @@ package com.icuxika.markdown.stream.render.benchmark;
 
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.renderer.HtmlRenderer;
+import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;

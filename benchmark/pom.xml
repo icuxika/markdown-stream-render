@@ -26,6 +26,11 @@
             <artifactId>markdown-stream-render-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.icuxika</groupId>
+            <artifactId>markdown-stream-render-html</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>

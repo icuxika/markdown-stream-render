@@ -1,7 +1,10 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.renderer.HtmlRenderer;
+import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
+import com.icuxika.markdown.stream.render.html.HtmlRendererExtension;
+import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -34,7 +37,7 @@ public class HtmlBatchServerDemo {
         System.out.println("Batch Server started on port " + PORT);
         String url = "http://localhost:" + PORT + "/";
         System.out.println("Please visit: " + url);
-        
+
         // Try to open browser
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
@@ -51,22 +54,19 @@ public class HtmlBatchServerDemo {
             String markdown = loadTemplate();
 
             // Render
-            MarkdownParser parser = MarkdownParser.builder().build();
+            MarkdownParser.Builder parserBuilder = MarkdownParser.builder();
+            CoreExtension.addDefaults(parserBuilder);
+            MarkdownParser parser = parserBuilder.build();
             com.icuxika.markdown.stream.render.core.ast.Document doc = parser.parse(markdown);
-            HtmlRenderer renderer = new HtmlRenderer();
+            HtmlRenderer.Builder builder = HtmlRenderer.builder();
+            HtmlRendererExtension.addDefaults(builder);
+            HtmlRenderer renderer = builder.build();
             renderer.render(doc);
             String htmlContent = (String) renderer.getResult();
 
             // Wrap in full HTML
             String response = "<html><head><meta charset='UTF-8'><style>" +
-                    "body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }" +
-                    "code { background: #f0f0f0; padding: 2px 4px; border-radius: 3px; }" +
-                    "pre { background: #f6f8fa; padding: 10px; border-radius: 5px; overflow-x: auto; }" +
-                    "blockquote { border-left: 4px solid #ddd; padding-left: 10px; color: #666; }" +
-                    "table { border-collapse: collapse; width: 100%; margin: 15px 0; }" +
-                    "th, td { border: 1px solid #ddd; padding: 8px; }" +
-                    "th { background-color: #f2f2f2; text-align: left; }" +
-                    "img { max-width: 100%; }" +
+                    HtmlCssProvider.getAllCss() +
                     "</style></head><body>" +
                     htmlContent +
                     "</body></html>";
