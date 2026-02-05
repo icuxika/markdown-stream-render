@@ -16,16 +16,27 @@ public class DeepSeekClient {
 
     private final String apiKey;
     private final HttpClient client;
+    private final boolean mockMode;
     private static final String API_URL = "https://api.deepseek.com/chat/completions";
 
     public DeepSeekClient(String apiKey) {
+        this(apiKey, false);
+    }
+
+    public DeepSeekClient(String apiKey, boolean mockMode) {
         this.apiKey = apiKey;
+        this.mockMode = mockMode;
         this.client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
 
     public void streamChat(List<ChatMessage> messages, Consumer<String> onToken, Runnable onComplete, Consumer<Throwable> onError) {
+        if (mockMode) {
+            streamMockResponse(messages, onToken, onComplete);
+            return;
+        }
+
         StringBuilder messagesJson = new StringBuilder("[");
         for (int i = 0; i < messages.size(); i++) {
             ChatMessage msg = messages.get(i);
@@ -91,6 +102,63 @@ public class DeepSeekClient {
                     onError.accept(e);
                     return null;
                 });
+    }
+
+    private void streamMockResponse(List<ChatMessage> messages, Consumer<String> onToken, Runnable onComplete) {
+        new Thread(() -> {
+            try {
+                // Simulate network latency
+                Thread.sleep(500);
+
+                String lastUserMessage = messages.get(messages.size() - 1).content();
+                String response;
+
+                if (lastUserMessage.toLowerCase().contains("table")) {
+                    response = """
+                            Here is a **table** for you:
+                            
+                            | Name | Role | Status |
+                            | :--- | :---: | ---: |
+                            | Alice | Admin | Active |
+                            | Bob | User | Inactive |
+                            | Charlie | Guest | Pending |
+                            """;
+                } else if (lastUserMessage.toLowerCase().contains("code")) {
+                    response = """
+                            Sure! Here is a Java code snippet:
+                            
+                            ```java
+                            public static void main(String[] args) {
+                                System.out.println("Hello, World!");
+                            }
+                            ```
+                            """;
+                } else if (lastUserMessage.toLowerCase().contains("task")) {
+                    response = """
+                            Tasks to do:
+                            
+                            - [x] Implement Mock Mode
+                            - [ ] Fix UI Layout
+                            - [ ] Write Tests
+                            """;
+                } else {
+                    response = "I received your message: \"" + lastUserMessage + "\".\n\nI can demonstrate **Markdown** rendering capabilities. Try asking for a *table*, *code*, or *task list*!";
+                }
+
+                // Split by characters or words to simulate tokens
+                String[] tokens = response.split("(?<=\\s)|(?=\\s)");
+                // Or just char by char for smoother flow
+                for (int i = 0; i < response.length(); i++) {
+                    String token = String.valueOf(response.charAt(i));
+                    onToken.accept(token);
+                    Thread.sleep(15); // Typing speed
+                }
+
+                onComplete.run();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 
     // Simple JSON escaping for the request body

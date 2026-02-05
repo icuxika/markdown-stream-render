@@ -20,6 +20,9 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
         this.options = builder.options;
         this.sb.append(""); // Or initialize if needed
         this.htmlWriter = new HtmlWriter(sb);
+        if (this.options.isGfm()) {
+            this.htmlWriter.setEscapeGt(false);
+        }
 
         // Add core renderer (last fallback)
         // Correct order: Core must be added FIRST to the factories list, OR extensions must be processed AFTER core.

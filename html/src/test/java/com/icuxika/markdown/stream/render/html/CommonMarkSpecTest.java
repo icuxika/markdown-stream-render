@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -85,7 +86,11 @@ public class CommonMarkSpecTest {
                         () -> {
                             MarkdownParser parser = new MarkdownParser();
                             parser.getOptions().setGfm(false); // Disable GFM extensions for strict spec tests
-                            HtmlRenderer renderer = new HtmlRenderer();
+
+                            MarkdownParserOptions renderOptions = new MarkdownParserOptions();
+                            renderOptions.setGfm(false);
+                            HtmlRenderer renderer = HtmlRenderer.builder().options(renderOptions).build();
+
                             parser.parse(new java.io.StringReader(example.markdown), renderer);
                             String actual = (String) renderer.getResult();
 
@@ -127,7 +132,11 @@ public class CommonMarkSpecTest {
             try {
                 MarkdownParser parser = new MarkdownParser();
                 parser.getOptions().setGfm(false); // Disable GFM extensions for strict spec tests
-                HtmlRenderer renderer = new HtmlRenderer();
+
+                MarkdownParserOptions renderOptions = new MarkdownParserOptions();
+                renderOptions.setGfm(false);
+                HtmlRenderer renderer = HtmlRenderer.builder().options(renderOptions).build();
+
                 parser.parse(new java.io.StringReader(example.markdown), renderer);
                 String actual = (String) renderer.getResult();
 

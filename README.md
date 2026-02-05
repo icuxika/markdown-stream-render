@@ -93,25 +93,25 @@ mvn clean install
 **1. Streaming Fx Demo (Typewriter Effect)**
 Simulates a typewriter effect in a desktop window to visualize streaming rendering.
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingFxDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.JavaFxStreamDemo"
 ```
 
 **2. Streaming HTML Demo (Server-Sent Events)**
 Starts a local web server. Open your browser to see Markdown rendered and pushed in real-time.
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingHtmlDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.HtmlStreamServerDemo"
 ```
 
 **3. Batch HTML Demo (Static Preview)**
 Renders `template.md` to a static HTML page and serves it.
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.BatchHtmlDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.HtmlBatchServerDemo"
 ```
 
 **4. Batch Fx Demo (Editor)**
 A basic editor where you can type Markdown and see the result instantly.
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.BatchFxDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.JavaFxBatchDemo"
 ```
 
 **5. Streaming AI Chat Demo**
@@ -120,7 +120,7 @@ A chat interface interacting with DeepSeek API. Requires API Key.
 # Set environment variable first
 # Windows (PowerShell): $env:DEEPSEEK_API_KEY="your-key"
 # Linux/Mac: export DEEPSEEK_API_KEY="your-key"
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.StreamingAiChatDemo"
+mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.JavaFxAiChatDemo"
 ```
 
 ## 📐 Architecture & Design

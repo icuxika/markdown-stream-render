@@ -23,24 +23,25 @@ public class JavaFxAiChatDemo extends Application {
     private final MarkdownTheme theme = new MarkdownTheme();
     private final java.util.List<DeepSeekClient.ChatMessage> history = new java.util.ArrayList<>();
 
+    private final CheckBox mockModeCbx = new CheckBox("Mock Mode");
+    private String apiKey;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        String apiKey = System.getenv("DEEPSEEK_API_KEY");
+        apiKey = System.getenv("DEEPSEEK_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
-            apiKey = "YOUR_API_KEY_HERE"; // Fallback or prompt
-            System.out.println("Warning: DEEPSEEK_API_KEY environment variable not set.");
-
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Configuration Missing");
-            alert.setHeaderText("API Key Not Found");
-            alert.setContentText("Please set DEEPSEEK_API_KEY environment variable.\nUsing placeholder key which will fail.");
-            alert.showAndWait();
+            apiKey = "YOUR_API_KEY_HERE";
+            System.out.println("Warning: DEEPSEEK_API_KEY environment variable not set. Defaulting to Mock Mode.");
+            mockModeCbx.setSelected(true); // Default to mock if no key
         }
-        client = new DeepSeekClient(apiKey);
+
+        // Initialize client
+        recreateClient();
+        mockModeCbx.setOnAction(e -> recreateClient());
 
         // Initialize history with system prompt
         history.add(new DeepSeekClient.ChatMessage("system", "You are a helpful assistant."));
@@ -85,7 +86,7 @@ public class JavaFxAiChatDemo extends Application {
                 theme.setTheme(MarkdownTheme.Theme.LIGHT);
             }
         });
-        ToolBar toolBar = new ToolBar(themeBtn);
+        ToolBar toolBar = new ToolBar(themeBtn, new Separator(), mockModeCbx);
 
         BorderPane root = new BorderPane();
         root.setTop(toolBar);
@@ -105,6 +106,10 @@ public class JavaFxAiChatDemo extends Application {
         inputArea.requestFocus();
     }
 
+    private void recreateClient() {
+        client = new DeepSeekClient(apiKey, mockModeCbx.isSelected());
+    }
+
     private void sendMessage() {
         String text = inputArea.getText().trim();
         if (text.isEmpty()) return;
@@ -115,15 +120,26 @@ public class JavaFxAiChatDemo extends Application {
         // Add user message to history
         history.add(new DeepSeekClient.ChatMessage("user", text));
 
-        // Prepare AI Message placeholder
-        AIMessageBubble aiBubble = new AIMessageBubble();
-        chatContainer.getChildren().add(aiBubble);
+        // Thinking Indicator
+        Label thinkingLabel = new Label("Thinking...");
+        thinkingLabel.setStyle("-fx-text-fill: #888; -fx-font-style: italic; -fx-padding: 10;");
+        chatContainer.getChildren().add(thinkingLabel);
         scrollToBottom();
+
+        // Prepare AI Message placeholder
+        MarkdownBubble aiBubble = new MarkdownBubble(false);
+        // Don't add to children yet? Or add it but empty?
+        // If we add it empty, it might show a small empty box.
+        // Let's add it when first token arrives, replacing thinking label.
 
         StringBuilder assistantResponse = new StringBuilder();
 
         client.streamChat(history,
                 token -> Platform.runLater(() -> {
+                    if (chatContainer.getChildren().contains(thinkingLabel)) {
+                        chatContainer.getChildren().remove(thinkingLabel);
+                        chatContainer.getChildren().add(aiBubble);
+                    }
                     assistantResponse.append(token);
                     aiBubble.append(token);
                     scrollToBottom();
@@ -131,8 +147,15 @@ public class JavaFxAiChatDemo extends Application {
                 () -> Platform.runLater(() -> {
                     // Done, add assistant message to history
                     history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
+                    if (chatContainer.getChildren().contains(thinkingLabel)) {
+                        chatContainer.getChildren().remove(thinkingLabel); // In case of empty response?
+                    }
                 }),
                 error -> Platform.runLater(() -> {
+                    if (chatContainer.getChildren().contains(thinkingLabel)) {
+                        chatContainer.getChildren().remove(thinkingLabel);
+                        chatContainer.getChildren().add(aiBubble);
+                    }
                     aiBubble.append("\n\n**Error**: " + error.getMessage());
                     scrollToBottom();
                 })
@@ -140,22 +163,9 @@ public class JavaFxAiChatDemo extends Application {
     }
 
     private void addMessage(String text, boolean isUser) {
-        HBox bubbleWrapper = new HBox();
-        bubbleWrapper.setPadding(new Insets(5));
-
-        if (isUser) {
-            Label label = new Label(text);
-            label.setWrapText(true);
-            label.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 10; -fx-font-size: 14px;");
-            label.setMaxWidth(600);
-
-            bubbleWrapper.setAlignment(Pos.CENTER_RIGHT);
-            bubbleWrapper.getChildren().add(label);
-        } else {
-            // Should not happen here for AI, using AIMessageBubble class
-        }
-
-        chatContainer.getChildren().add(bubbleWrapper);
+        MarkdownBubble bubble = new MarkdownBubble(isUser);
+        bubble.setText(text);
+        chatContainer.getChildren().add(bubble);
         scrollToBottom();
     }
 
@@ -164,22 +174,42 @@ public class JavaFxAiChatDemo extends Application {
         Platform.runLater(() -> scrollPane.setVvalue(1.0));
     }
 
-    private static class AIMessageBubble extends HBox {
+    private static class MarkdownBubble extends HBox {
         private final VBox contentBox = new VBox();
         private final MarkdownParser parser = new MarkdownParser();
         private final StringBuilder fullText = new StringBuilder();
+        private final boolean isUser;
 
-        public AIMessageBubble() {
-            this.setAlignment(Pos.CENTER_LEFT);
+        public MarkdownBubble(boolean isUser) {
+            this.isUser = isUser;
+            this.setAlignment(isUser ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
             this.setPadding(new Insets(5));
+            this.setFillHeight(false); // Don't stretch vertically
 
-            contentBox.setStyle("-fx-background-color: transparent;"); // Markdown renderer handles text color via CSS
+            contentBox.setStyle("-fx-background-color: transparent;");
             contentBox.setMaxWidth(700);
 
-            // Add initial empty content or loading indicator?
-            // contentBox.getChildren().add(new Label("..."));
+            // Add a background/border for user messages to make them distinct?
+            // The Markdown renderer usually assumes full width or transparent bg.
+            // We can wrap contentBox in a StackPane or another VBox with styling.
 
-            this.getChildren().add(contentBox);
+            VBox bubble = new VBox(contentBox);
+            bubble.setPadding(new Insets(10));
+            if (isUser) {
+                bubble.setStyle("-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-border-color: #bbdefb; -fx-border-radius: 10;");
+            } else {
+                // Default transparent for AI (let markdown theme handle it? or add light bg?)
+                // Let's add a light gray bg for AI to distinguish from main background
+                bubble.setStyle("-fx-background-color: -md-code-bg-color; -fx-background-radius: 10;");
+            }
+
+            this.getChildren().add(bubble);
+        }
+
+        public void setText(String text) {
+            fullText.setLength(0);
+            fullText.append(text);
+            render();
         }
 
         public void append(String token) {
@@ -190,10 +220,6 @@ public class JavaFxAiChatDemo extends Application {
         private void render() {
             JavaFxRenderer renderer = new JavaFxRenderer();
             try {
-                // Re-parse the whole text. 
-                // Optimization: For very long text, we might want to only re-parse the last block, 
-                // but that requires parser support for incremental state.
-                // Current parser is fast enough for chat length.
                 parser.parse(new java.io.StringReader(fullText.toString()), renderer);
                 Pane result = (Pane) renderer.getResult();
                 contentBox.getChildren().setAll(result);

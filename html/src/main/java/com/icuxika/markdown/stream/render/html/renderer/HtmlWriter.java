@@ -8,9 +8,14 @@ import java.io.IOException;
 public class HtmlWriter {
 
     private final Appendable buffer;
+    private boolean escapeGt = true;
 
     public HtmlWriter(Appendable buffer) {
         this.buffer = buffer;
+    }
+
+    public void setEscapeGt(boolean escapeGt) {
+        this.escapeGt = escapeGt;
     }
 
     public void raw(String s) {
@@ -52,7 +57,13 @@ public class HtmlWriter {
             }
         }
         if (voidElement) {
-            raw(" />");
+            // Special handling for GFM task list input which is rendered as HTML5 loose (no slash)
+            // while CommonMark core elements (br, hr, img) use XHTML style (with slash).
+            if ("input".equals(name)) {
+                raw(">");
+            } else {
+                raw(" />");
+            }
         } else {
             raw(">");
         }
@@ -78,7 +89,11 @@ public class HtmlWriter {
                     sb.append("&lt;");
                     break;
                 case '>':
-                    sb.append("&gt;");
+                    if (escapeGt) {
+                        sb.append("&gt;");
+                    } else {
+                        sb.append(">");
+                    }
                     break;
                 case '&':
                     sb.append("&amp;");

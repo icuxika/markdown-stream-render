@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 public class HtmlBatchServerDemo {
 
-    private static final int PORT = 8081;
+    private static final int PORT = 8082;
 
     public static void main(String[] args) {
         try {

@@ -174,12 +174,12 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
         html.tag("li");
 
         if (listItem.isTask()) {
-            java.util.Map<String, String> attrs = new java.util.HashMap<>();
-            attrs.put("disabled", "");
-            attrs.put("type", "checkbox");
+            java.util.Map<String, String> attrs = new java.util.LinkedHashMap<>();
             if (listItem.isChecked()) {
                 attrs.put("checked", "");
             }
+            attrs.put("disabled", "");
+            attrs.put("type", "checkbox");
             html.tag("input", attrs, true);
             html.text(" ");
         }
@@ -335,6 +335,13 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
     }
 
     private void renderTableBody(TableBody tableBody) {
+        // GFM: If table body is empty (no rows), don't render tbody tag?
+        // Spec Example 205: | abc | def |\n| --- | --- |\n
+        // Output: <table><thead>...</thead></table> (No tbody)
+        if (tableBody.getFirstChild() == null) {
+            return;
+        }
+
         html.tag("tbody");
         html.line();
         context.renderChildren(tableBody);

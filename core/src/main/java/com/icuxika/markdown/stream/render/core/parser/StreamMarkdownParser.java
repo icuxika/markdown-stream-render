@@ -36,7 +36,7 @@ public class StreamMarkdownParser {
         this.doc = new Document();
         this.doc.setStartLine(0);
 
-        this.state = new MarkdownParser.BlockParserState(blockParserFactories);
+        this.state = new MarkdownParser.BlockParserState(blockParserFactories, options);
         this.state.setOnBlockFinalized(this::onBlockFinalized);
         this.state.setOnBlockStarted(this::onBlockStarted);
         this.state.setOnBlockClosed(this::onBlockClosed);

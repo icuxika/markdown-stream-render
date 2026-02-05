@@ -120,7 +120,7 @@ public class MarkdownParser {
      */
     public void parse(Reader reader, IMarkdownRenderer renderer) throws IOException {
         Document doc = new Document();
-        BlockParserState state = new BlockParserState(blockParserFactories);
+        BlockParserState state = new BlockParserState(blockParserFactories, options);
 
         java.io.BufferedReader br = (reader instanceof java.io.BufferedReader) ? (java.io.BufferedReader) reader : new java.io.BufferedReader(reader);
         String line;
@@ -146,7 +146,7 @@ public class MarkdownParser {
         Document doc = new Document();
         if (input == null) return doc;
 
-        BlockParserState state = new BlockParserState(blockParserFactories);
+        BlockParserState state = new BlockParserState(blockParserFactories, options);
         int lineNumber = 0;
 
         int len = input.length();
@@ -271,8 +271,11 @@ public class MarkdownParser {
         boolean inTable = false;
         List<TableCell.Alignment> tableAlignments = new ArrayList<>();
 
-        BlockParserState(List<BlockParserFactory> blockParserFactories) {
+        private final MarkdownParserOptions options;
+
+        BlockParserState(List<BlockParserFactory> blockParserFactories, MarkdownParserOptions options) {
             this.blockParserFactories = blockParserFactories != null ? blockParserFactories : new ArrayList<>();
+            this.options = options != null ? options : new MarkdownParserOptions();
         }
 
         // Inner class implementation for ParserState
@@ -726,6 +729,22 @@ public class MarkdownParser {
                         || getHtmlBlockStartCondition(contentLine) > 0) {
 
                     Node tableNode = currentLeaf.getParent(); // TableBody -> Table
+                    if (tableNode == null && currentLeaf instanceof Table) {
+                        // Should not happen if currentLeaf is TableBody
+                        // But if currentLeaf is Table (just created)? No, we set currentLeaf to TableBody immediately.
+                        // Wait, if currentLeaf is TableBody, its parent SHOULD be Table.
+                        // Unless something unlinked it?
+
+                        // Debug: NPE happens at processLine(MarkdownParser.java:740)
+                        // Line 740: Node tableNode = currentLeaf.getParent();
+                        // currentLeaf is not null (checked by if inTable && currentLeaf instanceof TableBody)
+                        // But getParent() might be null if it's not attached?
+                        // It should be attached.
+
+                        // Ah, wait. If currentLeaf is TableBody, and we are inside `processLine`,
+                        // currentLeaf should be part of the tree.
+                    }
+
                     finalizeCurrentLeaf(lineNumber - 1);
                     inTable = false;
                     tableAlignments.clear();
@@ -735,18 +754,6 @@ public class MarkdownParser {
                     }
 
                     // Fall through to process as normal block/line
-                } else if (!contentLine.contains("|")) {
-                    // Table row must contain a pipe
-                    Node tableNode = currentLeaf.getParent();
-                    finalizeCurrentLeaf(lineNumber - 1);
-                    inTable = false;
-                    tableAlignments.clear();
-
-                    if (onBlockFinalized != null && tableNode instanceof Table) {
-                        onBlockFinalized.accept(tableNode);
-                    }
-
-                    // Fall through
                 } else {
                     // Parse Table Row
                     if (currentLeaf instanceof TableBody) {
@@ -902,41 +909,80 @@ public class MarkdownParser {
                     String[] lines = paragraphContent.split("\n");
                     String headerLine = lines[lines.length - 1];
 
-                    // Finalize paragraph (remove last line)
-                    if (lines.length > 1) {
-                        StringBuilder remaining = new StringBuilder();
-                        for (int k = 0; k < lines.length - 1; k++) {
-                            remaining.append(lines[k]).append("\n");
-                        }
-                        currentLeafContent.setLength(0);
-                        currentLeafContent.append(remaining);
-                        finalizeCurrentLeaf(lineNumber - 1);
+                    // Verify header cell count matches delimiter cell count (GFM)
+                    // We need to parse header row to count cells
+                    List<String> headerCells = splitTableCells(headerLine.trim());
+                    // splitTableCells handles escaped pipes and code spans correctly now.
+                    // But we need to trim the header line first? splitTableCells does trimming internally?
+                    // splitTableCells takes "row" string.
+                    // parseTableRow does: String s = line.trim(); ... splitTableCells(s);
+                    // So we should trim headerLine.
+
+                    if (headerCells.size() != alignments.size()) {
+                        // Mismatch! Not a table.
+                        // Treat the delimiter row as normal text (paragraph continuation or new paragraph)
+                        // Fall through to standard processing.
+
+                        // BUT, we already consumed the line logic?
+                        // No, we are in the "Start" block. If we return, we are done.
+                        // If we don't return, we fall through to "Setext Heading" etc?
+                        // No, "Table (Start)" is one of the blocks.
+                        // If we decide it's not a table, we should let it be processed as... what?
+                        // A paragraph continuation? Or a new paragraph?
+                        // If it's `| --- |`, it might be a thematic break? No, we checked thematic break earlier?
+                        // Wait, Thematic Break check is AFTER Table check in my code?
+                        // Line 971: Thematic Break. Line 895: Table (Start).
+                        // So Table check comes FIRST.
+
+                        // If we fail here, we should fall through.
+                        // BUT `alignments != null` means it looks like a table delimiter.
+                        // If column count mismatch, it is NOT a table delimiter?
+                        // "The header row must match the delimiter row in the number of cells."
+                        // So if mismatch, this line is NOT a delimiter row in this context.
+                        // So we should pretend `alignments == null`.
+
                     } else {
-                        currentLeaf.unlink();
-                        currentLeaf = null;
-                        currentLeafContent.setLength(0);
+                        // Match! Proceed to create table.
+
+                        // Finalize paragraph (remove last line)
+                        if (lines.length > 1) {
+                            StringBuilder remaining = new StringBuilder();
+                            for (int k = 0; k < lines.length - 1; k++) {
+                                remaining.append(lines[k]).append("\n");
+                            }
+                            currentLeafContent.setLength(0);
+                            currentLeafContent.append(remaining);
+                            finalizeCurrentLeaf(lineNumber - 1);
+                        } else {
+                            currentLeaf.unlink();
+                            currentLeaf = null;
+                            currentLeafContent.setLength(0);
+                            // No finalizeCurrentLeaf call here because leaf is already gone.
+                            // But we might have pending state?
+                            // If currentLeaf is null, finalizeCurrentLeaf won't do anything.
+                        }
+
+                        // Create Table structure
+                        Table table = new Table();
+                        table.setStartLine(pStartLine != -1 ? pStartLine : lineNumber - 1);
+                        checkLooseList(openContainers.get(openContainers.size() - 1));
+                        openContainers.get(openContainers.size() - 1).appendChild(table);
+
+                        TableHead head = new TableHead();
+                        table.appendChild(head);
+
+                        TableRow headerRow = parseTableRow(headerLine, alignments, true);
+                        head.appendChild(headerRow);
+
+                        TableBody body = new TableBody();
+                        table.appendChild(body);
+
+                        currentLeaf = body;
+                        inTable = true;
+                        tableAlignments = alignments;
+                        lastLineContentDepth = Integer.MAX_VALUE;
+                        return;
                     }
-
-                    // Create Table structure
-                    Table table = new Table();
-                    table.setStartLine(pStartLine != -1 ? pStartLine : lineNumber - 1);
-                    checkLooseList(openContainers.get(openContainers.size() - 1));
-                    openContainers.get(openContainers.size() - 1).appendChild(table);
-
-                    TableHead head = new TableHead();
-                    table.appendChild(head);
-
-                    TableRow headerRow = parseTableRow(headerLine, alignments, true);
-                    head.appendChild(headerRow);
-
-                    TableBody body = new TableBody();
-                    table.appendChild(body);
-
-                    currentLeaf = body;
-                    inTable = true;
-                    tableAlignments = alignments;
-                    lastLineContentDepth = Integer.MAX_VALUE;
-                    return;
                 }
             }
 
@@ -1067,6 +1113,18 @@ public class MarkdownParser {
             }
         }
 
+        private static final Pattern DISALLOWED_TAG_PATTERN = Pattern.compile("(?i)<(/?)((?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)(?=[\\s/>]|$))");
+
+        private String filterDisallowedTags(String content) {
+            Matcher matcher = DISALLOWED_TAG_PATTERN.matcher(content);
+            StringBuffer sb = new StringBuffer();
+            while (matcher.find()) {
+                matcher.appendReplacement(sb, "&lt;$1$2");
+            }
+            matcher.appendTail(sb);
+            return sb.toString();
+        }
+
         void finalizeCurrentLeaf(int endLine) {
             if (currentLeaf != null) {
                 currentLeaf.setEndLine(endLine);
@@ -1088,7 +1146,11 @@ public class MarkdownParser {
                         ((CodeBlock) currentLeaf).setLiteral(literal);
                     }
                 } else if (currentLeaf instanceof HtmlBlock) {
-                    ((HtmlBlock) currentLeaf).setLiteral(currentLeafContent.toString());
+                    String content = currentLeafContent.toString();
+                    if (options.isGfm()) {
+                        content = filterDisallowedTags(content);
+                    }
+                    ((HtmlBlock) currentLeaf).setLiteral(content);
                 }
                 Node finalized = currentLeaf;
                 currentLeaf = null;
@@ -1096,6 +1158,7 @@ public class MarkdownParser {
                 inFencedCodeBlock = false;
                 inIndentedCodeBlock = false;
                 inHtmlBlock = false;
+                inTable = false; // Fix: Ensure table mode is exited when leaf is finalized (e.g. by interrupt)
 
                 if (onBlockFinalized != null) {
                     onBlockFinalized.accept(finalized);
@@ -1135,18 +1198,45 @@ public class MarkdownParser {
                 return null; // Looks like Setext
             }
 
+            // GFM Spec: A delimiter row consists of cells of dashes -, and optionally, a leading or trailing pipe,
+            // and optionally a colon : at the beginning or end of each cell.
+
+            // It MUST contain at least one pipe, OR if it doesn't, it must not look like setext.
+            // But wait, GFM table rows don't strictly require leading/trailing pipes.
+            // However, a delimiter row usually involves pipes.
+
+            // Issue with Example 200: | f\|oo  | \n | ------ |
+            // The delimiter row | ------ | is standard.
+            // But the first row has escaped pipe.
+
+            // Issue with Example 203: | abc | def | \n | --- | \n | bar |
+            // This is valid. The second cell in delimiter is missing?
+            // "The delimiter row consists of ... one or more cells"
+            // "The header row must match the delimiter row in the number of cells."
+
             if (!s.contains("-")) return null; // Must have at least one dash
 
             // Remove leading/trailing pipes if present
             if (s.startsWith("|")) s = s.substring(1);
             if (s.endsWith("|") && !s.endsWith("\\|")) s = s.substring(0, s.length() - 1);
 
+            // Use splitTableCells instead of simple split to handle escaped pipes if any (though delimiter row shouldn't have escaped pipes usually)
+            // But delimiter row cells only contain -, : and space. So simple split by | is fine?
+            // "Cells in the delimiter row can contain optional whitespace"
+
             String[] parts = s.split("\\|");
             List<TableCell.Alignment> alignments = new ArrayList<>();
 
             for (String part : parts) {
                 String cell = part.trim();
+                // Empty cell in delimiter row?
+                // | --- | |
+                // If a cell is empty (whitespace only), it's not a valid delimiter cell.
+                // Delimiter cell must contain at least one dash.
+
                 if (cell.isEmpty()) {
+                    // If we have "||", split gives empty string.
+                    // This is valid if it's meant to be an empty cell? No, delimiter cells MUST have dashes.
                     return null;
                 }
 
@@ -1176,19 +1266,30 @@ public class MarkdownParser {
         TableRow parseTableRow(String line, List<TableCell.Alignment> alignments, boolean isHeader) {
             TableRow row = new TableRow();
             String s = line.trim();
-            if (s.startsWith("|")) s = s.substring(1);
-            // Trailing pipe check is tricky due to escaping.
-            // We should use a proper split function that respects escaped pipes.
+            // Don't strip pipes here anymore, splitTableCells handles it
+            // if (s.startsWith("|")) s = s.substring(1);
 
             List<String> cells = splitTableCells(s);
 
-            for (int i = 0; i < alignments.size(); i++) {
+            // GFM: If there are less cells than columns in header, fill with empty cells.
+            // If there are more, ignore the extra ones.
+            // Wait, spec says:
+            // "The header row must match the delimiter row in the number of cells."
+            // "Body rows ... excess cells are ignored, missing cells are inserted."
+
+            // Wait, alignments size is determined by delimiter row.
+            // Header row size should match delimiter row?
+            // "The header row consists of the line before the delimiter row."
+
+            int targetSize = alignments.size();
+
+            for (int i = 0; i < targetSize; i++) {
                 TableCell cell = new TableCell();
                 cell.setHeader(isHeader);
                 cell.setAlignment(alignments.get(i));
 
                 String content = (i < cells.size()) ? cells.get(i).trim() : "";
-                cell.appendChild(new Text(content)); // Placeholder, will be parsed as inline later
+                cell.appendChild(new Text(content));
                 row.appendChild(cell);
             }
 
@@ -1219,9 +1320,14 @@ public class MarkdownParser {
             boolean escaped = false;
 
             int i = 0;
+            // Trim leading/trailing pipe logic should be consistent
+            if (row.startsWith("|")) i++;
+            int limit = row.length();
+            if (row.endsWith("|") && !row.endsWith("\\|")) limit--;
+
             boolean lastCharWasDelimiter = false;
 
-            while (i < row.length()) {
+            while (i < limit) {
                 char c = row.charAt(i);
                 lastCharWasDelimiter = false;
 
@@ -1233,7 +1339,151 @@ public class MarkdownParser {
                 }
 
                 if (c == '\\') {
+                    // Check if next char is pipe, if so, escape it. 
+                    // GFM spec: \| is a literal pipe.
+                    if (i + 1 < limit && row.charAt(i + 1) == '|') {
+                        current.append('|');
+                        i += 2;
+                        continue;
+                    }
+                    // Else, keep backslash (will be handled by inline parser)
                     current.append(c);
+                    // escaped = true; // DO NOT set escaped=true here.
+                    // If we set escaped=true, the next char will be appended blindly.
+                    // But we want `\` to be treated as a literal backslash by THIS parser loop,
+                    // and let InlineParser handle it later.
+                    // UNLESS the next char is a pipe, which we handled above.
+                    // Wait, if we have `\\`, we append `\` and then next char is `\`.
+                    // If we set escaped=true, next `\` is appended. Result `\\`. InlineParser sees `\\` -> `\`. Correct.
+
+                    // If we have `\a`, we append `\`. Next char `a`.
+                    // If we set escaped=true, next `a` is appended. Result `\a`. InlineParser sees `\a` -> `a` (escaped a? No, only punctuation).
+                    // Actually `\a` is not an escape in Markdown usually.
+
+                    // The issue in Example 200 is `| b `\|` az |`.
+                    // Here `\|` is INSIDE code span.
+                    // My parser handles code span FIRST.
+                    // `if (c == '`')` block comes AFTER `if (c == '\\')`.
+                    // This is WRONG priority. Backslash escaping should NOT happen inside code spans.
+                    // BUT, to detect code span, we need to scan for backticks.
+                    // And backticks can be escaped? No, backticks in code span delimiters cannot be escaped.
+                    // But inside code span, backslash is literal.
+
+                    // So we must check for code span start BEFORE checking for backslash escape?
+                    // NO. `\` escapes backticks? `\` escapes `|`?
+                    // "Code spans are delimited by backticks. Backslash escapes are NOT active in code spans."
+
+                    // So if we see a backtick, we should check if it starts a code span.
+                    // BUT, `\` can escape a backtick to prevent it from starting a code span?
+                    // "Backslash escapes are allowed... including escaped backticks?"
+                    // Example: \` is not a code span start.
+
+                    // So `if (c == '\\')` MUST come first to handle `\` escaping a backtick.
+                    // But inside `if (c == '\\')`, if we consume the backslash and the next char, we effectively "escape" it.
+
+                    // In Example 200: `b `\|` az`.
+                    // i points to first backtick.
+                    // It should enter `if (c == '`')`.
+                    // Inside code span logic, it consumes `\|`.
+
+                    // So why did my code fail?
+                    // Because `if (c == '\\')` block is BEFORE `if (c == '`')`.
+                    // Wait, `|` is NOT inside code span in `b `\|` az`?
+                    // Markdown: `| b `\|` az |`
+                    // The cell content is ` b `\|` az `.
+                    // The backticks wrap `\|`.
+                    // So `\|` IS inside code span.
+                    // And inside code span, `\` is literal.
+                    // So content is `\|`.
+                    // HTML output should be `<code>\|</code>`?
+                    // Example 200 Expected: `b <code>|</code> az`.
+                    // Wait. `\|` in code span means literal `|`?
+                    // Spec says: "Backslash escapes are never active in code spans".
+                    // So `\|` should be `\|`.
+                    // Why does Expected say `|`?
+                    // Ah, the example markdown is: `| b `\|` az |`
+                    // Wait, if I write `|` in a table cell, it ends the cell.
+                    // So to put a pipe in a code span in a table cell, I MUST escape it?
+                    // GFM Spec "Tables (extension)":
+                    // "Pipes can be escaped with backslash"
+                    // "Block-level structure... takes precedence over inline structure."
+                    // "Splitting into cells... happens BEFORE inline parsing."
+
+                    // So, `splitTableCells` MUST handle `\|` as "escaped pipe" (i.e. treat as content, not delimiter)
+                    // EVEN IF it looks like it's inside a code span?
+                    // "Parsing of the row into cells happens before parsing of inline content."
+                    // So `splitTableCells` doesn't know about code spans?
+                    // WRONG. If it doesn't know about code spans, it might split inside a code span.
+                    // Example: `| `a|b` |` -> Cell 1: ` `a|b` `. Pipe inside code span should NOT split cell.
+                    // So `splitTableCells` MUST know about code spans.
+
+                    // So:
+                    // 1. Scan for code spans.
+                    // 2. Scan for escaped pipes `\|`.
+                    // 3. Scan for delimiters `|`.
+
+                    // In `| b `\|` az |`:
+                    // We encounter first backtick. We consume until next backtick.
+                    // Content `\|`.
+                    // But wait, does `\|` count as escaped pipe inside code span?
+                    // If I write `|` inside code span, does it split cell?
+                    // `| `a|b` |` -> Pipe inside code span does NOT split.
+                    // `| `a\|b` |` -> Pipe inside code span does NOT split.
+
+                    // So my logic of handling code spans seems correct: consume everything inside backticks.
+                    // So `\|` is consumed as part of code span content.
+                    // So cell content becomes ` b `\|` az `.
+                    // Then InlineParser parses this.
+                    // Code span parsing: content is `\|`.
+                    // Rendered as `<code>\|</code>`.
+
+                    // BUT Expected is `<code>|</code>`.
+                    // This implies that `\|` was unescaped to `|` BEFORE code span parsing?
+                    // OR that `\|` in a table cell is ALWAYS unescaped to `|`, even inside code spans?
+                    // "To include a pipe | in a cell, it must be escaped: \|."
+                    // This rule applies to the raw line text, BEFORE any other processing?
+
+                    // If so, `splitTableCells` should convert `\|` to `|`?
+                    // If I convert `\|` to `|`, then ` b `|` az `.
+                    // Inline parser sees ` b `|` az `. Code span `|`. Render `<code>|</code>`.
+                    // THIS MATCHES EXPECTED!
+
+                    // So: `splitTableCells` should REPLACE `\|` with `|` in the output string?
+                    // Currently I do: `current.append('|'); i+=2;`
+                    // This appends `|`.
+                    // So `current` becomes ` b `|` az `.
+                    // Wait, my code does exactly this!
+                    
+                    /*
+                    if (i + 1 < limit && row.charAt(i + 1) == '|') {
+                        current.append('|');
+                        i += 2;
+                        continue; 
+                    }
+                    */
+
+                    // So why did Actual output show `<code>\|</code>`?
+                    // Maybe because I didn't reach that block?
+                    // In `| b `\|` az |`:
+                    // i hits first backtick. `if (c == '`')` block runs.
+                    // It consumes the code span.
+                    // Inside the code span, there is `\|`.
+                    // My code span logic: `current.append(row.substring(i, match));`
+                    // It copies `\|` verbatim!
+
+                    // AHA!
+                    // If `\|` is inside a code span, my code span logic swallows it without unescaping.
+                    // But apparently, even inside a code span (in the context of a table row), `\|` should be treated as an escaped pipe and unescaped?
+                    // This is weird because "Backslash escapes are never active in code spans".
+                    // But Table parsing happens BEFORE Inline parsing.
+                    // So we are stripping the "Table encoding" first.
+                    // The "Table encoding" says: `\|` represents a `|` character.
+                    // This decoding must happen BEFORE we pass the string to InlineParser.
+                    // And since we are building the cell string manually, we must do it.
+
+                    // So, even inside `if (c == '`')` block, we must handle `\|` -> `|`?
+                    // Yes!
+
                     escaped = true;
                     i++;
                     continue;
@@ -1241,16 +1491,42 @@ public class MarkdownParser {
 
                 if (c == '`') {
                     int start = i;
-                    while (i < row.length() && row.charAt(i) == '`') i++;
+                    while (i < limit && row.charAt(i) == '`') i++;
                     int runLength = i - start;
-
-                    for (int k = 0; k < runLength; k++) current.append('`');
 
                     int match = findCodeSpanEnd(row, i, runLength);
                     if (match != -1) {
-                        current.append(row.substring(i, match));
+                        for (int k = 0; k < runLength; k++) current.append('`');
+                        // Process code span content to unescape \| to |
+                        String content = row.substring(i, match);
+
+                        // Manually unescape \| to |
+                        // We can iterate content and append.
+                        // But wait, `\` only escapes `|`?
+                        // "Backslash escapes are never active in code spans."
+                        // BUT `\|` in table cell must be unescaped to `|`.
+                        // So we replace `\|` with `|`.
+                        // What about `\\`? "Backslashes are also escaped as usual".
+                        // So `\\` -> `\`.
+
+                        StringBuilder unescapedContent = new StringBuilder();
+                        int p = 0;
+                        while (p < content.length()) {
+                            char ch = content.charAt(p);
+                            if (ch == '\\' && p + 1 < content.length() && content.charAt(p + 1) == '|') {
+                                unescapedContent.append('|');
+                                p += 2;
+                            } else {
+                                unescapedContent.append(ch);
+                                p++;
+                            }
+                        }
+                        current.append(unescapedContent.toString());
+
                         for (int k = 0; k < runLength; k++) current.append('`');
                         i = match + runLength;
+                    } else {
+                        for (int k = 0; k < runLength; k++) current.append('`');
                     }
                     continue;
                 }
@@ -1266,9 +1542,12 @@ public class MarkdownParser {
                 current.append(c);
                 i++;
             }
-            if (!lastCharWasDelimiter) {
-                cells.add(current.toString());
-            }
+            // Add the last cell, UNLESS the row was empty and we didn't add anything?
+            // If row was "|", i=1, limit=0. loop skipped. cells.add("") -> size 1. Correct.
+            // If row was "abc", i=0, limit=3. loop runs. cells.add("abc"). Correct.
+            // If row was "", i=0, limit=0. loop skipped. cells.add(""). Correct.
+            cells.add(current.toString());
+
             return cells;
         }
 

@@ -69,6 +69,9 @@ public class InlineParser implements InlineParserState {
         while (index < text.length()) {
             char c = text.charAt(index);
 
+            // GFM Extended Autolinks
+            if (handleExtendedAutolink()) continue;
+
             // Check custom parsers first
             List<InlineContentParser> parsers = customParsers.get(c);
             boolean handled = false;
@@ -110,7 +113,51 @@ public class InlineParser implements InlineParserState {
 
         processEmphasis();
         trimTrailingSpaces();
+        mergeTextNodes(nodes);
         return nodes;
+    }
+
+    private void mergeTextNodes(List<Node> nodeList) {
+        for (int i = 0; i < nodeList.size() - 1; i++) {
+            Node node1 = nodeList.get(i);
+            Node node2 = nodeList.get(i + 1);
+
+            if (node1 instanceof Text && node2 instanceof Text) {
+                Text text1 = (Text) node1;
+                Text text2 = (Text) node2;
+
+                text1.setLiteral(text1.getLiteral() + text2.getLiteral());
+
+                // Remove node2 from list
+                nodeList.remove(i + 1);
+                i--; // Retry
+            } else {
+                mergeChildTextNodes(node1);
+            }
+        }
+        // Handle last node's children
+        if (!nodeList.isEmpty()) {
+            mergeChildTextNodes(nodeList.get(nodeList.size() - 1));
+        }
+    }
+
+    private void mergeChildTextNodes(Node node) {
+        Node child = node.getFirstChild();
+        while (child != null) {
+            Node next = child.getNext();
+            if (child instanceof Text && next instanceof Text) {
+                Text text1 = (Text) child;
+                Text text2 = (Text) next;
+                text1.setLiteral(text1.getLiteral() + text2.getLiteral());
+
+                // Remove next
+                next.unlink();
+                // child stays same, next iteration will check child vs next.next
+            } else {
+                mergeChildTextNodes(child);
+                child = next;
+            }
+        }
     }
 
     private void trimTrailingSpaces() {
@@ -244,6 +291,18 @@ public class InlineParser implements InlineParserState {
         matcher = HTML_TAG.matcher(remaining);
         if (matcher.find() && matcher.start() == 0) {
             String tag = matcher.group();
+
+            // GFM Disallowed Raw HTML check
+            if (options.isGfm()) {
+                String tagName = matcher.group(1).toLowerCase(java.util.Locale.ROOT);
+                if (isDisallowedTag(tagName)) {
+                    // Treat as text
+                    nodes.add(new Text("<"));
+                    index++;
+                    return;
+                }
+            }
+
             nodes.add(new HtmlInline(tag));
             index += tag.length();
             return;
@@ -252,6 +311,18 @@ public class InlineParser implements InlineParserState {
         matcher = HTML_CLOSE_TAG.matcher(remaining);
         if (matcher.find() && matcher.start() == 0) {
             String tag = matcher.group();
+
+            // GFM Disallowed Raw HTML check
+            if (options.isGfm()) {
+                String tagName = matcher.group(1).toLowerCase(java.util.Locale.ROOT);
+                if (isDisallowedTag(tagName)) {
+                    // Treat as text
+                    nodes.add(new Text("<"));
+                    index++;
+                    return;
+                }
+            }
+
             nodes.add(new HtmlInline(tag));
             index += tag.length();
             return;
@@ -259,6 +330,19 @@ public class InlineParser implements InlineParserState {
 
         nodes.add(new Text("<"));
         index++;
+    }
+
+    private boolean isDisallowedTag(String tagName) {
+        // GFM disallowed tags
+        return tagName.equals("title") ||
+                tagName.equals("textarea") ||
+                tagName.equals("style") ||
+                tagName.equals("xmp") ||
+                tagName.equals("iframe") ||
+                tagName.equals("noembed") ||
+                tagName.equals("noframes") ||
+                tagName.equals("script") ||
+                tagName.equals("plaintext");
     }
 
     private void handleEntity() {
@@ -946,6 +1030,32 @@ public class InlineParser implements InlineParserState {
         int start = index;
         while (index < text.length()) {
             char c = text.charAt(index);
+
+            // Check for potential GFM Autolink start boundary
+            if (options.isGfm()) {
+                // If we consumed text, previous char was c-1 (which is at index-1).
+                // Wait, if index > start, we have consumed at least one char.
+                // We should check if we should STOP to let handleExtendedAutolink run.
+
+                // We stop if:
+                // 1. Current char could start a link (h, f, w, or email start?)
+                // 2. Previous char (which we just consumed or passed) was a boundary (whitespace, etc.)
+
+                // But handleText loop consumes c.
+                // If c is ' ', we consume it.
+                // Next iteration: c is 'h'. index points to 'h'. index-1 points to ' '.
+                // Boundary condition met.
+                // So we should break IF current char 'h' starts a link.
+
+                if (index > start) {
+                    char prev = text.charAt(index - 1);
+                    if (isWhitespace(prev) || prev == '*' || prev == '_' || prev == '~' || prev == '(') {
+                        // Check if current char starts a link
+                        break;
+                    }
+                }
+            }
+
             if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '[' || c == '!' || c == '~' || customParsers.containsKey(c)) {
                 break;
             }
@@ -953,122 +1063,117 @@ public class InlineParser implements InlineParserState {
         }
         if (index > start) {
             String content = text.substring(start, index);
-            processAutolinks(content);
+            nodes.add(new Text(content));
         }
     }
 
     private static final Pattern EXTENDED_AUTOLINK_URI = Pattern.compile(
-            "(^|\\s)(?:(https?|ftp)://|www\\.)[a-zA-Z0-9.+-]+(?:/[a-zA-Z0-9._+/?#@!$&'()*+,;=-]*)?",
+            "(?:(https?|ftp)://|www\\.)[a-zA-Z0-9.+-]+(?:/[a-zA-Z0-9._+/?#@!$&'()*+,;=-]*)?",
             Pattern.CASE_INSENSITIVE
     );
 
     private static final Pattern EXTENDED_AUTOLINK_EMAIL = Pattern.compile(
-            "(^|\\s)[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+            "[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{1,}",
             Pattern.CASE_INSENSITIVE
     );
 
-    private void processAutolinks(String content) {
-        if (!options.isGfm()) {
-            nodes.add(new Text(content));
-            return;
-        }
+    private boolean handleExtendedAutolink() {
+        if (!options.isGfm()) return false;
 
-        // Simple scanner for now.
-        // We look for patterns.
-        // Note: This is simplified. GFM has complex rules about trailing punctuation.
-        // Also, we need to handle both URI and Email.
+        String remaining = text.substring(index);
+        Matcher matcher = EXTENDED_AUTOLINK_URI.matcher(remaining);
 
-        int lastPos = 0;
-
-        // Combine regex? Or iterative?
-        // Let's use a simpler approach: Match URIs, then check Emails in remaining text?
-        // Actually, emails are distinct.
-
-        // Let's iterate through the content finding matches.
-        // We use a custom matcher that finds the earliest match of either type.
-
-        Matcher uriMatcher = EXTENDED_AUTOLINK_URI.matcher(content);
-        Matcher emailMatcher = EXTENDED_AUTOLINK_EMAIL.matcher(content);
-
-        while (lastPos < content.length()) {
-            int uriStart = -1;
-            int emailStart = -1;
-
-            if (uriMatcher.find(lastPos)) uriStart = uriMatcher.start();
-            if (emailMatcher.find(lastPos)) emailStart = emailMatcher.start();
-
-            if (uriStart == -1 && emailStart == -1) {
-                nodes.add(new Text(content.substring(lastPos)));
-                break;
+        if (matcher.lookingAt()) {
+            // Check boundary
+            boolean boundary = false;
+            if (index == 0) boundary = true;
+            else {
+                char prev = text.charAt(index - 1);
+                if (isWhitespace(prev) || prev == '*' || prev == '_' || prev == '~' || prev == '(') {
+                    boundary = true;
+                }
             }
 
-            int start = -1;
-            int end = -1;
-            boolean isEmail = false;
-            String match = "";
-            String linkDest = "";
+            if (boundary) {
+                String match = matcher.group();
+                String linkDest;
 
-            // Prioritize earliest match
-            if (uriStart != -1 && (emailStart == -1 || uriStart <= emailStart)) {
-                start = uriStart;
-                match = uriMatcher.group();
-                end = uriMatcher.end();
+                // Trim trailing punctuation
+                match = trimTrailingPunctuation(match);
 
-                // Regex might include leading whitespace due to (^|\\s)
-                if (Character.isWhitespace(match.charAt(0))) {
-                    start++;
-                    match = match.substring(1);
+                // Check for trailing entity-like pattern (e.g. &hl;)
+                if (match.endsWith(";")) {
+                    int amp = match.lastIndexOf('&');
+                    if (amp != -1) {
+                        String potentialEntity = match.substring(amp);
+                        if (potentialEntity.matches("&[a-zA-Z0-9]+;")) {
+                            match = match.substring(0, amp);
+                        }
+                    }
                 }
 
-                // Trim trailing punctuation (., ?, !, :, ;, *, ~) if not paired?
-                // GFM rule: Trailing punctuation should not be part of the link
-                // unless it is a closing paren ) and there is an opening paren ( in the link.
+                // If trimmed match is empty or invalid?
+                if (match.isEmpty()) return false;
 
-                match = trimTrailingPunctuation(match);
-                end = start + match.length();
-
-                if (match.toLowerCase().startsWith("www.")) {
+                if (match.toLowerCase(java.util.Locale.ROOT).startsWith("www.")) {
                     linkDest = "http://" + match;
                 } else {
                     linkDest = match;
                 }
-            } else {
-                start = emailStart;
-                match = emailMatcher.group();
-                end = emailMatcher.end();
-                isEmail = true;
 
-                if (Character.isWhitespace(match.charAt(0))) {
-                    start++;
-                    match = match.substring(1);
+                Link link = new Link(linkDest, "");
+                link.appendChild(new Text(match));
+                nodes.add(link);
+                index += match.length();
+                return true;
+            }
+        }
+
+        // Email
+        matcher = EXTENDED_AUTOLINK_EMAIL.matcher(remaining);
+        if (matcher.lookingAt()) {
+            boolean boundary = false;
+            if (index == 0) boundary = true;
+            else {
+                char prev = text.charAt(index - 1);
+                if (isWhitespace(prev) || prev == '*' || prev == '_' || prev == '~' || prev == '(') {
+                    boundary = true;
+                }
+            }
+
+            if (boundary) {
+                String match = matcher.group();
+                if (match.endsWith("-") || match.endsWith("_")) return false;
+
+                // Check what follows
+                int end = matcher.end();
+                if (end < remaining.length()) {
+                    char next = remaining.charAt(end);
+                    if (Character.isLetterOrDigit(next) || next == '-' || next == '_' || next == '+') {
+                        return false;
+                    }
                 }
 
-                // Email usually doesn't have complex trailing punctuation issues if regex is strict.
-                // But let's apply trim just in case.
                 match = trimTrailingPunctuation(match);
-                end = start + match.length();
+                if (match.endsWith(".")) match = match.substring(0, match.length() - 1);
 
-                linkDest = "mailto:" + match;
+                String linkDest = "mailto:" + match;
+                Link link = new Link(linkDest, "");
+                link.appendChild(new Text(match));
+                nodes.add(link);
+                index += match.length();
+                return true;
             }
-
-            // Add text before
-            if (start > lastPos) {
-                nodes.add(new Text(content.substring(lastPos, start)));
-            }
-
-            Link link = new Link(linkDest, "");
-            link.appendChild(new Text(match));
-            nodes.add(link);
-
-            lastPos = end;
         }
+
+        return false;
     }
 
     private String trimTrailingPunctuation(String s) {
         int end = s.length();
         while (end > 0) {
             char c = s.charAt(end - 1);
-            if (isPunctuation(c)) {
+            if (isGfmTrailingPunctuation(c)) {
                 if (c == ')') {
                     // Check for balanced parens
                     int open = 0;
@@ -1086,6 +1191,10 @@ public class InlineParser implements InlineParserState {
             }
         }
         return s.substring(0, end);
+    }
+
+    private boolean isGfmTrailingPunctuation(char c) {
+        return c == '?' || c == '!' || c == '.' || c == ',' || c == ':' || c == '*' || c == '_' || c == '~' || c == ')';
     }
 
     private boolean isUnicodeWhitespace(char c) {
