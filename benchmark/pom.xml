@@ -17,6 +17,7 @@
         <jmh.version>1.37</jmh.version>
         <mainClass>org.openjdk.jmh.Main</mainClass>
         <uberjar.name>benchmarks</uberjar.name>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
