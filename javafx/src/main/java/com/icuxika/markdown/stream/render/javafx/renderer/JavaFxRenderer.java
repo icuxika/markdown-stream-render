@@ -45,12 +45,29 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         root.getStyleClass().add("markdown-root");
 
         // Load default stylesheet
-        java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
-        if (cssUrl != null) {
-            root.getStylesheets().add(cssUrl.toExternalForm());
-        }
-
-        // Load extension stylesheets
+        // root.getStylesheets().add(getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css").toExternalForm());
+        // REMOVED: Do not add default stylesheet to root directly.
+        // Let the Scene or parent container manage the theme/stylesheets.
+        // This allows switching themes at the Scene level to cascade down correctly.
+        
+        // However, we DO need the base structure/layout styles if they are not theme-dependent?
+        // Actually markdown.css contains structure AND default theme variables.
+        // If we remove it here, the user MUST add it to the Scene.
+        // For standalone usage, this might break things if user forgets.
+        // But for theming support, adding it here makes it hard to override or remove cleanly.
+        // Compromise: Add it, but ensure MarkdownTheme can override/remove it?
+        // MarkdownTheme manages Scene stylesheets. If root has its own stylesheet, it takes precedence or merges?
+        // JavaFX: User Agent Stylesheet < Scene Stylesheet < Parent Stylesheet < Node Stylesheet.
+        // Node stylesheet (root.getStylesheets()) has highest priority!
+        // So if we add "markdown.css" (which sets light defaults) here, 
+        // adding "dark.css" to Scene will be overridden by this Node stylesheet for variables defined in .root
+        
+        // SOLUTION: Do NOT add stylesheets here. Rely on user/MarkdownTheme to add them to Scene or Parent.
+        
+        // Load extension stylesheets (Admonition, Math)
+        // These define structural styles mostly, but also colors.
+        // Ideally these should also be managed by theme manager or added to Scene.
+        // For now, let's keep them but be aware they might need theming support too.
         java.net.URL admCss = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css");
         if (admCss != null) root.getStylesheets().add(admCss.toExternalForm());
 

@@ -1,8 +1,9 @@
 package com.icuxika.markdown.stream.render.demo;
 
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.core.CoreExtension;
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -135,28 +136,35 @@ public class JavaFxAiChatDemo extends Application {
         StringBuilder assistantResponse = new StringBuilder();
 
         client.streamChat(history,
-                token -> Platform.runLater(() -> {
-                    if (chatContainer.getChildren().contains(thinkingLabel)) {
-                        chatContainer.getChildren().remove(thinkingLabel);
-                        chatContainer.getChildren().add(aiBubble);
-                    }
-                    assistantResponse.append(token);
+                token -> {
+                    // Parser runs in background thread
                     aiBubble.append(token);
-                    scrollToBottom();
-                }),
-                () -> Platform.runLater(() -> {
-                    // Done, add assistant message to history
-                    history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
-                    if (chatContainer.getChildren().contains(thinkingLabel)) {
-                        chatContainer.getChildren().remove(thinkingLabel); // In case of empty response?
-                    }
-                }),
+                    // UI updates in FX thread
+                    Platform.runLater(() -> {
+                         if (chatContainer.getChildren().contains(thinkingLabel)) {
+                            chatContainer.getChildren().remove(thinkingLabel);
+                            chatContainer.getChildren().add(aiBubble);
+                        }
+                        scrollToBottom();
+                    });
+                },
+                () -> {
+                    aiBubble.finish();
+                    Platform.runLater(() -> {
+                        // Done, add assistant message to history
+                        history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
+                        if (chatContainer.getChildren().contains(thinkingLabel)) {
+                            chatContainer.getChildren().remove(thinkingLabel); // In case of empty response?
+                        }
+                    });
+                },
                 error -> Platform.runLater(() -> {
                     if (chatContainer.getChildren().contains(thinkingLabel)) {
                         chatContainer.getChildren().remove(thinkingLabel);
                         chatContainer.getChildren().add(aiBubble);
                     }
                     aiBubble.append("\n\n**Error**: " + error.getMessage());
+                    aiBubble.finish();
                     scrollToBottom();
                 })
         );
@@ -176,8 +184,8 @@ public class JavaFxAiChatDemo extends Application {
 
     private static class MarkdownBubble extends HBox {
         private final VBox contentBox = new VBox();
-        private final MarkdownParser parser = new MarkdownParser();
-        private final StringBuilder fullText = new StringBuilder();
+        private final StreamMarkdownParser parser;
+        private final JavaFxStreamRenderer renderer;
         private final boolean isUser;
 
         public MarkdownBubble(boolean isUser) {
@@ -188,44 +196,38 @@ public class JavaFxAiChatDemo extends Application {
 
             contentBox.setStyle("-fx-background-color: transparent;");
             contentBox.setMaxWidth(700);
-
-            // Add a background/border for user messages to make them distinct?
-            // The Markdown renderer usually assumes full width or transparent bg.
-            // We can wrap contentBox in a StackPane or another VBox with styling.
+            
+            // Initialize Renderer and Parser
+            this.renderer = new JavaFxStreamRenderer(contentBox);
+            StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder()
+                    .renderer(renderer);
+            CoreExtension.addDefaults(builder);
+            this.parser = builder.build();
 
             VBox bubble = new VBox(contentBox);
             bubble.setPadding(new Insets(10));
+            
+            // Use CSS variables for theming
             if (isUser) {
-                bubble.setStyle("-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-border-color: #bbdefb; -fx-border-radius: 10;");
+                bubble.setStyle("-fx-background-color: -chat-user-bg; -fx-background-radius: 10; -fx-border-color: -chat-user-border; -fx-border-radius: 10;");
             } else {
-                // Default transparent for AI (let markdown theme handle it? or add light bg?)
-                // Let's add a light gray bg for AI to distinguish from main background
-                bubble.setStyle("-fx-background-color: -md-code-bg-color; -fx-background-radius: 10;");
+                bubble.setStyle("-fx-background-color: -chat-assistant-bg; -fx-background-radius: 10; -fx-border-color: -chat-assistant-border; -fx-border-radius: 10;");
             }
 
             this.getChildren().add(bubble);
         }
 
         public void setText(String text) {
-            fullText.setLength(0);
-            fullText.append(text);
-            render();
+            parser.push(text);
+            parser.close();
         }
 
         public void append(String token) {
-            fullText.append(token);
-            render();
+            parser.push(token);
         }
-
-        private void render() {
-            JavaFxRenderer renderer = new JavaFxRenderer();
-            try {
-                parser.parse(new java.io.StringReader(fullText.toString()), renderer);
-                Pane result = (Pane) renderer.getResult();
-                contentBox.getChildren().setAll(result);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        
+        public void finish() {
+            parser.close();
         }
     }
 }

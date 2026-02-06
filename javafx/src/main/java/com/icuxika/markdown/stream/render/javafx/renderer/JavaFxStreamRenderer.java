@@ -30,36 +30,25 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
     public JavaFxStreamRenderer(VBox root) {
         this.root = root;
         this.internalRenderer = new JavaFxRenderer();
-        initStyles();
+        // initStyles(); // Do NOT force load styles on root if using theme manager
     }
 
     public JavaFxStreamRenderer(VBox root, JavaFxRenderer.Builder builder) {
         this.root = root;
         this.internalRenderer = builder.build();
-        initStyles();
+        // initStyles(); // Do NOT force load styles on root if using theme manager
     }
     
     public void setOnLinkClick(java.util.function.Consumer<String> onLinkClick) {
         this.onLinkClick = onLinkClick;
         // Also update internal renderer to use this handler for inline links rendered later
-        // But JavaFxRenderer constructor/builder might need it?
-        // JavaFxRenderer doesn't expose setOnLinkClick?
-        // Let's check JavaFxRenderer... It implements JavaFxNodeRendererContext? No.
-        // It has CoreJavaFxNodeRenderer inside.
-        // Wait, JavaFxRenderer is the main entry.
-        // Let's see if we can pass it.
-        // JavaFxRenderer seems to handle styles.
-        // The CoreJavaFxNodeRenderer is created inside JavaFxRenderer?
-        // Or is it?
-        // Let's check JavaFxRenderer source code later. 
-        // Assuming we need to pass it or set it.
-        // If JavaFxRenderer doesn't support setting it dynamically, we might need to recreate or modify JavaFxRenderer.
-        // BUT, JavaFxStreamRenderer USES internalRenderer.render(node).
-        // If internalRenderer creates CoreJavaFxNodeRenderer, we need to pass the handler there.
+        internalRenderer.setOnLinkClick(onLinkClick);
     }
 
     private void initStyles() {
         // Copy stylesheets from internal renderer
+        // Internal renderer no longer adds default stylesheet by default (if modified).
+        // But extensions might be added.
         for (String sheet : this.internalRenderer.getRoot().getStylesheets()) {
             if (!root.getStylesheets().contains(sheet)) {
                 root.getStylesheets().add(sheet);
@@ -70,6 +59,8 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             root.getStyleClass().add("markdown-root");
         }
 
+        // REMOVED: Do not hardcode markdown.css here.
+        /*
         java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
         if (cssUrl != null) {
             String cssPath = cssUrl.toExternalForm();
@@ -77,6 +68,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
                 root.getStylesheets().add(cssPath);
             }
         }
+        */
     }
 
     // Batching queue

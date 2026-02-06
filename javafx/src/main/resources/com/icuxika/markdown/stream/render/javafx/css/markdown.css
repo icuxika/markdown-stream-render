@@ -67,7 +67,7 @@
 
 .markdown-code-block-flow {
     -fx-padding: 10;
-    -fx-background-color: #f6f8fa; /* Light mode bg */
+    -fx-background-color: -md-code-bg-color;
     -fx-border-color: -md-border-color;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
@@ -76,7 +76,7 @@
 }
 
 .markdown-copy-button {
-    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-background-color: -md-bg-color;
     -fx-border-color: -md-border-color;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
@@ -84,7 +84,7 @@
     -fx-cursor: hand;
 }
 .markdown-copy-button:hover {
-    -fx-background-color: #ffffff;
+    -fx-background-color: -md-code-bg-color;
 }
 
 .markdown-code-text {
@@ -247,6 +247,7 @@
     -md-link-color: #0969da;
     -md-code-bg-color: #f6f8fa;
     -md-border-color: #d0d7de;
+    -md-quote-bg-color: #f6f8fa;
     -md-quote-border-color: #dfe2e5;
     -md-table-header-bg: #f6f8fa;
     -md-table-row-odd-bg: #ffffff;

@@ -1,5 +1,6 @@
-.root {
+.root, .markdown-root {
     -md-fg-color: #24292f;
+    -md-sub-text-color: #6a737d;
     -md-bg-color: #ffffff;
     -md-link-color: #0969da;
     -md-code-fg-color: #cf222e;
@@ -9,4 +10,10 @@
     -md-quote-border-color: #dfe2e5;
     -md-table-header-bg: #f6f8fa;
     -md-table-row-odd-bg: #ffffff;
+
+    /* Chat Bubble Colors */
+    -chat-user-bg: #e3f2fd;
+    -chat-user-border: #bbdefb;
+    -chat-assistant-bg: #f6f8fa;
+    -chat-assistant-border: #d0d7de;
 }

@@ -33,8 +33,10 @@ public class JavaFxBatchDemo extends Application {
         CodeArea inputArea = new CodeArea();
         inputArea.setLineNumbersEnabled(true);
         inputArea.setSyntaxDecorator(new MarkdownSyntaxDecorator());
-        // inputArea.setWrapText(true); // CodeArea might not support wrapping the same way
-
+        // Force wrap text if possible, or leave as is.
+        // CodeArea styling for input area itself (background, text color) needs to be managed.
+        // We can bind its style or add a listener to theme.
+        
         // Load comprehensive.md (or template.md fallback)
         try (java.io.InputStream is = getClass().getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
@@ -65,6 +67,20 @@ public class JavaFxBatchDemo extends Application {
             } else {
                 theme.setTheme(MarkdownTheme.Theme.LIGHT);
             }
+            // Explicitly re-render to apply new theme to the generated nodes?
+            // The nodes use CSS variables, so they should update automatically IF they are attached to the Scene.
+            // But if the Scene stylesheet changes, nodes should pick it up.
+            // Let's verify if 'outputBox' children pick up the change.
+            // They should.
+            // Maybe inputArea needs help?
+            // CodeArea (RichTextFX) often has its own CSS logic.
+            /*
+            if (theme.getTheme() == MarkdownTheme.Theme.DARK) {
+                inputArea.setStyle("-fx-background-color: #0d1117; -fx-text-fill: #c9d1d9;");
+            } else {
+                inputArea.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #24292f;");
+            }
+            */
         });
 
         // Toolbar for controls
@@ -80,43 +96,24 @@ public class JavaFxBatchDemo extends Application {
 
         root.setCenter(splitPane);
 
+        Scene scene = new Scene(root, 1024, 768);
+
+        // Apply theme
+        theme.apply(scene);
+        
+        // Initial Input Area Style
+        // inputArea.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #24292f;");
+
+        primaryStage.setTitle("Markdown Stream Renderer - JavaFX Demo");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        
         // Initial Render
         render(getText(inputArea), outputScroll);
 
         // Sync Scroll Listener
         inputArea.caretPositionProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                // CodeArea paragraph index is 0-based, AST is 0-based (usually, but parser might be 1-based?)
-                // MarkdownParser uses 0-based line numbers.
-                // jfx.incubator.scene.control.richtext.TextPos doesn't have paragraphIndex() method?
-                // Let's check docs or source. Usually it has index() which is char index? 
-                // Or maybe it's just index()? Wait, previous error said index() exists but I changed it.
-                // The error says: cannot find symbol method paragraphIndex()
-                // Let's check what TextPos has.
-                // It likely has index() which is the absolute character index.
-                // But we need line number.
-                // CodeArea should have a method to get line/paragraph from index.
-                // inputArea.getModel().getParagraphIndex(newVal.index()) ?
-                // Or maybe newVal IS the index? No, it's TextPos.
-                // Let's revert to index() and try to calculate line number if possible, or check API.
-                // Assuming index() is character offset.
-                // CodeArea usually has methods to map offset to line.
-                // Let's use inputArea.getParagraphIndex(newVal.index()) if available.
-                // Or maybe TextPos has nothing useful?
-                // Let's assume inputArea has getParagraphIndexForCharIndex or similar.
-                // RichTextFX has getParagraphs()...
-                // This is jfx.incubator.scene.control.richtext (RichTextFX incubator or custom?)
-                // If it is the incubator one (jfx 24+), let's check its API structure if possible.
-                // Without API docs, I'll guess: inputArea.getModel().paragraphIndex(newVal.index())
-                // Or just try index() again and see if it maps to line? (unlikely)
-                
-                // Let's try to find line number from index.
-                // If we can't find API, we can calculate it manually (expensive but works).
-                // String text = inputArea.getText();
-                // int charIndex = newVal.index();
-                // int line = 0;
-                // for(int i=0; i<charIndex && i<text.length(); i++) if(text.charAt(i) == '\n') line++;
-                
                 // Let's try the manual way for now as a safe fallback.
                 int charIndex = newVal.index();
                 String text = getText(inputArea);
@@ -129,15 +126,6 @@ public class JavaFxBatchDemo extends Application {
                 syncScrollToPreview(line);
             }
         });
-
-        Scene scene = new Scene(root, 1024, 768);
-
-        // Apply theme
-        theme.apply(scene);
-
-        primaryStage.setTitle("Markdown Stream Renderer - JavaFX Demo");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     private void appendText(CodeArea area, String text) {
