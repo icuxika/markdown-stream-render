@@ -337,6 +337,15 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             checkBox.setSelected(listItem.isChecked());
             checkBox.setDisable(true); // Read-only
             checkBox.getStyleClass().add("markdown-task-checkbox");
+            
+            // Fix vertical alignment: CheckBox in JavaFX defaults to CENTER_LEFT.
+            // If the text is multi-line, we want it top-aligned? 
+            // Actually, usually CheckBox icon is small, so CENTER_LEFT relative to first line of text is good.
+            // But if we put it in an HBox with TOP_LEFT alignment, it might stick to top.
+            // Let's ensure it has a min-height matching the text line-height to center the box relative to text.
+            checkBox.setMinHeight(20); 
+            checkBox.setAlignment(javafx.geometry.Pos.TOP_LEFT); // Align the box itself to top if it has height?
+            
             markers.add(checkBox);
         }
 
@@ -388,10 +397,283 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     }
 
     private void renderCodeBlock(CodeBlock codeBlock) {
-        Label l = new Label(codeBlock.getLiteral());
+        String info = codeBlock.getInfo();
+        String literal = codeBlock.getLiteral();
+
+        if (info != null && !info.isBlank()) {
+            String language = info.trim().split("\\s+")[0].toLowerCase();
+            if ("java".equals(language)) {
+                renderJavaCodeBlock(literal);
+                return;
+            } else if ("json".equals(language)) {
+                renderJsonCodeBlock(literal);
+                return;
+            } else if ("xml".equals(language) || "html".equals(language)) {
+                renderXmlCodeBlock(literal);
+                return;
+            } else if ("css".equals(language)) {
+                renderCssCodeBlock(literal);
+                return;
+            } else if ("sql".equals(language)) {
+                renderSqlCodeBlock(literal);
+                return;
+            } else if ("bash".equals(language) || "sh".equals(language)) {
+                renderBashCodeBlock(literal);
+                return;
+            }
+        }
+
+        // Fallback for other languages or no language
+        // Wrap in StackPane to allow adding copy button
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+        
+        Label l = new Label(literal);
         l.getStyleClass().add("markdown-code-block");
-        context.getCurrentContainer().getChildren().add(l);
-        context.registerNode(codeBlock, l);
+        l.setMaxWidth(Double.MAX_VALUE);
+        stack.getChildren().add(l);
+        
+        addCopyButton(stack, literal);
+
+        context.getCurrentContainer().getChildren().add(stack);
+        context.registerNode(codeBlock, stack);
+    }
+
+    private void renderJavaCodeBlock(String code) {
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+
+        TextFlow flow = new TextFlow();
+        flow.getStyleClass().add("markdown-code-block-flow");
+
+        // Simple tokenizer for Java keywords
+        String[] tokens = code.split("(?<=\\s)|(?=\\s)|(?<=[\\(\\)\\{\\};\\.])|(?=[\\(\\)\\{\\};\\.])");
+        for (String token : tokens) {
+            javafx.scene.text.Text t = new javafx.scene.text.Text(token);
+            t.getStyleClass().add("markdown-code-text");
+            
+            if (isJavaKeyword(token)) {
+                t.getStyleClass().add("code-keyword");
+            } else if (token.matches("\".*\"")) {
+                t.getStyleClass().add("code-string");
+            } else if (token.matches("//.*|/\\*.*\\*/")) { // Very basic comment check (single token only)
+                t.getStyleClass().add("code-comment");
+            }
+            flow.getChildren().add(t);
+        }
+        
+        stack.getChildren().add(flow);
+        addCopyButton(stack, code);
+        
+        context.getCurrentContainer().getChildren().add(stack);
+    }
+
+    private void renderJsonCodeBlock(String code) {
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+
+        TextFlow flow = new TextFlow();
+        flow.getStyleClass().add("markdown-code-block-flow");
+        
+        // Simple tokenizer for JSON
+        String[] tokens = code.split("(?<=\\s)|(?=\\s)|(?<=[\\{\\}\\[\\]:,])|(?=[\\{\\}\\[\\]:,])");
+        for (String token : tokens) {
+            javafx.scene.text.Text t = new javafx.scene.text.Text(token);
+            t.getStyleClass().add("markdown-code-text");
+            
+            if (token.matches("\".*\":")) { // Key
+                t.getStyleClass().add("code-json-key");
+            } else if (token.matches("\".*\"")) { // String value
+                t.getStyleClass().add("code-string");
+            } else if (token.matches("true|false|null")) {
+                t.getStyleClass().add("code-keyword");
+            } else if (token.matches("-?\\d+(\\.\\d+)?")) {
+                t.getStyleClass().add("code-number");
+            }
+            flow.getChildren().add(t);
+        }
+
+        stack.getChildren().add(flow);
+        addCopyButton(stack, code);
+
+        context.getCurrentContainer().getChildren().add(stack);
+    }
+
+    private void renderXmlCodeBlock(String code) {
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+
+        TextFlow flow = new TextFlow();
+        flow.getStyleClass().add("markdown-code-block-flow");
+
+        // Simple tokenizer for XML/HTML: <tag> attr="val" </tag> <!-- comment -->
+        String[] tokens = code.split("(?<=\\s)|(?=\\s)|(?<=[<>])|(?=[<>])|(?<==)|(?==)");
+        for (String token : tokens) {
+            javafx.scene.text.Text t = new javafx.scene.text.Text(token);
+            t.getStyleClass().add("markdown-code-text");
+            
+            if (token.startsWith("<") && token.length() > 1 && !token.startsWith("<!--")) {
+                t.getStyleClass().add("code-tag");
+            } else if (token.equals(">") || token.equals("<") || token.equals("/>") || token.equals("</")) {
+                t.getStyleClass().add("code-tag");
+            } else if (token.startsWith("<!--")) {
+                t.getStyleClass().add("code-comment");
+            } else if (token.matches("\".*\"") || token.matches("'.*'")) {
+                t.getStyleClass().add("code-string");
+            }
+            // Basic attr detection is hard without state, but strings cover values.
+            // Keys usually precede '='.
+            flow.getChildren().add(t);
+        }
+
+        stack.getChildren().add(flow);
+        addCopyButton(stack, code);
+        context.getCurrentContainer().getChildren().add(stack);
+    }
+
+    private void renderCssCodeBlock(String code) {
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+
+        TextFlow flow = new TextFlow();
+        flow.getStyleClass().add("markdown-code-block-flow");
+
+        // Simple tokenizer for CSS: selector { prop: val; }
+        String[] tokens = code.split("(?<=\\s)|(?=\\s)|(?<=[\\{\\}:;])|(?=[\\{\\}:;])");
+        for (String token : tokens) {
+            javafx.scene.text.Text t = new javafx.scene.text.Text(token);
+            t.getStyleClass().add("markdown-code-text");
+            
+            if (token.startsWith(".")) {
+                t.getStyleClass().add("code-class");
+            } else if (token.startsWith("#")) {
+                t.getStyleClass().add("code-id");
+            } else if (token.matches("-?[0-9]+(px|em|rem|%)?")) {
+                t.getStyleClass().add("code-number");
+            } else if (token.matches("#[0-9a-fA-F]{3,6}")) {
+                t.getStyleClass().add("code-color");
+            }
+            flow.getChildren().add(t);
+        }
+
+        stack.getChildren().add(flow);
+        addCopyButton(stack, code);
+        context.getCurrentContainer().getChildren().add(stack);
+    }
+
+    private void renderSqlCodeBlock(String code) {
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+
+        TextFlow flow = new TextFlow();
+        flow.getStyleClass().add("markdown-code-block-flow");
+
+        String[] tokens = code.split("(?<=\\s)|(?=\\s)|(?<=[(),;])|(?=[(),;])");
+        for (String token : tokens) {
+            javafx.scene.text.Text t = new javafx.scene.text.Text(token);
+            t.getStyleClass().add("markdown-code-text");
+            
+            if (isSqlKeyword(token)) {
+                t.getStyleClass().add("code-keyword");
+            } else if (token.matches("'.*'") || token.matches("\".*\"")) {
+                t.getStyleClass().add("code-string");
+            } else if (token.matches("-?\\d+(\\.\\d+)?")) {
+                t.getStyleClass().add("code-number");
+            }
+            flow.getChildren().add(t);
+        }
+
+        stack.getChildren().add(flow);
+        addCopyButton(stack, code);
+        context.getCurrentContainer().getChildren().add(stack);
+    }
+
+    private void renderBashCodeBlock(String code) {
+        javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
+        stack.getStyleClass().add("markdown-code-block-container");
+
+        TextFlow flow = new TextFlow();
+        flow.getStyleClass().add("markdown-code-block-flow");
+
+        String[] tokens = code.split("(?<=\\s)|(?=\\s)");
+        for (String token : tokens) {
+            javafx.scene.text.Text t = new javafx.scene.text.Text(token);
+            t.getStyleClass().add("markdown-code-text");
+            
+            if (token.startsWith("#")) {
+                t.getStyleClass().add("code-comment");
+            } else if (token.startsWith("-")) {
+                t.getStyleClass().add("code-attr");
+            } else if (token.matches("\".*\"") || token.matches("'.*'")) {
+                t.getStyleClass().add("code-string");
+            } else if (isBashKeyword(token)) {
+                t.getStyleClass().add("code-keyword");
+            }
+            flow.getChildren().add(t);
+        }
+
+        stack.getChildren().add(flow);
+        addCopyButton(stack, code);
+        context.getCurrentContainer().getChildren().add(stack);
+    }
+
+    private boolean isSqlKeyword(String text) {
+        Set<String> keywords = Set.of(
+            "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE", 
+            "DROP", "ALTER", "INDEX", "AND", "OR", "NOT", "NULL", "TRUE", "FALSE", "JOIN", "LEFT", "RIGHT", "INNER", 
+            "OUTER", "ON", "GROUP", "BY", "ORDER", "ASC", "DESC", "LIMIT", "OFFSET", "COUNT", "SUM", "AVG", "MAX", "MIN",
+            "select", "from", "where", "insert", "into", "values", "update", "set", "delete", "create", "table",
+            "drop", "alter", "index", "and", "or", "not", "null", "true", "false", "join", "left", "right", "inner",
+            "outer", "on", "group", "by", "order", "asc", "desc", "limit", "offset", "count", "sum", "avg", "max", "min"
+        );
+        return keywords.contains(text.trim());
+    }
+
+    private boolean isBashKeyword(String text) {
+        Set<String> keywords = Set.of(
+            "if", "then", "else", "elif", "fi", "case", "esac", "for", "select", "while", "until", "do", "done", 
+            "in", "function", "time", "{", "}", "!", "[[", "]]", "return", "exit", "echo", "printf", "cd", "pwd", "ls"
+        );
+        return keywords.contains(text.trim());
+    }
+
+    private void addCopyButton(javafx.scene.layout.StackPane stack, String content) {
+        javafx.scene.control.Button copyBtn = new javafx.scene.control.Button("Copy");
+        copyBtn.getStyleClass().add("markdown-copy-button");
+        copyBtn.setVisible(false);
+        
+        // Position top-right
+        javafx.scene.layout.StackPane.setAlignment(copyBtn, javafx.geometry.Pos.TOP_RIGHT);
+        javafx.scene.layout.StackPane.setMargin(copyBtn, new javafx.geometry.Insets(5));
+        
+        copyBtn.setOnAction(e -> {
+            javafx.scene.input.ClipboardContent clipboardContent = new javafx.scene.input.ClipboardContent();
+            clipboardContent.putString(content);
+            javafx.scene.input.Clipboard.getSystemClipboard().setContent(clipboardContent);
+            copyBtn.setText("Copied!");
+            // Revert text after 2 seconds
+            new java.util.Timer().schedule(new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> copyBtn.setText("Copy"));
+                }
+            }, 2000);
+        });
+
+        stack.setOnMouseEntered(e -> copyBtn.setVisible(true));
+        stack.setOnMouseExited(e -> copyBtn.setVisible(false));
+        
+        stack.getChildren().add(copyBtn);
+    }
+
+    private boolean isJavaKeyword(String text) {
+        Set<String> keywords = Set.of(
+            "public", "private", "protected", "class", "interface", "enum", "extends", "implements",
+            "static", "final", "void", "return", "if", "else", "for", "while", "do", "switch", "case",
+            "try", "catch", "finally", "throw", "throws", "new", "this", "super", "boolean", "int", 
+            "long", "float", "double", "byte", "short", "char", "package", "import", "null", "true", "false"
+        );
+        return keywords.contains(text.trim());
     }
 
     private void renderLink(Link link) {
@@ -406,21 +688,78 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     private void renderImage(Image image) {
         try {
             String url = image.getDestination();
+            
+            // Use background loading (true)
             javafx.scene.image.Image img = IMAGE_CACHE.computeIfAbsent(url, k -> new javafx.scene.image.Image(k, true));
 
             ImageView iv = new ImageView(img);
             iv.getStyleClass().add("markdown-image");
-            iv.setFitWidth(200);
+            iv.setFitWidth(200); // Default width, can be adjusted via CSS or attributes if supported
             iv.setPreserveRatio(true);
+            
+            // Placeholder / Error handling
+            // Since Image is loading in background, we can check progress or error
+            // But ImageView handles loading state gracefully (transparent until loaded).
+            // To show a placeholder, we could use a StackPane with a ProgressIndicator behind the ImageView?
+            // Or better: bind to image properties.
+            
+            // Simple Error Handling:
+            // If image fails to load (error property), replace with broken image icon or text
+            // But we need a container to swap content.
+            // TextFlow/VBox container is already there.
+            // Let's wrap ImageView in a StackPane to show placeholder/error.
+            
+            javafx.scene.layout.StackPane imgContainer = new javafx.scene.layout.StackPane();
+            imgContainer.getStyleClass().add("markdown-image-container");
+            // Limit container size to match image fit width?
+            imgContainer.setMaxWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
+            
+            // Loading Indicator (optional, maybe too noisy for stream)
+            // javafx.scene.control.ProgressIndicator pi = new javafx.scene.control.ProgressIndicator();
+            // pi.setMaxSize(20, 20);
+            // pi.visibleProperty().bind(img.progressProperty().lessThan(1).and(img.errorProperty().not()));
+            
+            // Error Label
+            Label errorLabel = new Label("❌ Image failed: " + url);
+            errorLabel.getStyleClass().add("markdown-image-error");
+            errorLabel.setVisible(false);
+            errorLabel.setWrapText(true);
+            
+            // Set exception handler BEFORE starting loading if possible, or use listener.
+            // Image(url, true) starts loading immediately.
+            // If exception occurs, errorProperty becomes true and exception is set.
+            // Sometimes it happens very fast (e.g. invalid URL format).
+            
+            if (img.isError()) {
+                 iv.setVisible(false);
+                 errorLabel.setVisible(true);
+            }
+
+            img.errorProperty().addListener((obs, old, isError) -> {
+                if (isError) {
+                    iv.setVisible(false);
+                    errorLabel.setVisible(true);
+                    // Also print stack trace if exception available
+                    if (img.getException() != null) {
+                        // Suppress full stack trace for expected errors in demo
+                        // System.err.println("Image load error: " + url);
+                        // img.getException().printStackTrace();
+                    }
+                }
+            });
+            
+            imgContainer.getChildren().addAll(errorLabel, iv); // iv on top (if visible)
 
             if (currentTextFlow != null) {
-                currentTextFlow.getChildren().add(iv);
+                // StackPane inside TextFlow acts as inline graphic?
+                // TextFlow accepts any Node.
+                currentTextFlow.getChildren().add(imgContainer);
             } else {
-                context.getCurrentContainer().getChildren().add(iv);
+                context.getCurrentContainer().getChildren().add(imgContainer);
             }
         } catch (Exception e) {
             if (currentTextFlow != null) {
-                currentTextFlow.getChildren().add(new javafx.scene.text.Text("[Image: " + image.getDestination() + "]"));
+                currentTextFlow.getChildren().add(new javafx.scene.text.Text("[Image Error: " + image.getDestination() + "]"));
             }
         }
     }
@@ -467,6 +806,10 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
 
             TextFlow flow = new TextFlow();
             flow.getStyleClass().add("markdown-table-cell");
+            
+            // Allow cell content to wrap if needed, but in tables usually we want to expand
+            // TextFlow by default doesn't have a max width unless constrained.
+            
             if (tableCell.isHeader()) {
                 flow.getStyleClass().add("markdown-table-header");
             } else {
@@ -491,6 +834,23 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
                         flow.setTextAlignment(javafx.scene.text.TextAlignment.LEFT);
                         break;
                 }
+            }
+
+            // Create a StackPane wrapper to handle background fill properly if TextFlow doesn't fill cell
+            // But TextFlow with proper background-color should work if it stretches.
+            // Let's ensure TextFlow fills the grid cell.
+            javafx.scene.layout.GridPane.setFillWidth(flow, true);
+            javafx.scene.layout.GridPane.setFillHeight(flow, true);
+            javafx.scene.layout.GridPane.setHgrow(flow, Priority.ALWAYS);
+
+            // Add Column Constraints to prevent excessive compression
+            // Check if constraints exist for this column index
+            if (grid.getColumnConstraints().size() <= tableColIndex) {
+                javafx.scene.layout.ColumnConstraints cc = new javafx.scene.layout.ColumnConstraints();
+                cc.setHgrow(Priority.SOMETIMES);
+                cc.setMinWidth(60); // Set a reasonable minimum width to prevent word splitting
+                cc.setPrefWidth(javafx.scene.layout.Region.USE_COMPUTED_SIZE);
+                grid.getColumnConstraints().add(cc);
             }
 
             context.pushContainer(flow); // Temporarily push flow to capture children

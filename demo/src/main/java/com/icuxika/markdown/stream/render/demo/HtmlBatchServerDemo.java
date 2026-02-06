@@ -58,7 +58,11 @@ public class HtmlBatchServerDemo {
             CoreExtension.addDefaults(parserBuilder);
             MarkdownParser parser = parserBuilder.build();
             com.icuxika.markdown.stream.render.core.ast.Document doc = parser.parse(markdown);
-            HtmlRenderer.Builder builder = HtmlRenderer.builder();
+            
+            com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions options = new com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions();
+            options.setGenerateHeadingIds(true);
+            
+            HtmlRenderer.Builder builder = HtmlRenderer.builder().options(options);
             HtmlRendererExtension.addDefaults(builder);
             HtmlRenderer renderer = builder.build();
             renderer.render(doc);
@@ -81,9 +85,13 @@ public class HtmlBatchServerDemo {
     }
 
     private static String loadTemplate() {
-        try (InputStream is = HtmlBatchServerDemo.class.getResourceAsStream("/template.md")) {
+        try (InputStream is = HtmlBatchServerDemo.class.getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            } else {
+                 try (InputStream is2 = HtmlBatchServerDemo.class.getResourceAsStream("/template.md")) {
+                     if (is2 != null) return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
+                 }
             }
         } catch (Exception e) {
             e.printStackTrace();

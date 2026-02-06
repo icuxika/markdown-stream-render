@@ -54,6 +54,10 @@ public class HtmlStreamServerDemo {
             // Set headers for chunked transfer encoding (streaming)
             t.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
             t.getResponseHeaders().set("Transfer-Encoding", "chunked");
+            // Disable caching
+            t.getResponseHeaders().set("Cache-Control", "no-cache, no-store, must-revalidate");
+            t.getResponseHeaders().set("Pragma", "no-cache");
+            t.getResponseHeaders().set("Expires", "0");
 
             // Send 200 OK with 0 length (implies chunked in some servers, but for HttpServer we use 0)
             t.sendResponseHeaders(200, 0);
@@ -62,13 +66,19 @@ public class HtmlStreamServerDemo {
                 // Write Header
                 String header = "<html><head><meta charset='UTF-8'><style>" +
                         HtmlCssProvider.getAllCss() +
-                        "</style></head><body>\n";
+                        "</style></head><body>\n" +
+                        "<div id='content' class='markdown-root'></div>\n"; // Container for stream
                 os.write(header.getBytes(StandardCharsets.UTF_8));
                 os.flush();
 
                 // Streaming Content
                 String content = loadTemplate();
-                String[] chunks = content.split("(?<=\\n)");
+                
+                // Simulate LLM streaming (char by char or small chunks)
+                // Use random chunk size for realism
+                final String finalContent = content;
+                java.util.Random random = new java.util.Random();
+                int index = 0;
 
                 // Create a bridge: HtmlStreamRenderer writes to StringBuilder -> we flush to OutputStream
                 StringBuilder buffer = new StringBuilder();
@@ -78,12 +88,28 @@ public class HtmlStreamServerDemo {
                 CoreExtension.addDefaults(parserBuilder);
                 StreamMarkdownParser parser = parserBuilder.build();
 
-                for (String chunk : chunks) {
+                while (index < finalContent.length()) {
+                    int remaining = finalContent.length() - index;
+                    int chunkSize = random.nextInt(10) + 1; // 1-10 chars
+                    if (chunkSize > remaining) chunkSize = remaining;
+                    
+                    String chunk = finalContent.substring(index, index + chunkSize);
+                    index += chunkSize;
+
                     parser.push(chunk);
 
                     // Flush buffer to socket
                     if (buffer.length() > 0) {
+                        // Append to div using simple script injection (since we can't easily modify DOM in pure HTML stream without JS)
+                        // Actually, HtmlStreamRenderer outputs HTML fragments.
+                        // If we just write them, they appear at the end of body.
+                        // But we want them inside <div id='content'>? 
+                        // Browsers are forgiving. If we didn't close div, writing more content appends to it.
+                        // So we just write content.
+                        // But wait, HtmlStreamRenderer might output structural tags.
+                        // Let's just output directly.
                         os.write(buffer.toString().getBytes(StandardCharsets.UTF_8));
+                        // Auto-scroll
                         os.write("<script>window.scrollTo(0, document.body.scrollHeight);</script>".getBytes(StandardCharsets.UTF_8));
                         os.flush();
                         buffer.setLength(0);
@@ -91,7 +117,7 @@ public class HtmlStreamServerDemo {
 
                     // Simulate delay
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(random.nextInt(40) + 10); // 10-50ms
                     } catch (InterruptedException ignored) {
                     }
                 }
@@ -109,9 +135,13 @@ public class HtmlStreamServerDemo {
     }
 
     private static String loadTemplate() {
-        try (InputStream is = HtmlStreamServerDemo.class.getResourceAsStream("/template.md")) {
+        try (InputStream is = HtmlStreamServerDemo.class.getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            } else {
+                 try (InputStream is2 = HtmlStreamServerDemo.class.getResourceAsStream("/template.md")) {
+                     if (is2 != null) return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
+                 }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -59,16 +59,82 @@
     -fx-font-size: 13px;
 }
 
-/* Code Block */
-.markdown-code-block {
-    -fx-font-family: "Consolas", "Courier New", monospace;
-    -fx-font-size: 13px;
-    -fx-text-fill: -md-fg-color;
-    -fx-background-color: -md-code-bg-color;
-    -fx-padding: 12;
-    -fx-background-radius: 6;
-    -fx-min-width: 400; /* Optional: ensure some width */
-    -fx-display-caret: false; /* If it were a TextArea */
+/* Code Block (Syntax Highlight Base) */
+.markdown-code-block-container {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.markdown-code-block-flow {
+    -fx-padding: 10;
+    -fx-background-color: #f6f8fa; /* Light mode bg */
+    -fx-border-color: -md-border-color;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-family: "Consolas", "Monospace";
+    -fx-font-size: 14px;
+}
+
+.markdown-copy-button {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-border-color: -md-border-color;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+.markdown-copy-button:hover {
+    -fx-background-color: #ffffff;
+}
+
+.markdown-code-text {
+    -fx-fill: -md-fg-color;
+}
+
+.code-keyword {
+    -fx-fill: #d73a49; /* Red/Purple for keywords */
+    -fx-font-weight: bold;
+}
+
+.code-string {
+    -fx-fill: #032f62; /* Dark Blue for strings */
+}
+
+.code-comment {
+    -fx-fill: #6a737d; /* Grey for comments */
+    -fx-font-style: italic;
+}
+
+.code-json-key {
+    -fx-fill: #22863a; /* Green for JSON keys */
+    -fx-font-weight: bold;
+}
+
+.code-number {
+    -fx-fill: #005cc5; /* Blue for numbers */
+}
+
+.code-tag {
+    -fx-fill: #22863a; /* Green for tags */
+    -fx-font-weight: bold;
+}
+
+.code-class {
+    -fx-fill: #6f42c1; /* Purple for classes */
+    -fx-font-weight: bold;
+}
+
+.code-id {
+    -fx-fill: #6f42c1; /* Purple for IDs */
+    -fx-font-weight: bold;
+}
+
+.code-color {
+    -fx-fill: #005cc5; /* Blue for colors */
+}
+
+.code-attr {
+    -fx-fill: #005cc5; /* Blue for attributes/flags */
 }
 
 /* Blockquote */
@@ -91,27 +157,46 @@
 .markdown-list-marker {
     -fx-font-weight: bold;
     -fx-text-fill: -md-fg-color;
-    -fx-font-size: 14px; /* Ensure same size as text */
-    -fx-padding: 0 4 0 0; /* Add some space and adjust vertical alignment if needed */
+    -fx-font-size: 14px;
+    -fx-padding: 0 4 0 0;
+    /* Ensure marker aligns with the first line of text */
+    -fx-min-height: 20; /* Matches line height roughly */
+    -fx-alignment: TOP_RIGHT;
 }
 
-/* Tables */
+.markdown-task-checkbox {
+    -fx-padding: 0 5 0 0; /* Add space between checkbox and text */
+    /* Adjust vertical alignment if needed via -fx-translate-y, but usually box model is enough */
+}
+
+/* Blockquote */
+.markdown-quote {
+    -fx-background-color: -md-quote-bg-color;
+    -fx-padding: 8 16;
+    -fx-border-color: -md-quote-border-color;
+    -fx-border-width: 0 0 0 4;
+    /* Ensure nested quotes have margin */
+    -fx-background-insets: 0;
+}
+/* Optional: Style nested quotes differently if JavaFX CSS supported nesting selector cleanly, 
+   but since we nest VBox in VBox, the same style applies recursively, which is correct behavior. */
 .markdown-table {
     -fx-border-color: -md-border-color;
-    -fx-border-width: 1 0 0 1; /* Top Left */
+    -fx-border-width: 1 0 0 1; /* Top Left Borders for the grid itself */
     -fx-background-color: transparent;
     -fx-padding: 0;
     -fx-background-insets: 0;
-    /* Ensure no gaps that might show background */
     -fx-hgap: 0;
     -fx-vgap: 0;
+    /* Optional: rounded corners for the whole table? */
+    /* -fx-background-radius: 4; -fx-border-radius: 4; */
 }
 
 .markdown-table-cell {
     -fx-border-color: -md-border-color;
-    -fx-border-width: 0 1 1 0; /* Right Bottom */
-    -fx-padding: 6 13;
-    -fx-background-color: -md-bg-color;
+    -fx-border-width: 0 1 1 0; /* Right Bottom Borders for each cell */
+    -fx-padding: 8 13; /* Increased padding for better readability */
+    -fx-background-color: transparent; /* Background handled by row styles or header style */
     -fx-background-insets: 0;
 }
 
@@ -120,7 +205,9 @@
     -fx-background-color: -md-table-header-bg;
 }
 
-/* Zebra Striping */
+/* Zebra Striping - Applied to the TextFlow (cell content container) */
+/* Note: In JavaFX CSS, if the parent Grid cell doesn't have a style class distinguishing rows, 
+   we rely on the code adding 'markdown-table-row-even/odd' to the cell node. */
 .markdown-table-row-even {
     -fx-background-color: -md-bg-color;
 }
@@ -141,6 +228,15 @@
 /* Images */
 .markdown-image {
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.markdown-image-error {
+    -fx-text-fill: red;
+    -fx-font-weight: bold;
+    -fx-padding: 5;
+    -fx-border-color: red;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
 }
 
 /* Default Variables (Fallback) */

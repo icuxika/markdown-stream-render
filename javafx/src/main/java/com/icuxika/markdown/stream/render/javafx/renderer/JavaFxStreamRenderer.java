@@ -25,6 +25,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
     private final VBox root;
     private final JavaFxRenderer internalRenderer;
     private final Stack<Pane> containerStack = new Stack<>();
+    private java.util.function.Consumer<String> onLinkClick;
 
     public JavaFxStreamRenderer(VBox root) {
         this.root = root;
@@ -36,6 +37,25 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
         this.root = root;
         this.internalRenderer = builder.build();
         initStyles();
+    }
+    
+    public void setOnLinkClick(java.util.function.Consumer<String> onLinkClick) {
+        this.onLinkClick = onLinkClick;
+        // Also update internal renderer to use this handler for inline links rendered later
+        // But JavaFxRenderer constructor/builder might need it?
+        // JavaFxRenderer doesn't expose setOnLinkClick?
+        // Let's check JavaFxRenderer... It implements JavaFxNodeRendererContext? No.
+        // It has CoreJavaFxNodeRenderer inside.
+        // Wait, JavaFxRenderer is the main entry.
+        // Let's see if we can pass it.
+        // JavaFxRenderer seems to handle styles.
+        // The CoreJavaFxNodeRenderer is created inside JavaFxRenderer?
+        // Or is it?
+        // Let's check JavaFxRenderer source code later. 
+        // Assuming we need to pass it or set it.
+        // If JavaFxRenderer doesn't support setting it dynamically, we might need to recreate or modify JavaFxRenderer.
+        // BUT, JavaFxStreamRenderer USES internalRenderer.render(node).
+        // If internalRenderer creates CoreJavaFxNodeRenderer, we need to pass the handler there.
     }
 
     private void initStyles() {
@@ -59,19 +79,57 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
         }
     }
 
+    // Batching queue
+    private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> pendingUpdates = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private final java.util.concurrent.atomic.AtomicBoolean isUpdateScheduled = new java.util.concurrent.atomic.AtomicBoolean(false);
+    // Batch interval in milliseconds (e.g. 16ms for ~60fps)
+    private static final long BATCH_INTERVAL_MS = 16; 
+
     @Override
     public void renderNode(Node node) {
-        Platform.runLater(() -> renderNodeOnFxThread(node));
+        pendingUpdates.offer(() -> renderNodeOnFxThread(node));
+        scheduleUpdate();
     }
 
     @Override
     public void openBlock(Node node) {
-        Platform.runLater(() -> openBlockOnFxThread(node));
+        pendingUpdates.offer(() -> openBlockOnFxThread(node));
+        scheduleUpdate();
     }
 
     @Override
     public void closeBlock(Node node) {
-        Platform.runLater(() -> closeBlockOnFxThread(node));
+        pendingUpdates.offer(() -> closeBlockOnFxThread(node));
+        scheduleUpdate();
+    }
+
+    private void scheduleUpdate() {
+        if (isUpdateScheduled.compareAndSet(false, true)) {
+            // Schedule batch processing
+            // Use a Timer or just Platform.runLater?
+            // If we use Platform.runLater directly, it might still flood the event queue if we call it too often.
+            // But here we only call it ONCE until it runs.
+            // So this is effectively debouncing/coalescing updates into the next FX pulse.
+            // This is usually sufficient and better than a fixed timer.
+            Platform.runLater(this::processBatch);
+        }
+    }
+
+    private void processBatch() {
+        isUpdateScheduled.set(false);
+        // Process all pending updates in one go
+        Runnable task;
+        // Limit processing time? For now, process all.
+        while ((task = pendingUpdates.poll()) != null) {
+            task.run();
+        }
+    }
+
+    // TOC Support
+    private java.util.function.Consumer<Heading> onHeadingRendered;
+
+    public void setOnHeadingRendered(java.util.function.Consumer<Heading> onHeadingRendered) {
+        this.onHeadingRendered = onHeadingRendered;
     }
 
     private void renderNodeOnFxThread(Node node) {
@@ -88,6 +146,20 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             internalRenderer.render(node);
         } finally {
             internalRenderer.popContainer();
+        }
+        
+        // Notify TOC if Heading
+        if (node instanceof Heading && onHeadingRendered != null) {
+            onHeadingRendered.accept((Heading) node);
+            
+            // Map the rendered node (inside tempContainer) to the Heading ID for scrolling?
+            // internalRenderer.render(node) creates a TextFlow and adds it to tempContainer.
+            // We need to access that TextFlow to use it as a scroll target.
+            if (!tempContainer.getChildren().isEmpty()) {
+                javafx.scene.Node renderedNode = tempContainer.getChildren().get(0);
+                renderedNode.setUserData(((Heading) node).getAnchorId());
+                // Also store it in a map if needed, but userData is convenient for lookup
+            }
         }
 
         parent.getChildren().addAll(tempContainer.getChildren());

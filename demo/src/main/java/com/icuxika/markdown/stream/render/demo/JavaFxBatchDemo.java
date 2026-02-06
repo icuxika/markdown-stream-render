@@ -35,8 +35,8 @@ public class JavaFxBatchDemo extends Application {
         inputArea.setSyntaxDecorator(new MarkdownSyntaxDecorator());
         // inputArea.setWrapText(true); // CodeArea might not support wrapping the same way
 
-        // Load template.md
-        try (java.io.InputStream is = getClass().getResourceAsStream("/template.md")) {
+        // Load comprehensive.md (or template.md fallback)
+        try (java.io.InputStream is = getClass().getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
                 String template = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
                 appendText(inputArea, template);
@@ -86,8 +86,47 @@ public class JavaFxBatchDemo extends Application {
         // Sync Scroll Listener
         inputArea.caretPositionProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                int lineNumber = newVal.index(); // Corrected
-                syncScrollToPreview(lineNumber);
+                // CodeArea paragraph index is 0-based, AST is 0-based (usually, but parser might be 1-based?)
+                // MarkdownParser uses 0-based line numbers.
+                // jfx.incubator.scene.control.richtext.TextPos doesn't have paragraphIndex() method?
+                // Let's check docs or source. Usually it has index() which is char index? 
+                // Or maybe it's just index()? Wait, previous error said index() exists but I changed it.
+                // The error says: cannot find symbol method paragraphIndex()
+                // Let's check what TextPos has.
+                // It likely has index() which is the absolute character index.
+                // But we need line number.
+                // CodeArea should have a method to get line/paragraph from index.
+                // inputArea.getModel().getParagraphIndex(newVal.index()) ?
+                // Or maybe newVal IS the index? No, it's TextPos.
+                // Let's revert to index() and try to calculate line number if possible, or check API.
+                // Assuming index() is character offset.
+                // CodeArea usually has methods to map offset to line.
+                // Let's use inputArea.getParagraphIndex(newVal.index()) if available.
+                // Or maybe TextPos has nothing useful?
+                // Let's assume inputArea has getParagraphIndexForCharIndex or similar.
+                // RichTextFX has getParagraphs()...
+                // This is jfx.incubator.scene.control.richtext (RichTextFX incubator or custom?)
+                // If it is the incubator one (jfx 24+), let's check its API structure if possible.
+                // Without API docs, I'll guess: inputArea.getModel().paragraphIndex(newVal.index())
+                // Or just try index() again and see if it maps to line? (unlikely)
+                
+                // Let's try to find line number from index.
+                // If we can't find API, we can calculate it manually (expensive but works).
+                // String text = inputArea.getText();
+                // int charIndex = newVal.index();
+                // int line = 0;
+                // for(int i=0; i<charIndex && i<text.length(); i++) if(text.charAt(i) == '\n') line++;
+                
+                // Let's try the manual way for now as a safe fallback.
+                int charIndex = newVal.index();
+                String text = getText(inputArea);
+                int line = 0;
+                if (charIndex <= text.length()) {
+                    for (int i = 0; i < charIndex; i++) {
+                        if (text.charAt(i) == '\n') line++;
+                    }
+                }
+                syncScrollToPreview(line);
             }
         });
 

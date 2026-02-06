@@ -99,7 +99,11 @@ public class HtmlStreamRenderer implements IStreamMarkdownRenderer {
             out.append("</p>\n");
         } else if (node instanceof Heading) {
             Heading h = (Heading) node;
-            out.append("<h").append(String.valueOf(h.getLevel())).append(">");
+            out.append("<h").append(String.valueOf(h.getLevel()));
+            if (h.getAnchorId() != null) {
+                out.append(" id=\"").append(escapeXml(h.getAnchorId())).append("\"");
+            }
+            out.append(">");
             renderInlines(node);
             out.append("</h").append(String.valueOf(h.getLevel())).append(">\n");
         } else if (node instanceof CodeBlock) {

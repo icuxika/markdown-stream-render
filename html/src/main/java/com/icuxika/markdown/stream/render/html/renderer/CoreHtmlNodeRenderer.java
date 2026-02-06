@@ -111,7 +111,11 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
     // --- Render Methods (Copied and adapted from original HtmlRenderer) ---
 
     private void renderHeading(Heading heading) {
-        html.tag("h" + heading.getLevel());
+        java.util.Map<String, String> attrs = new java.util.HashMap<>();
+        if (context.getOptions().isGenerateHeadingIds() && heading.getAnchorId() != null) {
+            attrs.put("id", heading.getAnchorId());
+        }
+        html.tag("h" + heading.getLevel(), attrs);
         context.renderChildren(heading);
         html.closeTag("h" + heading.getLevel());
         html.line();

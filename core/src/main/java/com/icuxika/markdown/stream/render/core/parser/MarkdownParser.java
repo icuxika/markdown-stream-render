@@ -20,13 +20,12 @@ import java.util.regex.Pattern;
  * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。
  * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
  * </p>
- */
-
-/**
- * 核心 Markdown 解析器。
  * <p>
- * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。
- * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
+ * 示例用法：
+ * <pre>
+ * MarkdownParser parser = new MarkdownParser();
+ * Document doc = parser.parse("# Hello World");
+ * </pre>
  * </p>
  */
 public class MarkdownParser {
@@ -1000,6 +999,9 @@ public class MarkdownParser {
                 heading.appendChild(new Text(headingContent.trim()));
                 heading.setStartLine(currentLeaf.getStartLine());
                 heading.setEndLine(lineNumber);
+                
+                // Auto-generate anchor ID
+                generateAnchorId(heading);
 
                 Node parent = openContainers.get(openContainers.size() - 1);
                 currentLeaf.unlink(); // Remove paragraph
@@ -1034,6 +1036,12 @@ public class MarkdownParser {
                 Node heading = parseAtxHeading(contentLine);
                 heading.setStartLine(lineNumber);
                 heading.setEndLine(lineNumber);
+                
+                // Auto-generate anchor ID
+                if (heading instanceof Heading) {
+                    generateAnchorId((Heading) heading);
+                }
+
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(heading);
 
@@ -1185,6 +1193,22 @@ public class MarkdownParser {
                 }
             }
             openContainers.clear();
+        }
+
+        void generateAnchorId(Heading heading) {
+            StringBuilder sb = new StringBuilder();
+            Node child = heading.getFirstChild();
+            while (child != null) {
+                if (child instanceof Text) {
+                    sb.append(((Text) child).getLiteral());
+                }
+                child = child.getNext();
+            }
+            String text = sb.toString().trim();
+            // Slugify: lowercase, replace spaces with dashes, remove non-alphanumeric
+            String id = text.toLowerCase().replaceAll("\\s+", "-").replaceAll("[^a-z0-9\\-]", "");
+            if (id.isEmpty()) id = "heading";
+            heading.setAnchorId(id);
         }
 
         boolean isTableDelimiterRow(String line) {

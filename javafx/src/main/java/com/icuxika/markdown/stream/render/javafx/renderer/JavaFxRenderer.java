@@ -13,8 +13,12 @@ import java.util.function.Consumer;
 /**
  * JavaFX 渲染器实现。
  * <p>
- * 将 Markdown AST 渲染为 JavaFX 节点树（通常以 VBox 为根）。
+ * 将 Markdown AST 渲染为 JavaFX 节点树（通常以 {@link VBox} 为根）。
  * 支持 CSS 样式定制和节点渲染扩展。
+ * </p>
+ * <p>
+ * 默认会自动加载核心渲染器以及 Admonition 和 Math 扩展渲染器。
+ * 样式文件位于 {@code /com/icuxika/markdown/stream/render/javafx/css/} 目录下。
  * </p>
  */
 public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererContext {
@@ -104,6 +108,14 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
 
     public void setOnLinkClick(Consumer<String> onLinkClick) {
         this.onLinkClick = onLinkClick;
+        // Also update CoreJavaFxNodeRenderer if it was already created.
+        // But CoreJavaFxNodeRenderer is inside nodeRenderers list.
+        // We need to find it and update its callback?
+        // Actually, CoreJavaFxNodeRenderer is created with a lambda that captures 'this.onLinkClick'.
+        // Wait, line 63: "if (onLinkClick != null) onLinkClick.accept(link);"
+        // This lambda captures 'this' (JavaFxRenderer instance) and accesses 'this.onLinkClick'.
+        // So updating 'this.onLinkClick' field is sufficient!
+        // The lambda will look up the current value of the field when invoked.
     }
 
     // --- JavaFxNodeRendererContext Implementation ---
