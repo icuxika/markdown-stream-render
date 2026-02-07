@@ -2,8 +2,6 @@ package com.icuxika.markdown.stream.render.html;
 
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
-import org.junit.jupiter.api.Test;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,10 +9,10 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 /**
- * 运行 GFM Spec 中的所有测试用例，并生成对比分析报告。
- * 不作为自动化回归测试的一部分（因为预期会失败），而是作为开发进度的评估工具。
+ * 运行 GFM Spec 中的所有测试用例，并生成对比分析报告。 不作为自动化回归测试的一部分（因为预期会失败），而是作为开发进度的评估工具。
  */
 public class GfmBaselineAnalysis {
 
@@ -86,43 +84,39 @@ public class GfmBaselineAnalysis {
         System.out.println(String.format("%-30s | %-10s | %-10s | %-10s", "Section", "Total", "Passed", "Rate"));
         System.out.println("--------------------------------------------------");
 
-        stats.entrySet().stream()
-                .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
-                .forEach(entry -> {
-                    String section = entry.getKey();
-                    int total = entry.getValue()[0];
-                    int pass = entry.getValue()[1];
-                    double rate = (double) pass / total * 100;
-                    System.out.println(String.format("%-30s | %-10d | %-10d | %6.2f%%", section, total, pass, rate));
-                });
+        stats.entrySet().stream().sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey())).forEach(entry -> {
+            String section = entry.getKey();
+            int total = entry.getValue()[0];
+            int pass = entry.getValue()[1];
+            double rate = (double) pass / total * 100;
+            System.out.println(String.format("%-30s | %-10d | %-10d | %6.2f%%", section, total, pass, rate));
+        });
         System.out.println("==================================================");
 
         // Write detailed report to file
         try (PrintWriter writer = new PrintWriter(new FileWriter("GFM_ANALYSIS.md"))) {
             writer.println("# GFM Baseline Analysis");
             writer.println();
-            writer.println("**Total**: " + examples.size() + " | **Passed**: " + totalPassed + " | **Failed**: " + totalFailed);
+            writer.println("**Total**: " + examples.size() + " | **Passed**: " + totalPassed + " | **Failed**: "
+                    + totalFailed);
             writer.println();
             writer.println("## Section Breakdown");
             writer.println("| Section | Total | Passed | Pass Rate |");
             writer.println("| :--- | :--- | :--- | :--- |");
 
-            stats.entrySet().stream()
-                    .sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
-                    .forEach(entry -> {
-                        String section = entry.getKey();
-                        int total = entry.getValue()[0];
-                        int pass = entry.getValue()[1];
-                        double rate = (double) pass / total * 100;
-                        writer.println(String.format("| %s | %d | %d | %.2f%% |", section, total, pass, rate));
-                    });
+            stats.entrySet().stream().sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey())).forEach(entry -> {
+                String section = entry.getKey();
+                int total = entry.getValue()[0];
+                int pass = entry.getValue()[1];
+                double rate = (double) pass / total * 100;
+                writer.println(String.format("| %s | %d | %d | %.2f%% |", section, total, pass, rate));
+            });
         }
     }
 
     private boolean isKeySection(String section) {
-        return section.equalsIgnoreCase("Tables (extension)") ||
-                section.equalsIgnoreCase("Task list items (extension)") ||
-                section.equalsIgnoreCase("Strikethrough (extension)") ||
-                section.equalsIgnoreCase("Autolinks (extension)");
+        return section.equalsIgnoreCase("Tables (extension)") || section.equalsIgnoreCase("Task list items (extension)")
+                || section.equalsIgnoreCase("Strikethrough (extension)")
+                || section.equalsIgnoreCase("Autolinks (extension)");
     }
 }

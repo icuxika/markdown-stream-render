@@ -7,8 +7,7 @@ import com.icuxika.markdown.stream.render.html.renderer.HtmlStreamRenderer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,6 +20,12 @@ public class HtmlStreamServerDemo {
 
     private static final int PORT = 8082;
 
+    /**
+     * Main entry point for the HTML Stream Server Demo.
+     *
+     * @param args
+     *            Command line arguments (not used).
+     */
     public static void main(String[] args) {
         try {
             startServer();
@@ -29,6 +34,12 @@ public class HtmlStreamServerDemo {
         }
     }
 
+    /**
+     * Starts the HTTP server.
+     *
+     * @throws IOException
+     *             If an I/O error occurs.
+     */
     public static void startServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/", new StreamHandler());
@@ -63,36 +74,33 @@ public class HtmlStreamServerDemo {
             try (OutputStream os = t.getResponseBody()) {
                 // Load Demo CSS
                 String demoCss = loadResource("/css/demo.css");
-                
+
                 // Construct Page Shell
-                String head = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" +
-                        "<meta charset='UTF-8'>" +
-                        "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-                        "<title>Markdown Stream Render Demo</title>" +
-                        "<style>" + demoCss + "</style>" +
-                        "<style>" + HtmlCssProvider.getAllCss() + "</style>" +
-                        "</head><body>";
-                
-                String bodyStart = "<div class='app-container'>" +
+                String head = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" + "<meta charset='UTF-8'>"
+                        + "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+                        + "<title>Markdown Stream Render Demo</title>" + "<style>" + demoCss + "</style>" + "<style>"
+                        + HtmlCssProvider.getAllCss() + "</style>" + "</head><body>";
+
+                String bodyStart = "<div class='app-container'>"
+                        +
                         // Sidebar
-                        "<aside class='sidebar'>" +
-                        "<div class='sidebar-header'>⚡ Stream Render</div>" +
-                        "<a href='#' class='nav-item active'>Documentation</a>" +
-                        "<a href='#' class='nav-item'>API Reference</a>" +
-                        "<a href='#' class='nav-item'>Examples</a>" +
-                        "<div class='spacer'></div>" +
-                        "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" +
-                        "</aside>" +
+                        "<aside class='sidebar'>" + "<div class='sidebar-header'>⚡ Stream Render</div>"
+                        + "<a href='#' class='nav-item active'>Documentation</a>"
+                        + "<a href='#' class='nav-item'>API Reference</a>" + "<a href='#' class='nav-item'>Examples</a>"
+                        + "<div class='spacer'></div>"
+                        + "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" + "</aside>"
+                        +
                         // Main Content
-                        "<main class='main-content'>" +
-                        "<div id='content' class='markdown-root'>"; // OPEN, DO NOT CLOSE YET
+                        "<main class='main-content'>" + "<div id='content' class='markdown-root'>";
+                // OPEN, DO NOT CLOSE YET
 
                 // Script (can be sent early or late, but early is fine if we don't close body)
-                // However, for streaming, usually we put script at the end or use DOMContentLoaded
+                // However, for streaming, usually we put script at the end or use
+                // DOMContentLoaded
                 // But here we need the observer to run immediately as content arrives.
-                // We'll output the script at the END to be safe and clean, 
+                // We'll output the script at the END to be safe and clean,
                 // OR we can output it now but we must ensure we don't close main/app-container.
-                
+
                 os.write(head.getBytes(StandardCharsets.UTF_8));
                 os.write(bodyStart.getBytes(StandardCharsets.UTF_8));
                 os.flush();
@@ -105,16 +113,17 @@ public class HtmlStreamServerDemo {
 
                 StringBuilder buffer = new StringBuilder();
                 HtmlStreamRenderer renderer = new HtmlStreamRenderer(buffer);
-                StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder()
-                        .renderer(renderer);
+                StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder().renderer(renderer);
                 CoreExtension.addDefaults(parserBuilder);
                 StreamMarkdownParser parser = parserBuilder.build();
 
                 while (index < finalContent.length()) {
                     int remaining = finalContent.length() - index;
                     int chunkSize = random.nextInt(15) + 5; // Faster chunking for better demo
-                    if (chunkSize > remaining) chunkSize = remaining;
-                    
+                    if (chunkSize > remaining) {
+                        chunkSize = remaining;
+                    }
+
                     String chunk = finalContent.substring(index, index + chunkSize);
                     index += chunkSize;
 
@@ -127,8 +136,10 @@ public class HtmlStreamServerDemo {
                     }
 
                     try {
-                        Thread.sleep(random.nextInt(20) + 5); 
-                    } catch (InterruptedException ignored) {}
+                        Thread.sleep(random.nextInt(20) + 5);
+                    } catch (InterruptedException ignored) {
+                        // ignore
+                    }
                 }
 
                 parser.close();
@@ -137,35 +148,36 @@ public class HtmlStreamServerDemo {
                 }
 
                 // Close tags and add script at the end
-                String bodyEnd = "</div>" + // close markdown-root
-                        "</main>" +
-                        "</div>" + // close app-container
-                        "<script>" +
-                        "function toggleTheme() {" +
-                        "  const html = document.documentElement;" +
-                        "  const current = html.getAttribute('data-theme');" +
-                        "  const next = current === 'dark' ? 'light' : 'dark';" +
-                        "  html.setAttribute('data-theme', next);" +
-                        "}" +
+                String bodyEnd = "</div>"
+                        + // close markdown-root
+                        "</main>" + "</div>"
+                        + // close app-container
+                        "<script>" + "function toggleTheme() {" + "  const html = document.documentElement;"
+                        + "  const current = html.getAttribute('data-theme');"
+                        + "  const next = current === 'dark' ? 'light' : 'dark';"
+                        + "  html.setAttribute('data-theme', next);" + "}"
+                        +
                         // Auto-scroll logic
-                        "const contentDiv = document.getElementById('content');" +
-                        "const observer = new MutationObserver(() => {" +
-                        "  window.scrollTo(0, document.body.scrollHeight);" +
-                        "});" +
-                        "if (contentDiv) observer.observe(contentDiv, { childList: true, subtree: true });" +
-                        "</script>" +
-                        "</body></html>";
-                
+                        "const contentDiv = document.getElementById('content');"
+                        + "const observer = new MutationObserver(() => {"
+                        + "  window.scrollTo(0, document.body.scrollHeight);" + "});"
+                        + "if (contentDiv) observer.observe(contentDiv, { childList: true, subtree: true });"
+                        + "</script>" + "</body></html>";
+
                 os.write(bodyEnd.getBytes(StandardCharsets.UTF_8));
                 os.flush();
             }
         }
-        
+
         private String loadResource(String path) {
-             try (InputStream is = getClass().getResourceAsStream(path)) {
-                 if (is != null) return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-             } catch (Exception e) { e.printStackTrace(); }
-             return "";
+            try (InputStream is = getClass().getResourceAsStream(path)) {
+                if (is != null) {
+                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
         }
 
     }
@@ -175,9 +187,11 @@ public class HtmlStreamServerDemo {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             } else {
-                 try (InputStream is2 = HtmlStreamServerDemo.class.getResourceAsStream("/template.md")) {
-                     if (is2 != null) return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
-                 }
+                try (InputStream is2 = HtmlStreamServerDemo.class.getResourceAsStream("/template.md")) {
+                    if (is2 != null) {
+                        return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

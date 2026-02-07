@@ -1,15 +1,19 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 流式 Markdown 解析器。
+ * 流式 Markdown 解析器.
  * <p>
  * 支持通过 {@link #push(String)} 方法增量输入文本，并实时触发渲染事件。
  * </p>
@@ -43,12 +47,15 @@ public class StreamMarkdownParser {
     }
 
     /**
-     * 推送新的文本片段。
+     * 推送新的文本片段.
      *
-     * @param text Markdown 文本片段
+     * @param text
+     *            Markdown 文本片段
      */
     public void push(String text) {
-        if (text == null || text.isEmpty()) return;
+        if (text == null || text.isEmpty()) {
+            return;
+        }
 
         buffer.append(text);
 
@@ -77,8 +84,7 @@ public class StreamMarkdownParser {
     }
 
     /**
-     * 结束流式输入。
-     * 处理缓冲区中剩余的文本，并关闭所有打开的块。
+     * 结束流式输入. 处理缓冲区中剩余的文本，并关闭所有打开的块。
      */
     public void close() {
         if (buffer.length() > 0) {
@@ -106,7 +112,8 @@ public class StreamMarkdownParser {
                     if (consumed > 0) {
                         if (consumed >= content.length()) {
                             // Fully consumed, remove the paragraph content
-                            // We cannot unlink the node itself because it's already in the renderer's stack/tree
+                            // We cannot unlink the node itself because it's already in the renderer's
+                            // stack/tree
                             // But we can clear its children so it renders as empty?
                             // Or we should update the text node?
                             textNode.setLiteral("");
@@ -163,7 +170,9 @@ public class StreamMarkdownParser {
     }
 
     private String expandTabs(String s) {
-        if (s.indexOf('\t') == -1) return s;
+        if (s.indexOf('\t') == -1) {
+            return s;
+        }
         StringBuilder sb = new StringBuilder();
         int col = 0;
         for (int i = 0; i < s.length(); i++) {

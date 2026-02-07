@@ -69,13 +69,8 @@ public class Launcher extends Application {
             }
         }));
 
-        root.getChildren().addAll(
-                title,
-                new Separator(),
-                fxLabel, streamDemoBtn, batchDemoBtn, chatDemoBtn,
-                new Separator(),
-                htmlLabel, htmlStreamBtn, htmlBatchBtn
-        );
+        root.getChildren().addAll(title, new Separator(), fxLabel, streamDemoBtn, batchDemoBtn, chatDemoBtn,
+                new Separator(), htmlLabel, htmlStreamBtn, htmlBatchBtn);
 
         Scene scene = new Scene(root, 400, 500);
         primaryStage.setTitle("Demo Launcher");

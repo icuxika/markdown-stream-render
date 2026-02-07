@@ -2,7 +2,6 @@ package com.icuxika.markdown.stream.render.core.extension.math;
 
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParser;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
-
 import java.util.Collections;
 import java.util.Set;
 

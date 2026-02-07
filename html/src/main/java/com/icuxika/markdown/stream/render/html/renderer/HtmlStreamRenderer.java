@@ -1,14 +1,37 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
+import com.icuxika.markdown.stream.render.core.ast.Code;
+import com.icuxika.markdown.stream.render.core.ast.CodeBlock;
+import com.icuxika.markdown.stream.render.core.ast.Emphasis;
+import com.icuxika.markdown.stream.render.core.ast.HardBreak;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.HtmlBlock;
+import com.icuxika.markdown.stream.render.core.ast.HtmlInline;
+import com.icuxika.markdown.stream.render.core.ast.Image;
+import com.icuxika.markdown.stream.render.core.ast.Link;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.SoftBreak;
+import com.icuxika.markdown.stream.render.core.ast.Strikethrough;
+import com.icuxika.markdown.stream.render.core.ast.StrongEmphasis;
+import com.icuxika.markdown.stream.render.core.ast.Table;
+import com.icuxika.markdown.stream.render.core.ast.TableBody;
+import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.TableHead;
+import com.icuxika.markdown.stream.render.core.ast.TableRow;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.core.extension.math.MathNode;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
-
 import java.io.IOException;
 
 /**
- * HTML 流式渲染器。
+ * HTML 流式渲染器.
  * <p>
  * 将接收到的 AST 节点直接转换为 HTML 字符串并写入输出流。
  * </p>
@@ -41,7 +64,8 @@ public class HtmlStreamRenderer implements IStreamMarkdownRenderer {
                 AdmonitionBlock admonition = (AdmonitionBlock) node;
                 out.append("<div class=\"admonition admonition-").append(admonition.getType()).append("\">\n");
                 if (admonition.getTitle() != null) {
-                    out.append("<p class=\"admonition-title\">").append(escapeXml(admonition.getTitle())).append("</p>\n");
+                    out.append("<p class=\"admonition-title\">").append(escapeXml(admonition.getTitle()))
+                            .append("</p>\n");
                 }
             }
             if (out instanceof java.io.Flushable) {
@@ -204,24 +228,26 @@ public class HtmlStreamRenderer implements IStreamMarkdownRenderer {
     }
 
     private String escapeXml(String s) {
-        if (s == null) return "";
+        if (s == null) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-                case '<':
+                case '<' :
                     sb.append("&lt;");
                     break;
-                case '>':
+                case '>' :
                     sb.append("&gt;");
                     break;
-                case '&':
+                case '&' :
                     sb.append("&amp;");
                     break;
-                case '"':
+                case '"' :
                     sb.append("&quot;");
                     break;
-                default:
+                default :
                     sb.append(c);
             }
         }

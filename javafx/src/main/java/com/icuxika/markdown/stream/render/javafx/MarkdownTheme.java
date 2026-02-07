@@ -8,8 +8,7 @@ import javafx.scene.Scene;
 public class MarkdownTheme {
 
     public enum Theme {
-        LIGHT("light.css"),
-        DARK("dark.css");
+        LIGHT("light.css"), DARK("dark.css");
 
         private final String cssFile;
 
@@ -27,6 +26,9 @@ public class MarkdownTheme {
 
     private final ObjectProperty<Theme> currentTheme = new SimpleObjectProperty<>(Theme.LIGHT);
 
+    /**
+     * Constructor.
+     */
     public MarkdownTheme() {
         currentTheme.addListener((obs, oldTheme, newTheme) -> {
             // This is a bit tricky because we need to know what to update.
@@ -34,21 +36,36 @@ public class MarkdownTheme {
         });
     }
 
+    /**
+     * Get the theme property.
+     *
+     * @return theme property
+     */
     public ObjectProperty<Theme> themeProperty() {
         return currentTheme;
     }
 
+    /**
+     * Set the current theme.
+     *
+     * @param theme
+     *            new theme
+     */
     public void setTheme(Theme theme) {
         currentTheme.set(theme);
     }
 
+    /**
+     * Get the current theme.
+     *
+     * @return current theme
+     */
     public Theme getTheme() {
         return currentTheme.get();
     }
 
     /**
-     * Applies the markdown stylesheets to the given Scene.
-     * It binds the scene's stylesheets to the theme property.
+     * Applies the markdown stylesheets to the given Scene. It binds the scene's stylesheets to the theme property.
      */
     public void apply(Scene scene) {
         scene.getStylesheets().add(getClass().getResource(CSS_BASE_PATH + MARKDOWN_CSS).toExternalForm());

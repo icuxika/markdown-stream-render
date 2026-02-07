@@ -19,19 +19,44 @@ public class DeepSeekClient {
     private final boolean mockMode;
     private static final String API_URL = "https://api.deepseek.com/chat/completions";
 
+    /**
+     * Constructs a new DeepSeekClient.
+     *
+     * @param apiKey
+     *            The API key for authentication.
+     */
     public DeepSeekClient(String apiKey) {
         this(apiKey, false);
     }
 
+    /**
+     * Constructs a new DeepSeekClient.
+     *
+     * @param apiKey
+     *            The API key for authentication.
+     * @param mockMode
+     *            Whether to run in mock mode (simulated response).
+     */
     public DeepSeekClient(String apiKey, boolean mockMode) {
         this.apiKey = apiKey;
         this.mockMode = mockMode;
-        this.client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
+        this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     }
 
-    public void streamChat(List<ChatMessage> messages, Consumer<String> onToken, Runnable onComplete, Consumer<Throwable> onError) {
+    /**
+     * Streams a chat completion from the DeepSeek API.
+     *
+     * @param messages
+     *            The list of chat messages.
+     * @param onToken
+     *            Callback for each generated token.
+     * @param onComplete
+     *            Callback when the stream is complete.
+     * @param onError
+     *            Callback when an error occurs.
+     */
+    public void streamChat(List<ChatMessage> messages, Consumer<String> onToken, Runnable onComplete,
+            Consumer<Throwable> onError) {
         if (mockMode) {
             streamMockResponse(messages, onToken, onComplete);
             return;
@@ -57,51 +82,47 @@ public class DeepSeekClient {
                 }
                 """.formatted(messagesJson.toString());
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + apiKey)
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(API_URL))
+                .header("Content-Type", "application/json").header("Authorization", "Bearer " + apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 
         client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(new Flow.Subscriber<>() {
-                    private Flow.Subscription subscription;
+            private Flow.Subscription subscription;
 
-                    @Override
-                    public void onSubscribe(Flow.Subscription subscription) {
-                        this.subscription = subscription;
-                        subscription.request(Long.MAX_VALUE);
+            @Override
+            public void onSubscribe(Flow.Subscription subscription) {
+                this.subscription = subscription;
+                subscription.request(Long.MAX_VALUE);
+            }
+
+            @Override
+            public void onNext(String line) {
+                if (line.startsWith("data: ")) {
+                    String data = line.substring(6).trim();
+                    if ("[DONE]".equals(data)) {
+                        return; // Stream finished
                     }
 
-                    @Override
-                    public void onNext(String line) {
-                        if (line.startsWith("data: ")) {
-                            String data = line.substring(6).trim();
-                            if ("[DONE]".equals(data)) {
-                                return; // Stream finished
-                            }
-
-                            String content = extractContent(data);
-                            if (content != null && !content.isEmpty()) {
-                                onToken.accept(content);
-                            }
-                        }
+                    String content = extractContent(data);
+                    if (content != null && !content.isEmpty()) {
+                        onToken.accept(content);
                     }
+                }
+            }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        onError.accept(throwable);
-                    }
+            @Override
+            public void onError(Throwable throwable) {
+                onError.accept(throwable);
+            }
 
-                    @Override
-                    public void onComplete() {
-                        onComplete.run();
-                    }
-                }))
-                .exceptionally(e -> {
-                    onError.accept(e);
-                    return null;
-                });
+            @Override
+            public void onComplete() {
+                onComplete.run();
+            }
+        })).exceptionally(e -> {
+            onError.accept(e);
+            return null;
+        });
     }
 
     private void streamMockResponse(List<ChatMessage> messages, Consumer<String> onToken, Runnable onComplete) {
@@ -116,7 +137,7 @@ public class DeepSeekClient {
                 if (lastUserMessage.toLowerCase().contains("table")) {
                     response = """
                             Here is a **table** for you:
-                            
+
                             | Name | Role | Status |
                             | :--- | :---: | ---: |
                             | Alice | Admin | Active |
@@ -126,7 +147,7 @@ public class DeepSeekClient {
                 } else if (lastUserMessage.toLowerCase().contains("code")) {
                     response = """
                             Sure! Here is a Java code snippet:
-                            
+
                             ```java
                             public static void main(String[] args) {
                                 System.out.println("Hello, World!");
@@ -136,13 +157,14 @@ public class DeepSeekClient {
                 } else if (lastUserMessage.toLowerCase().contains("task")) {
                     response = """
                             Tasks to do:
-                            
+
                             - [x] Implement Mock Mode
                             - [ ] Fix UI Layout
                             - [ ] Write Tests
                             """;
                 } else {
-                    response = "I received your message: \"" + lastUserMessage + "\".\n\nI can demonstrate **Markdown** rendering capabilities. Try asking for a *table*, *code*, or *task list*!";
+                    response = "I received your message: \"" + lastUserMessage
+                            + "\".\n\nI can demonstrate **Markdown** rendering capabilities. Try asking for a *table*, *code*, or *task list*!";
                 }
 
                 // Split by characters or words to simulate tokens
@@ -163,27 +185,32 @@ public class DeepSeekClient {
 
     // Simple JSON escaping for the request body
     private String escapeJson(String input) {
-        if (input == null) return "";
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+        if (input == null) {
+            return "";
+        }
+        return input.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t",
+                "\\t");
     }
 
     // Regex to extract "content": "..." from JSON
     private String extractContent(String json) {
         // Look for "content":
         int contentIndex = json.indexOf("\"content\"");
-        if (contentIndex == -1) return null;
+        if (contentIndex == -1) {
+            return null;
+        }
 
         // Find the colon after "content"
         int colonIndex = json.indexOf(":", contentIndex);
-        if (colonIndex == -1) return null;
+        if (colonIndex == -1) {
+            return null;
+        }
 
         // Find the opening quote
         int startQuote = json.indexOf("\"", colonIndex + 1);
-        if (startQuote == -1) return null;
+        if (startQuote == -1) {
+            return null;
+        }
 
         // Find the closing quote, skipping escaped quotes
         StringBuilder content = new StringBuilder();
@@ -192,10 +219,15 @@ public class DeepSeekClient {
             char c = json.charAt(i);
             if (escape) {
                 // Add the escaped character
-                if (c == 'n') content.append('\n');
-                else if (c == 'r') content.append('\r');
-                else if (c == 't') content.append('\t');
-                else content.append(c); // includes \" and \\
+                if (c == 'n') {
+                    content.append('\n');
+                } else if (c == 'r') {
+                    content.append('\r');
+                } else if (c == 't') {
+                    content.append('\t');
+                } else {
+                    content.append(c); // includes \" and \\
+                }
                 escape = false;
             } else {
                 if (c == '\\') {

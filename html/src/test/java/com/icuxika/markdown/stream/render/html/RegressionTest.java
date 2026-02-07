@@ -1,16 +1,15 @@
 package com.icuxika.markdown.stream.render.html;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /**
- * 回归测试类 (Regression Tests)
- * 用于记录和验证曾经出现的 bug 或特定的边缘情况，确保后续修改不会破坏这些行为。
- * 包含之前 ReproTest, DebugCodeBlockTest, DebugListTest 的内容。
+ * 回归测试类 (Regression Tests) 用于记录和验证曾经出现的 bug 或特定的边缘情况，确保后续修改不会破坏这些行为。 包含之前 ReproTest, DebugCodeBlockTest, DebugListTest
+ * 的内容。
  */
 public class RegressionTest {
 

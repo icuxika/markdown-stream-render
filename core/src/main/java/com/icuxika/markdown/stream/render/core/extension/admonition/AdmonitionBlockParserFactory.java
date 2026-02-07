@@ -4,7 +4,6 @@ import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockStart;
 import com.icuxika.markdown.stream.render.core.parser.block.MatchedBlockParser;
 import com.icuxika.markdown.stream.render.core.parser.block.ParserState;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,8 +21,9 @@ public class AdmonitionBlockParserFactory implements BlockParserFactory {
         if (matcher.matches()) {
             String type = matcher.group(1);
             String title = matcher.group(2);
-            return BlockStart.of(new AdmonitionParser(type, title))
-                    .atIndex(state.getIndex() + currentLine.length()); // Consume whole line
+            return BlockStart.of(new AdmonitionParser(type, title)).atIndex(state.getIndex() + currentLine.length()); // Consume
+                                                                                                                      // whole
+                                                                                                                      // line
         }
 
         return BlockStart.none();

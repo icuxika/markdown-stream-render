@@ -3,9 +3,18 @@ package com.icuxika.markdown.stream.render.benchmark;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
-import org.openjdk.jmh.annotations.*;
-
 import java.util.concurrent.TimeUnit;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
@@ -26,25 +35,29 @@ public class MarkdownParserBenchmark {
     @Setup
     public void setup() {
         parser = new MarkdownParser();
-        // Create a fresh renderer for each iteration? No, renderer is usually stateless or reset.
+        // Create a fresh renderer for each iteration? No, renderer is usually stateless
+        // or reset.
         // HtmlRenderer accumulates result in StringBuilder. It is NOT stateless.
         // So we need to create it inside the benchmark or reset it.
-        // HtmlRenderer implementation shows: private final StringBuilder sb = new StringBuilder();
+        // HtmlRenderer implementation shows: private final StringBuilder sb = new
+        // StringBuilder();
         // It does NOT have a reset method.
         // So we should create it inside the benchmark method or use a fresh one.
         // Creating it might add overhead.
         // But for "render", we want to measure rendering.
 
-        // Let's check HtmlRenderer again. It seems designed for single use or we need to clear sb.
+        // Let's check HtmlRenderer again. It seems designed for single use or we need
+        // to clear sb.
         // It has no clear method.
-        // So we will instantiate it in the benchmark method for correctness, 
-        // OR we assume the overhead of instantiation is negligible compared to rendering.
+        // So we will instantiate it in the benchmark method for correctness,
+        // OR we assume the overhead of instantiation is negligible compared to
+        // rendering.
 
         switch (size) {
-            case "SMALL":
+            case "SMALL" :
                 markdownInput = "# Hello\nThis is a small test.";
                 break;
-            case "MEDIUM":
+            case "MEDIUM" :
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < 100; i++) {
                     sb.append("## Section ").append(i).append("\n");
@@ -53,7 +66,7 @@ public class MarkdownParserBenchmark {
                 }
                 markdownInput = sb.toString();
                 break;
-            case "LARGE":
+            case "LARGE" :
                 StringBuilder sb2 = new StringBuilder();
                 for (int i = 0; i < 1000; i++) {
                     sb2.append("## Section ").append(i).append("\n");
@@ -63,24 +76,43 @@ public class MarkdownParserBenchmark {
                 }
                 markdownInput = sb2.toString();
                 break;
+            default :
+                markdownInput = "";
+                break;
         }
 
         preParsedDoc = parser.parse(markdownInput);
     }
 
+    /**
+     * Benchmark parsing only.
+     *
+     * @return parsed document
+     */
     @Benchmark
     public Document parseOnly() {
         return parser.parse(markdownInput);
     }
 
+    /**
+     * Benchmark HTML rendering only (from pre-parsed AST).
+     *
+     * @return HTML string
+     */
     @Benchmark
     public String renderHtmlOnly() {
-        // HtmlRenderer is stateful (StringBuilder), so we must create a new one each time
+        // HtmlRenderer is stateful (StringBuilder), so we must create a new one each
+        // time
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         preParsedDoc.accept(renderer);
         return (String) renderer.getResult();
     }
 
+    /**
+     * Benchmark parsing and HTML rendering.
+     *
+     * @return HTML string
+     */
     @Benchmark
     public String parseAndRenderHtml() {
         Document doc = parser.parse(markdownInput);

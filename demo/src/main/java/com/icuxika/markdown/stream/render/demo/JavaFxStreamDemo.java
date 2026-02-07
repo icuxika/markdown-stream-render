@@ -5,24 +5,23 @@ import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
-
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class JavaFxStreamDemo extends Application {
 
@@ -60,13 +59,15 @@ public class JavaFxStreamDemo extends Application {
                 } else {
                     StringBuilder sb = new StringBuilder();
                     // Indent based on level
-                    for(int i=1; i<item.getLevel(); i++) sb.append("  ");
-                    
+                    for (int i = 1; i < item.getLevel(); i++) {
+                        sb.append("  ");
+                    }
+
                     // Get text content
                     Node child = item.getFirstChild();
-                    while(child != null) {
+                    while (child != null) {
                         if (child instanceof com.icuxika.markdown.stream.render.core.ast.Text) {
-                            sb.append(((com.icuxika.markdown.stream.render.core.ast.Text)child).getLiteral());
+                            sb.append(((com.icuxika.markdown.stream.render.core.ast.Text) child).getLiteral());
                         }
                         child = child.getNext();
                     }
@@ -74,9 +75,10 @@ public class JavaFxStreamDemo extends Application {
                 }
             }
         });
-        
+
         tocList.setOnMouseClicked(e -> {
-            com.icuxika.markdown.stream.render.core.ast.Heading selected = tocList.getSelectionModel().getSelectedItem();
+            com.icuxika.markdown.stream.render.core.ast.Heading selected = tocList.getSelectionModel()
+                    .getSelectedItem();
             if (selected != null) {
                 String anchorId = selected.getAnchorId();
                 if (anchorId != null) {
@@ -94,13 +96,17 @@ public class JavaFxStreamDemo extends Application {
                             // outputBox is direct content of scrollPane.
                             double height = outputBox.getHeight();
                             double viewportHeight = scrollPane.getViewportBounds().getHeight();
-                            
+
                             // Normalize y to 0..1
                             // Vvalue = (y) / (totalHeight - viewportHeight)
-                            double vValue = y / (height - viewportHeight);
-                            if (vValue < 0) vValue = 0;
-                            if (vValue > 1) vValue = 1;
-                            scrollPane.setVvalue(vValue);
+                            double verticalPos = y / (height - viewportHeight);
+                            if (verticalPos < 0) {
+                                verticalPos = 0;
+                            }
+                            if (verticalPos > 1) {
+                                verticalPos = 1;
+                            }
+                            scrollPane.setVvalue(verticalPos);
                             break;
                         }
                     }
@@ -114,8 +120,6 @@ public class JavaFxStreamDemo extends Application {
         root.setCenter(splitPane);
 
         // Control Area
-        VBox bottomBox = new VBox(10);
-        javafx.scene.layout.HBox buttonBox = new javafx.scene.layout.HBox(10);
         fastButton = new Button("Fast Stream (LLM Simulation)");
         slowButton = new Button("Slow Stream (Typewriter)");
 
@@ -124,7 +128,10 @@ public class JavaFxStreamDemo extends Application {
         logArea.setEditable(false);
         logArea.setPromptText("Logs will appear here...");
 
+        javafx.scene.layout.HBox buttonBox = new javafx.scene.layout.HBox(10);
         buttonBox.getChildren().addAll(fastButton, slowButton);
+
+        VBox bottomBox = new VBox(10);
         bottomBox.getChildren().addAll(buttonBox, logArea);
         root.setBottom(bottomBox);
 
@@ -137,12 +144,14 @@ public class JavaFxStreamDemo extends Application {
         realRenderer.setOnHeadingRendered(heading -> {
             Platform.runLater(() -> tocList.getItems().add(heading));
         });
-        
-        // Load CSS (reuse batch demo logic implicitly by renderer but let's ensure style)
+
+        // Load CSS (reuse batch demo logic implicitly by renderer but let's ensure
+        // style)
         // Actually JavaFxStreamRenderer should attach stylesheets?
-        // Let's check JavaFxStreamRenderer. It usually relies on Scene stylesheets or adds them.
+        // Let's check JavaFxStreamRenderer. It usually relies on Scene stylesheets or
+        // adds them.
         // In BatchDemo we added stylesheet to Scene. Here we should too.
-        
+
         // ... (inside setup)
 
         fastButton.setOnAction(e -> {
@@ -164,13 +173,20 @@ public class JavaFxStreamDemo extends Application {
         });
 
         Scene scene = new Scene(root, 800, 800);
-        // Use JavaFxStreamRenderer.class to load resources from the javafx module to avoid module encapsulation issues
+        // Use JavaFxStreamRenderer.class to load resources from the javafx module to
+        // avoid module encapsulation issues
         // when running via Launcher (which might be in a different module context)
-        scene.getStylesheets().add(JavaFxStreamRenderer.class.getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css").toExternalForm());
-        scene.getStylesheets().add(JavaFxStreamRenderer.class.getResource("/com/icuxika/markdown/stream/render/javafx/css/light.css").toExternalForm());
+        scene.getStylesheets().add(JavaFxStreamRenderer.class
+                .getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css").toExternalForm());
+        scene.getStylesheets().add(JavaFxStreamRenderer.class
+                .getResource("/com/icuxika/markdown/stream/render/javafx/css/light.css").toExternalForm());
         // Extensions CSS
-        scene.getStylesheets().add(JavaFxStreamRenderer.class.getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css").toExternalForm());
-        scene.getStylesheets().add(JavaFxStreamRenderer.class.getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
+        scene.getStylesheets()
+                .add(JavaFxStreamRenderer.class
+                        .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css")
+                        .toExternalForm());
+        scene.getStylesheets().add(JavaFxStreamRenderer.class
+                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
 
         // Re-init parser with logging renderer
         initParser(realRenderer);
@@ -178,7 +194,7 @@ public class JavaFxStreamDemo extends Application {
         primaryStage.setTitle("Markdown Stream JavaFX Demo - LLM Token Simulation");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
+
         outputBox.heightProperty().addListener((observable, oldValue, newValue) -> {
             scrollPane.setVvalue(1.0);
         });
@@ -189,7 +205,8 @@ public class JavaFxStreamDemo extends Application {
         IStreamMarkdownRenderer loggingRenderer = new IStreamMarkdownRenderer() {
             @Override
             public void renderNode(Node node) {
-                // log("RENDER: " + node.getClass().getSimpleName()); // Too verbose for char-by-char
+                // log("RENDER: " + node.getClass().getSimpleName()); // Too verbose for
+                // char-by-char
                 realRenderer.renderNode(node);
             }
 
@@ -206,8 +223,7 @@ public class JavaFxStreamDemo extends Application {
             }
         };
 
-        StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder()
-                .renderer(loggingRenderer);
+        StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder().renderer(loggingRenderer);
 
         CoreExtension.addDefaults(parserBuilder);
         parser = parserBuilder.build();
@@ -230,8 +246,11 @@ public class JavaFxStreamDemo extends Application {
             } else {
                 // Fallback if comprehensive.md not found
                 try (java.io.InputStream is2 = getClass().getResourceAsStream("/template.md")) {
-                     if (is2 != null) content = new String(is2.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-                     else content = "# Error\n\nNo template found.";
+                    if (is2 != null) {
+                        content = new String(is2.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                    } else {
+                        content = "# Error\n\nNo template found.";
+                    }
                 }
             }
         } catch (Exception e) {
@@ -240,7 +259,7 @@ public class JavaFxStreamDemo extends Application {
 
         final String finalContent = content;
         executor = Executors.newSingleThreadScheduledExecutor();
-        
+
         // Use a recursive runnable to schedule next chunk with random delay
         Runnable task = new Runnable() {
             int index = 0;
@@ -251,7 +270,9 @@ public class JavaFxStreamDemo extends Application {
                 if (index < finalContent.length()) {
                     int remaining = finalContent.length() - index;
                     int chunkSize = random.nextInt(maxChunk - minChunk + 1) + minChunk;
-                    if (chunkSize > remaining) chunkSize = remaining;
+                    if (chunkSize > remaining) {
+                        chunkSize = remaining;
+                    }
 
                     String chunk = finalContent.substring(index, index + chunkSize);
                     index += chunkSize;
@@ -272,8 +293,8 @@ public class JavaFxStreamDemo extends Application {
                     parser.close();
                     executor.shutdown();
                     Platform.runLater(() -> {
-                         // Re-enable buttons? (Need references, skipping for demo simplicity)
-                         log("Done. Restart app to run again.");
+                        // Re-enable buttons? (Need references, skipping for demo simplicity)
+                        log("Done. Restart app to run again.");
                     });
                 }
             }

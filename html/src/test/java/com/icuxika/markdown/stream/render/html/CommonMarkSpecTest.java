@@ -1,15 +1,13 @@
 package com.icuxika.markdown.stream.render.html;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,16 +16,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 /**
  * CommonMark 规范兼容性测试 (CommonMark Spec Conformance Tests)
  * <p>
- * 该类负责运行官方 CommonMark Spec (v0.31.2) 中的所有测试用例，确保解析器的正确性。
- * 它包含两部分功能：
- * 1. {@link #commonMarkSpecTests()} - 生成 JUnit DynamicTests，用于 IDE 中的单独测试运行。
- * 2. {@link #generateSpecReport()} - 运行所有测试并生成 Markdown 格式的详细报告 (SPEC_REPORT.md)。
+ * 该类负责运行官方 CommonMark Spec (v0.31.2) 中的所有测试用例，确保解析器的正确性。 它包含两部分功能： 1. {@link #commonMarkSpecTests()} - 生成 JUnit
+ * DynamicTests，用于 IDE 中的单独测试运行。 2. {@link #generateSpecReport()} - 运行所有测试并生成 Markdown 格式的详细报告 (SPEC_REPORT.md)。
  */
 public class CommonMarkSpecTest {
 
@@ -72,8 +69,7 @@ public class CommonMarkSpecTest {
     }
 
     /**
-     * 工厂方法：为每个规范示例生成一个动态测试
-     * 这使得 IDE 可以单独显示每个测试用例的通过/失败状态。
+     * 工厂方法：为每个规范示例生成一个动态测试 这使得 IDE 可以单独显示每个测试用例的通过/失败状态。
      */
     @TestFactory
     Stream<DynamicTest> commonMarkSpecTests() throws IOException {
@@ -81,8 +77,7 @@ public class CommonMarkSpecTest {
 
         return examples.stream()
                 // .filter(example -> "Images".equals(example.section)) // 可以取消注释以仅运行特定部分的测试
-                .map(example -> DynamicTest.dynamicTest(
-                        "Example " + example.example + " (" + example.section + ")",
+                .map(example -> DynamicTest.dynamicTest("Example " + example.example + " (" + example.section + ")",
                         () -> {
                             MarkdownParser parser = new MarkdownParser();
                             parser.getOptions().setGfm(false); // Disable GFM extensions for strict spec tests
@@ -107,13 +102,11 @@ public class CommonMarkSpecTest {
                             }
 
                             assertEquals(expected, actual);
-                        }
-                ));
+                        }));
     }
 
     /**
-     * 生成完整测试报告
-     * 运行所有测试，并将结果汇总写入项目根目录下的 SPEC_REPORT.md
+     * 生成完整测试报告 运行所有测试，并将结果汇总写入项目根目录下的 SPEC_REPORT.md
      */
     @Test
     public void generateSpecReport() throws IOException {
@@ -174,7 +167,8 @@ public class CommonMarkSpecTest {
             writer.println("| :--- | :--- | :--- | :--- |");
 
             for (TestResult res : results) {
-                writer.println("| " + res.example + " | " + res.section + " | " + (res.passed ? "✅ PASS" : "❌ FAIL") + " | " + (res.message != null ? res.message : "") + " |");
+                writer.println("| " + res.example + " | " + res.section + " | " + (res.passed ? "✅ PASS" : "❌ FAIL")
+                        + " | " + (res.message != null ? res.message : "") + " |");
             }
         }
 

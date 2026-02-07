@@ -1,11 +1,11 @@
 package com.icuxika.markdown.stream.render.html;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SanitizationTest {
 

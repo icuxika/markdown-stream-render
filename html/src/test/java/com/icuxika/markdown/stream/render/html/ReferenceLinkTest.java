@@ -1,19 +1,17 @@
 package com.icuxika.markdown.stream.render.html;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.ast.LinkReference;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
+import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 
-import java.io.StringReader;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 /**
- * 引用链接测试类 (Reference Link Tests)
- * 专门测试 Markdown 的引用式链接定义 ([id]: url "title") 及其解析。
+ * 引用链接测试类 (Reference Link Tests) 专门测试 Markdown 的引用式链接定义 ([id]: url "title") 及其解析。
  */
 public class ReferenceLinkTest {
 

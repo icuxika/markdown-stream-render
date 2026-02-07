@@ -1,9 +1,7 @@
 package com.icuxika.markdown.stream.render.core.ast;
 
 /**
- * AST (抽象语法树) 节点的基类。
- * 所有 Markdown 元素（如 Paragraph, List, Text 等）都继承自此类。
- * 提供了节点树的遍历、链接和修改功能。
+ * AST (抽象语法树) 节点的基类。 所有 Markdown 元素（如 Paragraph, List, Text 等）都继承自此类。 提供了节点树的遍历、链接和修改功能。
  */
 public abstract class Node {
     private Node parent;
@@ -18,7 +16,8 @@ public abstract class Node {
     /**
      * 接受访问者（Visitor 模式）。
      *
-     * @param visitor 访问者实例
+     * @param visitor
+     *            访问者实例
      */
     public abstract void accept(Visitor visitor);
 
@@ -61,7 +60,8 @@ public abstract class Node {
     /**
      * 将指定节点添加为当前节点的最后一个子节点。
      *
-     * @param child 要添加的子节点
+     * @param child
+     *            要添加的子节点
      */
     public void appendChild(Node child) {
         child.unlink();

@@ -1,16 +1,15 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.scene.paint.Color;
 import jfx.incubator.scene.control.richtext.SyntaxDecorator;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.CodeTextModel;
 import jfx.incubator.scene.control.richtext.model.RichParagraph;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MarkdownSyntaxDecorator implements SyntaxDecorator {
 
@@ -39,7 +38,7 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
                 inCodeBlock = prevState;
             } else {
                 // If state is missing, re-calculate from 0? Or assume false?
-                // For simplicity in this demo, we assume false if unknown, 
+                // For simplicity in this demo, we assume false if unknown,
                 // but ideally we should ensure states are computed sequentially.
                 // handleChange handles invalidation.
                 inCodeBlock = false;
@@ -62,22 +61,16 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
         if (inCodeBlock) {
             if (isFenceStartOrEnd) {
                 // End of code block
-                builder.addSegment(text, StyleAttributeMap.builder()
-                        .setTextColor(Color.GRAY)
-                        .build());
+                builder.addSegment(text, StyleAttributeMap.builder().setTextColor(Color.GRAY).build());
             } else {
                 // Inside code block
-                builder.addSegment(text, StyleAttributeMap.builder()
-                        .setTextColor(Color.DARKGREEN)
-                        .setFontFamily("Consolas")
-                        .build());
+                builder.addSegment(text,
+                        StyleAttributeMap.builder().setTextColor(Color.DARKGREEN).setFontFamily("Consolas").build());
             }
         } else {
             if (isFenceStartOrEnd) {
                 // Start of code block
-                builder.addSegment(text, StyleAttributeMap.builder()
-                        .setTextColor(Color.GRAY)
-                        .build());
+                builder.addSegment(text, StyleAttributeMap.builder().setTextColor(Color.GRAY).build());
             } else {
                 // Normal Markdown
                 applyMarkdownStyling(builder, text);
@@ -94,9 +87,8 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
             // Whole line as header
             // Group 1: hashes, Group 2: content
             int hashesEnd = headerMatcher.end(1);
-            builder.addSegment(text.substring(0, hashesEnd), StyleAttributeMap.builder()
-                    .setTextColor(Color.BLUE)
-                    .build());
+            builder.addSegment(text.substring(0, hashesEnd),
+                    StyleAttributeMap.builder().setTextColor(Color.BLUE).build());
 
             // Add space
             int contentStart = headerMatcher.start(2);
@@ -105,17 +97,14 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
             }
 
             // Content
-            builder.addSegment(text.substring(contentStart), StyleAttributeMap.builder()
-                    .setTextColor(Color.DARKBLUE)
-                    .build());
+            builder.addSegment(text.substring(contentStart),
+                    StyleAttributeMap.builder().setTextColor(Color.DARKBLUE).build());
             return;
         }
 
         Matcher quoteMatcher = BLOCKQUOTE_PATTERN.matcher(text);
         if (quoteMatcher.matches()) {
-            builder.addSegment(text, StyleAttributeMap.builder()
-                    .setTextColor(Color.GRAY)
-                    .build());
+            builder.addSegment(text, StyleAttributeMap.builder().setTextColor(Color.GRAY).build());
             return;
         }
 
@@ -124,7 +113,7 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
         // It doesn't handle overlapping or nested styles correctly for this demo.
 
         int lastIdx = 0;
-        // We will just process the whole line as plain text for now, 
+        // We will just process the whole line as plain text for now,
         // implementing a full inline parser in one method is complex.
         // Let's just handle one type of inline style to demonstrate: Inline Code
 
@@ -134,10 +123,8 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
                 builder.addSegment(text.substring(lastIdx, codeMatcher.start()), null);
             }
 
-            builder.addSegment(text.substring(codeMatcher.start(), codeMatcher.end()), StyleAttributeMap.builder()
-                    .setTextColor(Color.CRIMSON)
-                    .setFontFamily("Consolas")
-                    .build());
+            builder.addSegment(text.substring(codeMatcher.start(), codeMatcher.end()),
+                    StyleAttributeMap.builder().setTextColor(Color.CRIMSON).setFontFamily("Consolas").build());
 
             lastIdx = codeMatcher.end();
         }
@@ -148,20 +135,25 @@ public class MarkdownSyntaxDecorator implements SyntaxDecorator {
     }
 
     @Override
-    public void handleChange(CodeTextModel m, TextPos start, TextPos end, int charsTop, int linesAdded, int charsBottom) {
+    public void handleChange(CodeTextModel m, TextPos start, TextPos end, int charsTop, int linesAdded,
+            int charsBottom) {
         // Invalidate state map from start line onwards
         int startLine = start.index();
         lineStateMap.keySet().removeIf(index -> index > startLine);
 
-        // In a real implementation, we might want to re-parse from startLine to ensure state consistency
-        // But CodeArea calls createRichParagraph lazily, so as long as we clear future states, 
+        // In a real implementation, we might want to re-parse from startLine to ensure
+        // state consistency
+        // But CodeArea calls createRichParagraph lazily, so as long as we clear future
+        // states,
         // they should be recomputed when those lines are rendered?
-        // Actually, createRichParagraph depends on Previous line state. 
+        // Actually, createRichParagraph depends on Previous line state.
         // So we need to ensure the previous line state is correct.
-        // Since we compute next line state inside createRichParagraph, simply clearing might be enough 
-        // IF the view refreshes sequentially. 
+        // Since we compute next line state inside createRichParagraph, simply clearing
+        // might be enough
+        // IF the view refreshes sequentially.
 
-        // However, the interface says: "The implementation might do nothing... Other implementations... should use this method to trigger the refresh."
+        // However, the interface says: "The implementation might do nothing... Other
+        // implementations... should use this method to trigger the refresh."
         // We probably should force a refresh if the state change propagates.
         // For this simple demo, we'll just clear the map.
     }

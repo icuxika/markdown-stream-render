@@ -1,24 +1,22 @@
 package com.icuxika.markdown.stream.render.core;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.icuxika.markdown.stream.render.core.ast.*;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class TableParsingTest {
 
     @Test
     void testBasicTable() {
-        String markdown = "" +
-                "| Header 1 | Header 2 |\n" +
-                "| --- | --- |\n" +
-                "| Cell 1   | Cell 2   |";
+        String markdown = "" + "| Header 1 | Header 2 |\n" + "| --- | --- |\n" + "| Cell 1   | Cell 2   |";
 
         MarkdownParser parser = MarkdownParser.builder().build();
         Document doc = parser.parse(markdown);
 
-        // Expect: Document -> Table -> (TableHead -> TableRow -> Cell...), (TableBody -> TableRow -> Cell...)
+        // Expect: Document -> Table -> (TableHead -> TableRow -> Cell...), (TableBody
+        // -> TableRow -> Cell...)
         Node table = doc.getFirstChild();
         assertTrue(table instanceof Table, "First child should be Table");
 
@@ -47,10 +45,8 @@ class TableParsingTest {
 
     @Test
     void testTableAlignment() {
-        String markdown = "" +
-                "| Left | Center | Right |\n" +
-                "| :--- | :----: | ----: |\n" +
-                "| L    | C      | R     |";
+        String markdown = "" + "| Left | Center | Right |\n" + "| :--- | :----: | ----: |\n"
+                + "| L    | C      | R     |";
 
         MarkdownParser parser = MarkdownParser.builder().build();
         Document doc = parser.parse(markdown);
@@ -72,7 +68,7 @@ class TableParsingTest {
     void testComplexTableCells() {
         // Test escaped pipes and code spans with pipes
         String markdown = "| `a|b` | \\| |\n| --- | --- |";
-        
+
         MarkdownParser parser = MarkdownParser.builder().build();
         Document doc = parser.parse(markdown);
         Table table = (Table) doc.getFirstChild();

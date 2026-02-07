@@ -1,9 +1,33 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
+import com.icuxika.markdown.stream.render.core.ast.Code;
+import com.icuxika.markdown.stream.render.core.ast.CodeBlock;
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Emphasis;
+import com.icuxika.markdown.stream.render.core.ast.HardBreak;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.HtmlBlock;
+import com.icuxika.markdown.stream.render.core.ast.HtmlInline;
+import com.icuxika.markdown.stream.render.core.ast.Image;
+import com.icuxika.markdown.stream.render.core.ast.Link;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.SoftBreak;
+import com.icuxika.markdown.stream.render.core.ast.Strikethrough;
+import com.icuxika.markdown.stream.render.core.ast.StrongEmphasis;
+import com.icuxika.markdown.stream.render.core.ast.Table;
+import com.icuxika.markdown.stream.render.core.ast.TableBody;
+import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.TableHead;
+import com.icuxika.markdown.stream.render.core.ast.TableRow;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +49,10 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
         }
 
         // Add core renderer (last fallback)
-        // Correct order: Core must be added FIRST to the factories list, OR extensions must be processed AFTER core.
-        // Current implementation: Builder.nodeRendererFactories contains user extensions.
+        // Correct order: Core must be added FIRST to the factories list, OR extensions
+        // must be processed AFTER core.
+        // Current implementation: Builder.nodeRendererFactories contains user
+        // extensions.
         // We want user extensions to override core.
         // So we add core factory to the beginning of the list, or iterate it first.
 
@@ -44,29 +70,57 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
         }
     }
 
+    /**
+     * Create a new builder.
+     *
+     * @return a new builder
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Builder for HtmlRenderer.
+     */
     public static class Builder {
         private MarkdownParserOptions options = new MarkdownParserOptions();
         private List<HtmlNodeRendererFactory> nodeRendererFactories = new ArrayList<>();
 
+        /**
+         * Set options.
+         *
+         * @param options
+         *            options
+         * @return this
+         */
         public Builder options(MarkdownParserOptions options) {
             this.options = options;
             return this;
         }
 
+        /**
+         * Add a node renderer factory.
+         *
+         * @param factory
+         *            factory
+         * @return this
+         */
         public Builder nodeRendererFactory(HtmlNodeRendererFactory factory) {
             this.nodeRendererFactories.add(factory);
             return this;
         }
 
+        /**
+         * Build the renderer.
+         *
+         * @return the renderer
+         */
         public HtmlRenderer build() {
             // Ensure Core is the first one, so others can override
             // But wait, if we iterate list and put into map, the LAST one in the list wins.
             // So Core should be FIRST in the list.
-            // But we don't have Core available here statically easily without creating circular deps or exposing CoreHtmlNodeRenderer public.
+            // But we don't have Core available here statically easily without creating
+            // circular deps or exposing CoreHtmlNodeRenderer public.
             // We will handle core insertion in constructor or let constructor handle it.
             // Let's rely on constructor adding Core FIRST.
             return new HtmlRenderer(this);
@@ -74,10 +128,19 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
     }
 
     // Deprecated constructors for backward compatibility
+    /**
+     * Create a new renderer with default options.
+     */
     public HtmlRenderer() {
         this(new Builder());
     }
 
+    /**
+     * Create a new renderer with specified options.
+     *
+     * @param options
+     *            options
+     */
     public HtmlRenderer(MarkdownParserOptions options) {
         this(new Builder().options(options));
     }
@@ -103,7 +166,7 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
             renderer.render(node);
         } else {
             // Fallback or generic traversal?
-            // If no renderer found, maybe just visit children? 
+            // If no renderer found, maybe just visit children?
             // Or do nothing? CommonMark spec usually ignores unknown nodes.
             // For now, visit children to ensure traversal continues if it's a container
             renderChildren(node);
@@ -123,7 +186,7 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
     // Delegate all visits to the renderer map logic
     // But IMarkdownRenderer extends Visitor, so we must implement visit(Type).
     // We can just redirect all visit calls to 'render(node)'.
-    // But 'render(node)' is what calls 'visit' in the Visitor pattern... 
+    // But 'render(node)' is what calls 'visit' in the Visitor pattern...
     // Wait, the Visitor pattern in IMarkdownRenderer calls 'node.accept(visitor)'.
     // 'node.accept' calls 'visitor.visit(this)'.
     // So if we implement visit(Paragraph p), we should delegate to our map.

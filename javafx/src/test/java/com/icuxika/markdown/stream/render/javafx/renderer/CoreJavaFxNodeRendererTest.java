@@ -1,21 +1,18 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.icuxika.markdown.stream.render.core.ast.Heading;
 import com.icuxika.markdown.stream.render.core.ast.Paragraph;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.javafx.BaseTest;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class CoreJavaFxNodeRendererTest extends BaseTest {
 
@@ -115,7 +112,8 @@ public class CoreJavaFxNodeRendererTest extends BaseTest {
             initRenderer();
 
             // Mock AST: CodeBlock
-            com.icuxika.markdown.stream.render.core.ast.CodeBlock codeBlock = new com.icuxika.markdown.stream.render.core.ast.CodeBlock("System.out.println(\"Hello\");");
+            com.icuxika.markdown.stream.render.core.ast.CodeBlock codeBlock = new com.icuxika.markdown.stream.render.core.ast.CodeBlock(
+                    "System.out.println(\"Hello\");");
             codeBlock.setInfo("java");
 
             renderer.render(codeBlock);
@@ -216,7 +214,7 @@ public class CoreJavaFxNodeRendererTest extends BaseTest {
             assertTrue(node instanceof javafx.scene.layout.GridPane);
             javafx.scene.layout.GridPane grid = (javafx.scene.layout.GridPane) node;
             assertTrue(grid.getStyleClass().contains("markdown-table"));
-            
+
             // Check cell content
             assertFalse(grid.getChildren().isEmpty());
             Node cellNode = grid.getChildren().get(0);
@@ -269,7 +267,8 @@ public class CoreJavaFxNodeRendererTest extends BaseTest {
                 }
             }
         };
-        renderer = new CoreJavaFxNodeRenderer(context, link -> {});
+        renderer = new CoreJavaFxNodeRenderer(context, link -> {
+        });
     }
 
     private void runAndWait(Runnable action) throws InterruptedException {

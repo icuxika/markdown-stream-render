@@ -9,9 +9,18 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class JavaFxAiChatDemo extends Application {
@@ -97,7 +106,8 @@ public class JavaFxAiChatDemo extends Application {
         Scene scene = new Scene(root, 900, 700);
         theme.apply(scene); // Apply theme
 
-        // Also apply theme to input box area manually if needed, or rely on root inheritance
+        // Also apply theme to input box area manually if needed, or rely on root
+        // inheritance
         // We added a style to inputBox that uses -md-bg-color, so it should work.
 
         primaryStage.setTitle("DeepSeek Chat - Markdown Stream Render");
@@ -113,7 +123,9 @@ public class JavaFxAiChatDemo extends Application {
 
     private void sendMessage() {
         String text = inputArea.getText().trim();
-        if (text.isEmpty()) return;
+        if (text.isEmpty()) {
+            return;
+        }
 
         inputArea.clear();
         addMessage(text, true);
@@ -135,39 +147,35 @@ public class JavaFxAiChatDemo extends Application {
 
         StringBuilder assistantResponse = new StringBuilder();
 
-        client.streamChat(history,
-                token -> {
-                    // Parser runs in background thread
-                    aiBubble.append(token);
-                    // UI updates in FX thread
-                    Platform.runLater(() -> {
-                         if (chatContainer.getChildren().contains(thinkingLabel)) {
-                            chatContainer.getChildren().remove(thinkingLabel);
-                            chatContainer.getChildren().add(aiBubble);
-                        }
-                        scrollToBottom();
-                    });
-                },
-                () -> {
-                    aiBubble.finish();
-                    Platform.runLater(() -> {
-                        // Done, add assistant message to history
-                        history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
-                        if (chatContainer.getChildren().contains(thinkingLabel)) {
-                            chatContainer.getChildren().remove(thinkingLabel); // In case of empty response?
-                        }
-                    });
-                },
-                error -> Platform.runLater(() -> {
-                    if (chatContainer.getChildren().contains(thinkingLabel)) {
-                        chatContainer.getChildren().remove(thinkingLabel);
-                        chatContainer.getChildren().add(aiBubble);
-                    }
-                    aiBubble.append("\n\n**Error**: " + error.getMessage());
-                    aiBubble.finish();
-                    scrollToBottom();
-                })
-        );
+        client.streamChat(history, token -> {
+            // Parser runs in background thread
+            aiBubble.append(token);
+            // UI updates in FX thread
+            Platform.runLater(() -> {
+                if (chatContainer.getChildren().contains(thinkingLabel)) {
+                    chatContainer.getChildren().remove(thinkingLabel);
+                    chatContainer.getChildren().add(aiBubble);
+                }
+                scrollToBottom();
+            });
+        }, () -> {
+            aiBubble.finish();
+            Platform.runLater(() -> {
+                // Done, add assistant message to history
+                history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
+                if (chatContainer.getChildren().contains(thinkingLabel)) {
+                    chatContainer.getChildren().remove(thinkingLabel); // In case of empty response?
+                }
+            });
+        }, error -> Platform.runLater(() -> {
+            if (chatContainer.getChildren().contains(thinkingLabel)) {
+                chatContainer.getChildren().remove(thinkingLabel);
+                chatContainer.getChildren().add(aiBubble);
+            }
+            aiBubble.append("\n\n**Error**: " + error.getMessage());
+            aiBubble.finish();
+            scrollToBottom();
+        }));
     }
 
     private void addMessage(String text, boolean isUser) {
@@ -196,22 +204,23 @@ public class JavaFxAiChatDemo extends Application {
 
             contentBox.setStyle("-fx-background-color: transparent;");
             contentBox.setMaxWidth(700);
-            
+
             // Initialize Renderer and Parser
             this.renderer = new JavaFxStreamRenderer(contentBox);
-            StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder()
-                    .renderer(renderer);
+            StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
             CoreExtension.addDefaults(builder);
             this.parser = builder.build();
 
             VBox bubble = new VBox(contentBox);
             bubble.setPadding(new Insets(10));
-            
+
             // Use CSS variables for theming
             if (isUser) {
-                bubble.setStyle("-fx-background-color: -chat-user-bg; -fx-background-radius: 10; -fx-border-color: -chat-user-border; -fx-border-radius: 10;");
+                bubble.setStyle(
+                        "-fx-background-color: -chat-user-bg; -fx-background-radius: 10; -fx-border-color: -chat-user-border; -fx-border-radius: 10;");
             } else {
-                bubble.setStyle("-fx-background-color: -chat-assistant-bg; -fx-background-radius: 10; -fx-border-color: -chat-assistant-border; -fx-border-radius: 10;");
+                bubble.setStyle(
+                        "-fx-background-color: -chat-assistant-bg; -fx-background-radius: 10; -fx-border-color: -chat-assistant-border; -fx-border-radius: 10;");
             }
 
             this.getChildren().add(bubble);
@@ -225,7 +234,7 @@ public class JavaFxAiChatDemo extends Application {
         public void append(String token) {
             parser.push(token);
         }
-        
+
         public void finish() {
             parser.close();
         }

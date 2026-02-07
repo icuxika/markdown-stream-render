@@ -1,8 +1,15 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
+import java.util.Stack;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
@@ -12,10 +19,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import java.util.Stack;
-
 /**
- * JavaFX 流式渲染器。
+ * JavaFX 流式渲染器.
  * <p>
  * 将接收到的 AST 节点实时转换为 JavaFX 节点并追加到 UI 中。
  * </p>
@@ -27,21 +32,42 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
     private final Stack<Pane> containerStack = new Stack<>();
     private java.util.function.Consumer<String> onLinkClick;
 
+    /**
+     * Constructor.
+     *
+     * @param root
+     *            root VBox
+     */
     public JavaFxStreamRenderer(VBox root) {
         this.root = root;
         this.internalRenderer = new JavaFxRenderer();
         // initStyles(); // Do NOT force load styles on root if using theme manager
     }
 
+    /**
+     * Constructor with builder.
+     *
+     * @param root
+     *            root VBox
+     * @param builder
+     *            builder
+     */
     public JavaFxStreamRenderer(VBox root, JavaFxRenderer.Builder builder) {
         this.root = root;
         this.internalRenderer = builder.build();
         // initStyles(); // Do NOT force load styles on root if using theme manager
     }
-    
+
+    /**
+     * Set link click handler.
+     *
+     * @param onLinkClick
+     *            handler
+     */
     public void setOnLinkClick(java.util.function.Consumer<String> onLinkClick) {
         this.onLinkClick = onLinkClick;
-        // Also update internal renderer to use this handler for inline links rendered later
+        // Also update internal renderer to use this handler for inline links rendered
+        // later
         internalRenderer.setOnLinkClick(onLinkClick);
     }
 
@@ -61,21 +87,18 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
 
         // REMOVED: Do not hardcode markdown.css here.
         /*
-        java.net.URL cssUrl = getClass().getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
-        if (cssUrl != null) {
-            String cssPath = cssUrl.toExternalForm();
-            if (!root.getStylesheets().contains(cssPath)) {
-                root.getStylesheets().add(cssPath);
-            }
-        }
-        */
+         * java.net.URL cssUrl = getClass().getResource( "/com/icuxika/markdown/stream/render/javafx/css/markdown.css");
+         * if (cssUrl != null) { String cssPath = cssUrl.toExternalForm(); if (!root.getStylesheets().contains(cssPath))
+         * { root.getStylesheets().add(cssPath); } }
+         */
     }
 
     // Batching queue
     private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> pendingUpdates = new java.util.concurrent.ConcurrentLinkedQueue<>();
-    private final java.util.concurrent.atomic.AtomicBoolean isUpdateScheduled = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private final java.util.concurrent.atomic.AtomicBoolean isUpdateScheduled = new java.util.concurrent.atomic.AtomicBoolean(
+            false);
     // Batch interval in milliseconds (e.g. 16ms for ~60fps)
-    private static final long BATCH_INTERVAL_MS = 16; 
+    private static final long BATCH_INTERVAL_MS = 16;
 
     @Override
     public void renderNode(Node node) {
@@ -99,7 +122,8 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
         if (isUpdateScheduled.compareAndSet(false, true)) {
             // Schedule batch processing
             // Use a Timer or just Platform.runLater?
-            // If we use Platform.runLater directly, it might still flood the event queue if we call it too often.
+            // If we use Platform.runLater directly, it might still flood the event queue if
+            // we call it too often.
             // But here we only call it ONCE until it runs.
             // So this is effectively debouncing/coalescing updates into the next FX pulse.
             // This is usually sufficient and better than a fixed timer.
@@ -120,6 +144,12 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
     // TOC Support
     private java.util.function.Consumer<Heading> onHeadingRendered;
 
+    /**
+     * Set heading rendered handler.
+     *
+     * @param onHeadingRendered
+     *            handler
+     */
     public void setOnHeadingRendered(java.util.function.Consumer<Heading> onHeadingRendered) {
         this.onHeadingRendered = onHeadingRendered;
     }
@@ -130,7 +160,6 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             containerStack.push(root);
         }
 
-        Pane parent = containerStack.peek();
         VBox tempContainer = new VBox();
 
         internalRenderer.pushContainer(tempContainer);
@@ -139,13 +168,14 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
         } finally {
             internalRenderer.popContainer();
         }
-        
+
         // Notify TOC if Heading
         if (node instanceof Heading && onHeadingRendered != null) {
             onHeadingRendered.accept((Heading) node);
-            
+
             // Map the rendered node (inside tempContainer) to the Heading ID for scrolling?
-            // internalRenderer.render(node) creates a TextFlow and adds it to tempContainer.
+            // internalRenderer.render(node) creates a TextFlow and adds it to
+            // tempContainer.
             // We need to access that TextFlow to use it as a scroll target.
             if (!tempContainer.getChildren().isEmpty()) {
                 javafx.scene.Node renderedNode = tempContainer.getChildren().get(0);
@@ -154,6 +184,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             }
         }
 
+        Pane parent = containerStack.peek();
         parent.getChildren().addAll(tempContainer.getChildren());
     }
 
@@ -228,11 +259,14 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             // MarkdownParser calls onBlockStarted/Closed for Custom Blocks.
             // If we ignore it here, we must ignore it in closeBlock.
             // Let's push a dummy or null? No, that's dangerous.
-            // Better: push the parent again? Or don't push anything and track ignored blocks?
-            // Actually, Table is NOT treated as container in MarkdownParser (my previous analysis).
+            // Better: push the parent again? Or don't push anything and track ignored
+            // blocks?
+            // Actually, Table is NOT treated as container in MarkdownParser (my previous
+            // analysis).
             // So onBlockStarted won't be called for Table.
             // It WILL be called for any Custom Block (via BlockParserFactory).
-            // If we have a Custom Block we don't recognize, we should probably create a generic container?
+            // If we have a Custom Block we don't recognize, we should probably create a
+            // generic container?
             // Or just ignore.
             // If we ignore, we must match closeBlock.
             // Let's assume we only handle known containers.
@@ -250,6 +284,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
         }
     }
 
+    @SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
     private javafx.scene.Node createListMarker(ListItem listItem) {
         Node list = listItem.getParent();
         if (list instanceof OrderedList) {

@@ -1,7 +1,32 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
-
+import com.icuxika.markdown.stream.render.core.ast.Block;
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
+import com.icuxika.markdown.stream.render.core.ast.Code;
+import com.icuxika.markdown.stream.render.core.ast.CodeBlock;
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Emphasis;
+import com.icuxika.markdown.stream.render.core.ast.HardBreak;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.HtmlBlock;
+import com.icuxika.markdown.stream.render.core.ast.HtmlInline;
+import com.icuxika.markdown.stream.render.core.ast.Image;
+import com.icuxika.markdown.stream.render.core.ast.Link;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.SoftBreak;
+import com.icuxika.markdown.stream.render.core.ast.Strikethrough;
+import com.icuxika.markdown.stream.render.core.ast.StrongEmphasis;
+import com.icuxika.markdown.stream.render.core.ast.Table;
+import com.icuxika.markdown.stream.render.core.ast.TableBody;
+import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.TableHead;
+import com.icuxika.markdown.stream.render.core.ast.TableRow;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -239,7 +264,8 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
     }
 
     private void renderHtmlBlock(HtmlBlock htmlBlock) {
-        // We need access to options, but Context doesn't expose them directly in the interface.
+        // We need access to options, but Context doesn't expose them directly in the
+        // interface.
         // We can cast context to HtmlRenderer, or just ignore safe mode here?
         // Ideally context should expose options or safe mode.
         // For now, let's assume we can cast or we need to add getOptions() to Context.
@@ -313,7 +339,8 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
     }
 
     private void renderImage(Image image) {
-        java.util.Map<String, String> attrs = new java.util.LinkedHashMap<>(); // Use LinkedHashMap for predictable order
+        // Use LinkedHashMap for predictable order
+        java.util.Map<String, String> attrs = new java.util.LinkedHashMap<>();
         attrs.put("src", encodeUrl(image.getDestination()));
         attrs.put("alt", renderTextContent(image));
         if (image.getTitle() != null && !image.getTitle().isEmpty()) {
@@ -405,7 +432,9 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
         // Reuse the logic from original or a simplified one?
         // Ideally this should be a utility method.
         // For brevity, I'll copy the logic.
-        if (url == null) return "";
+        if (url == null) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < url.length(); i++) {
             char c = url.charAt(i);
@@ -423,7 +452,8 @@ public class CoreHtmlNodeRenderer implements HtmlNodeRenderer {
                 }
             }
 
-            if (c <= 32 || c >= 127 || c == '%' || c == '[' || c == ']' || c == '\\' || c == '"' || c == '<' || c == '>' || c == '^' || c == '`' || c == '{' || c == '|' || c == '}') {
+            if (c <= 32 || c >= 127 || c == '%' || c == '[' || c == ']' || c == '\\' || c == '"' || c == '<' || c == '>'
+                    || c == '^' || c == '`' || c == '{' || c == '|' || c == '}') {
                 byte[] bytes = new String(new char[]{c}).getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 for (byte b : bytes) {
                     sb.append(String.format("%%%02X", b));

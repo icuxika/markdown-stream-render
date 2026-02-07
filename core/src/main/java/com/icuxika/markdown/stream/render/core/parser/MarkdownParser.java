@@ -4,7 +4,6 @@ import com.icuxika.markdown.stream.render.core.ast.*;
 import com.icuxika.markdown.stream.render.core.parser.block.*;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -17,11 +16,11 @@ import java.util.regex.Pattern;
 /**
  * 核心 Markdown 解析器。
  * <p>
- * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。
- * 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
+ * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
  * </p>
  * <p>
  * 示例用法：
+ * 
  * <pre>
  * MarkdownParser parser = new MarkdownParser();
  * Document doc = parser.parse("# Hello World");
@@ -30,7 +29,8 @@ import java.util.regex.Pattern;
  */
 public class MarkdownParser {
 
-    private static final Pattern ENTITY = Pattern.compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
+    private static final Pattern ENTITY = Pattern
+            .compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
 
     private final MarkdownParserOptions options;
     private final List<BlockParserFactory> blockParserFactories;
@@ -71,7 +71,8 @@ public class MarkdownParser {
         /**
          * 注册自定义块级解析器工厂。
          *
-         * @param factory 块解析器工厂
+         * @param factory
+         *            块解析器工厂
          */
         public Builder blockParserFactory(BlockParserFactory factory) {
             this.blockParserFactories.add(factory);
@@ -81,7 +82,8 @@ public class MarkdownParser {
         /**
          * 注册自定义行内解析器工厂。
          *
-         * @param factory 行内解析器工厂
+         * @param factory
+         *            行内解析器工厂
          */
         public Builder inlineParserFactory(InlineContentParserFactory factory) {
             this.inlineParserFactories.add(factory);
@@ -103,9 +105,12 @@ public class MarkdownParser {
      * 这种方式支持边解析边渲染（流式处理），尽管目前的实现主要还是先构建完 AST。
      * </p>
      *
-     * @param reader   输入流
-     * @param renderer 渲染器
-     * @throws IOException 如果读取失败
+     * @param reader
+     *            输入流
+     * @param renderer
+     *            渲染器
+     * @throws IOException
+     *             如果读取失败
      */
     /**
      * 解析 Reader 输入，并使用指定的渲染器进行处理。
@@ -113,15 +118,20 @@ public class MarkdownParser {
      * 这种方式支持边解析边渲染（流式处理），尽管目前的实现主要还是先构建完 AST。
      * </p>
      *
-     * @param reader   输入流
-     * @param renderer 渲染器
-     * @throws IOException 如果读取失败
+     * @param reader
+     *            输入流
+     * @param renderer
+     *            渲染器
+     * @throws IOException
+     *             如果读取失败
      */
     public void parse(Reader reader, IMarkdownRenderer renderer) throws IOException {
         Document doc = new Document();
         BlockParserState state = new BlockParserState(blockParserFactories, options);
 
-        java.io.BufferedReader br = (reader instanceof java.io.BufferedReader) ? (java.io.BufferedReader) reader : new java.io.BufferedReader(reader);
+        java.io.BufferedReader br = (reader instanceof java.io.BufferedReader)
+                ? (java.io.BufferedReader) reader
+                : new java.io.BufferedReader(reader);
         String line;
         int lineNumber = 0;
         while ((line = br.readLine()) != null) {
@@ -138,12 +148,14 @@ public class MarkdownParser {
     /**
      * 解析字符串输入，返回完整的 AST 文档对象。
      *
-     * @param input Markdown 源码字符串
+     * @param input
+     *            Markdown 源码字符串
      * @return 解析后的文档根节点
      */
     public Document parse(String input) {
         Document doc = new Document();
-        if (input == null) return doc;
+        if (input == null)
+            return doc;
 
         BlockParserState state = new BlockParserState(blockParserFactories, options);
         int lineNumber = 0;
@@ -183,7 +195,8 @@ public class MarkdownParser {
     static String getSubstringForColumn(String line, int column) {
         int col = 0;
         for (int i = 0; i < line.length(); i++) {
-            if (col == column) return line.substring(i);
+            if (col == column)
+                return line.substring(i);
 
             char c = line.charAt(i);
             if (c == '\t') {
@@ -191,8 +204,10 @@ public class MarkdownParser {
                 if (col + toAdd > column) {
                     int spacesNeeded = (col + toAdd) - column;
                     StringBuilder sb = new StringBuilder();
-                    for (int k = 0; k < spacesNeeded; k++) sb.append(' ');
-                    if (i + 1 < line.length()) sb.append(line.substring(i + 1));
+                    for (int k = 0; k < spacesNeeded; k++)
+                        sb.append(' ');
+                    if (i + 1 < line.length())
+                        sb.append(line.substring(i + 1));
                     return sb.toString();
                 }
                 col += toAdd;
@@ -204,7 +219,8 @@ public class MarkdownParser {
     }
 
     private String expandTabs(String s) {
-        if (s.indexOf('\t') == -1) return s;
+        if (s.indexOf('\t') == -1)
+            return s;
         StringBuilder sb = new StringBuilder();
         int col = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -302,7 +318,8 @@ public class MarkdownParser {
             @Override
             public int getNextNonSpaceIndex() {
                 int i = index;
-                while (i < line.length() && line.charAt(i) == ' ') i++;
+                while (i < line.length() && line.charAt(i) == ' ')
+                    i++;
                 return i;
             }
 
@@ -323,7 +340,8 @@ public class MarkdownParser {
             @Override
             public BlockParser getActiveBlockParser() {
                 // Return the parser for the deepest open container if available
-                if (openContainers.isEmpty()) return null;
+                if (openContainers.isEmpty())
+                    return null;
                 Node node = openContainers.get(openContainers.size() - 1);
                 return activeBlockParsers.get(node);
             }
@@ -359,8 +377,10 @@ public class MarkdownParser {
                 openContainers.add(doc);
                 openContainerBlockIndents.add(0);
                 // Document start line is always 0
-                if (doc.getStartLine() == -1) doc.setStartLine(0);
-                if (onBlockStarted != null) onBlockStarted.accept(doc);
+                if (doc.getStartLine() == -1)
+                    doc.setStartLine(0);
+                if (onBlockStarted != null)
+                    onBlockStarted.accept(doc);
             }
 
             int i = 0;
@@ -462,12 +482,10 @@ public class MarkdownParser {
                 if (matches < openContainers.size() && lastContainer instanceof Block) {
 
                     // We need to check if this line is a block starter.
-                    boolean isBlockStarter = isAtxHeading(contentLine)
-                            || isThematicBreak(contentLine)
-                            || parseFencedCodeStart(contentLine) != null
-                            || isBlockQuoteStart(contentLine)
+                    boolean isBlockStarter = isAtxHeading(contentLine) || isThematicBreak(contentLine)
+                            || parseFencedCodeStart(contentLine) != null || isBlockQuoteStart(contentLine)
                             || isTableDelimiterRow(contentLine) // Table can interrupt paragraph
-                            ;
+                    ;
 
                     if (!isBlockStarter) {
                         ListMarker lm = parseListMarker(contentLine, 0);
@@ -477,10 +495,12 @@ public class MarkdownParser {
                                 Node parent = openContainers.get(matches);
                                 if (parent instanceof BulletList) {
                                     BulletList bl = (BulletList) parent;
-                                    if (!lm.isOrdered && bl.getBulletChar() == lm.bulletChar) matchesCurrent = true;
+                                    if (!lm.isOrdered && bl.getBulletChar() == lm.bulletChar)
+                                        matchesCurrent = true;
                                 } else if (parent instanceof OrderedList) {
                                     OrderedList ol = (OrderedList) parent;
-                                    if (lm.isOrdered && ol.getDelimiter() == lm.delimiter) matchesCurrent = true;
+                                    if (lm.isOrdered && ol.getDelimiter() == lm.delimiter)
+                                        matchesCurrent = true;
                                 }
                             }
 
@@ -489,17 +509,21 @@ public class MarkdownParser {
                             } else {
                                 boolean canInterrupt = true;
                                 if (currentLeaf instanceof Paragraph) {
-                                    if (lm.isOrdered && lm.startNumber != 1) canInterrupt = false;
-                                    if (contentLine.substring(lm.nextIndex).trim().isEmpty()) canInterrupt = false;
+                                    if (lm.isOrdered && lm.startNumber != 1)
+                                        canInterrupt = false;
+                                    if (contentLine.substring(lm.nextIndex).trim().isEmpty())
+                                        canInterrupt = false;
                                 }
 
                                 if (!openContainers.isEmpty()) {
                                     Node lastOpenContainer = openContainers.get(openContainers.size() - 1);
-                                    if (lastOpenContainer instanceof ListItem && lastOpenContainer.getParent() instanceof OrderedList) {
+                                    if (lastOpenContainer instanceof ListItem
+                                            && lastOpenContainer.getParent() instanceof OrderedList) {
                                         canInterrupt = true;
                                     }
                                 }
-                                if (canInterrupt) isBlockStarter = true;
+                                if (canInterrupt)
+                                    isBlockStarter = true;
                             }
                         }
                     }
@@ -514,7 +538,8 @@ public class MarkdownParser {
                 while (openContainers.size() > matches + 1) {
                     finalizeCurrentLeaf(lineNumber - 1);
                     Node removed = openContainers.remove(openContainers.size() - 1);
-                    if (onBlockClosed != null) onBlockClosed.accept(removed);
+                    if (onBlockClosed != null)
+                        onBlockClosed.accept(removed);
                     openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                 }
             }
@@ -563,11 +588,13 @@ public class MarkdownParser {
                                 checkLooseList(openContainers.get(openContainers.size() - 1));
                                 openContainers.get(openContainers.size() - 1).appendChild(block);
                                 openContainers.add(block);
-                                if (onBlockStarted != null) onBlockStarted.accept(block);
+                                if (onBlockStarted != null)
+                                    onBlockStarted.accept(block);
                                 activeBlockParsers.put(block, bp);
 
                                 int newIndent = start.getNewIndent();
-                                if (newIndent == -1) newIndent = 0; // Default
+                                if (newIndent == -1)
+                                    newIndent = 0; // Default
                                 openContainerBlockIndents.add(newIndent);
                             }
 
@@ -599,7 +626,8 @@ public class MarkdownParser {
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(quote);
                         openContainers.add(quote);
-                        if (onBlockStarted != null) onBlockStarted.accept(quote);
+                        if (onBlockStarted != null)
+                            onBlockStarted.accept(quote);
                         openContainerBlockIndents.add(0);
                         currentContentDepth = openContainers.size() - 1;
                         continue;
@@ -608,7 +636,8 @@ public class MarkdownParser {
                     // Rewind for List check
                     i = startI;
 
-                    // Check Thematic Break - If it IS a thematic break, it cannot be a List Item start.
+                    // Check Thematic Break - If it IS a thematic break, it cannot be a List Item
+                    // start.
                     if (isThematicBreak(line.substring(i))) {
                         break;
                     }
@@ -637,7 +666,8 @@ public class MarkdownParser {
                             Node parentNode = openContainers.get(openContainers.size() - 1);
                             if (parentNode instanceof BulletList || parentNode instanceof OrderedList) {
                                 Node removed = openContainers.remove(openContainers.size() - 1);
-                                if (onBlockClosed != null) onBlockClosed.accept(removed);
+                                if (onBlockClosed != null)
+                                    onBlockClosed.accept(removed);
                                 openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                             }
 
@@ -657,7 +687,8 @@ public class MarkdownParser {
                             checkLooseList(openContainers.get(openContainers.size() - 1));
                             openContainers.get(openContainers.size() - 1).appendChild(newList);
                             openContainers.add(newList);
-                            if (onBlockStarted != null) onBlockStarted.accept(newList);
+                            if (onBlockStarted != null)
+                                onBlockStarted.accept(newList);
                             openContainerBlockIndents.add(0);
                         }
 
@@ -670,7 +701,8 @@ public class MarkdownParser {
                             remaining = line.substring(marker.nextIndex);
                         }
 
-                        if (remaining.startsWith("[ ] ") || remaining.startsWith("[x] ") || remaining.startsWith("[X] ")) {
+                        if (remaining.startsWith("[ ] ") || remaining.startsWith("[x] ")
+                                || remaining.startsWith("[X] ")) {
                             li.setTask(true);
                             if (remaining.charAt(1) != ' ') {
                                 li.setChecked(true);
@@ -678,7 +710,8 @@ public class MarkdownParser {
                             marker.nextIndex += 4; // [ ] + space
                         } else if (remaining.equals("[ ]") || remaining.equals("[x]") || remaining.equals("[X]")) {
                             li.setTask(true);
-                            if (remaining.charAt(1) != ' ') li.setChecked(true);
+                            if (remaining.charAt(1) != ' ')
+                                li.setChecked(true);
                             marker.nextIndex += 3; // No trailing space
                         }
 
@@ -686,7 +719,8 @@ public class MarkdownParser {
                         checkLooseList(listParent);
                         listParent.appendChild(li);
                         openContainers.add(li);
-                        if (onBlockStarted != null) onBlockStarted.accept(li);
+                        if (onBlockStarted != null)
+                            onBlockStarted.accept(li);
                         int contentIndent = marker.indent + marker.markerLength + marker.padding;
                         openContainerBlockIndents.add(contentIndent);
 
@@ -709,7 +743,8 @@ public class MarkdownParser {
                 if ((last instanceof BulletList || last instanceof OrderedList) && currentLeaf == null) {
                     // We closed the last ListItem, and didn't open a new one.
                     Node removed = openContainers.remove(openContainers.size() - 1);
-                    if (onBlockClosed != null) onBlockClosed.accept(removed);
+                    if (onBlockClosed != null)
+                        onBlockClosed.accept(removed);
                     openContainerBlockIndents.remove(openContainerBlockIndents.size() - 1);
                 }
             }
@@ -719,24 +754,22 @@ public class MarkdownParser {
             // Table (Continuation)
             if (inTable) {
                 // If line is empty or matches another block start, end table
-                if (contentLine.trim().isEmpty()
-                        || isBlockQuoteStart(contentLine)
-                        || isAtxHeading(contentLine)
-                        || isThematicBreak(contentLine)
-                        || parseFencedCodeStart(contentLine) != null
-                        || parseListMarker(contentLine, 0) != null
-                        || getHtmlBlockStartCondition(contentLine) > 0) {
+                if (contentLine.trim().isEmpty() || isBlockQuoteStart(contentLine) || isAtxHeading(contentLine)
+                        || isThematicBreak(contentLine) || parseFencedCodeStart(contentLine) != null
+                        || parseListMarker(contentLine, 0) != null || getHtmlBlockStartCondition(contentLine) > 0) {
 
                     Node tableNode = currentLeaf.getParent(); // TableBody -> Table
                     if (tableNode == null && currentLeaf instanceof Table) {
                         // Should not happen if currentLeaf is TableBody
-                        // But if currentLeaf is Table (just created)? No, we set currentLeaf to TableBody immediately.
+                        // But if currentLeaf is Table (just created)? No, we set currentLeaf to
+                        // TableBody immediately.
                         // Wait, if currentLeaf is TableBody, its parent SHOULD be Table.
                         // Unless something unlinked it?
 
                         // Debug: NPE happens at processLine(MarkdownParser.java:740)
                         // Line 740: Node tableNode = currentLeaf.getParent();
-                        // currentLeaf is not null (checked by if inTable && currentLeaf instanceof TableBody)
+                        // currentLeaf is not null (checked by if inTable && currentLeaf instanceof
+                        // TableBody)
                         // But getParent() might be null if it's not attached?
                         // It should be attached.
 
@@ -780,9 +813,11 @@ public class MarkdownParser {
                     // Wait, finalizeCurrentLeaf sets currentLeaf to null.
                     // But we already did logic.
                     // Let's use finalizeCurrentLeaf(lineNumber) but it does logic.
-                    // Actually, if we call finalizeCurrentLeaf(lineNumber), it sets literal from content.
+                    // Actually, if we call finalizeCurrentLeaf(lineNumber), it sets literal from
+                    // content.
                     // But we already set literal in line 510?
-                    // Line 510 in original: ((CodeBlock) currentLeaf).setLiteral(currentLeafContent.toString());
+                    // Line 510 in original: ((CodeBlock)
+                    // currentLeaf).setLiteral(currentLeafContent.toString());
                     // My new finalizeCurrentLeaf(lineNumber) does that too.
                     // So I can just call finalizeCurrentLeaf(lineNumber) and return.
 
@@ -872,7 +907,8 @@ public class MarkdownParser {
                     currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
                     lastLineContentDepth = Integer.MAX_VALUE;
                     return;
-                } else if ((lastLineContentDepth == Integer.MAX_VALUE || currentLeaf == null) && !(currentLeaf instanceof Paragraph)) {
+                } else if ((lastLineContentDepth == Integer.MAX_VALUE || currentLeaf == null)
+                        && !(currentLeaf instanceof Paragraph)) {
                     // Start new indented code block
                     if (!contentLine.trim().isEmpty()) {
                         finalizeCurrentLeaf(lineNumber - 1);
@@ -912,14 +948,16 @@ public class MarkdownParser {
                     // We need to parse header row to count cells
                     List<String> headerCells = splitTableCells(headerLine.trim());
                     // splitTableCells handles escaped pipes and code spans correctly now.
-                    // But we need to trim the header line first? splitTableCells does trimming internally?
+                    // But we need to trim the header line first? splitTableCells does trimming
+                    // internally?
                     // splitTableCells takes "row" string.
                     // parseTableRow does: String s = line.trim(); ... splitTableCells(s);
                     // So we should trim headerLine.
 
                     if (headerCells.size() != alignments.size()) {
                         // Mismatch! Not a table.
-                        // Treat the delimiter row as normal text (paragraph continuation or new paragraph)
+                        // Treat the delimiter row as normal text (paragraph continuation or new
+                        // paragraph)
                         // Fall through to standard processing.
 
                         // BUT, we already consumed the line logic?
@@ -928,7 +966,8 @@ public class MarkdownParser {
                         // No, "Table (Start)" is one of the blocks.
                         // If we decide it's not a table, we should let it be processed as... what?
                         // A paragraph continuation? Or a new paragraph?
-                        // If it's `| --- |`, it might be a thematic break? No, we checked thematic break earlier?
+                        // If it's `| --- |`, it might be a thematic break? No, we checked thematic
+                        // break earlier?
                         // Wait, Thematic Break check is AFTER Table check in my code?
                         // Line 971: Thematic Break. Line 895: Table (Start).
                         // So Table check comes FIRST.
@@ -986,7 +1025,8 @@ public class MarkdownParser {
             }
 
             // Setext Heading
-            if (indent < 4 && currentLeaf instanceof Paragraph && isSetextHeading(contentLine) && matches >= openContainers.size() - 1) {
+            if (indent < 4 && currentLeaf instanceof Paragraph && isSetextHeading(contentLine)
+                    && matches >= openContainers.size() - 1) {
                 if (isLinkReferenceDefinitions(currentLeafContent.toString())) {
                     currentLeafContent.append("\n").append(trimLeading(getSubstringForColumn(originalLine, i)));
                     lastLineContentDepth = Integer.MAX_VALUE;
@@ -999,7 +1039,7 @@ public class MarkdownParser {
                 heading.appendChild(new Text(headingContent.trim()));
                 heading.setStartLine(currentLeaf.getStartLine());
                 heading.setEndLine(lineNumber);
-                
+
                 // Auto-generate anchor ID
                 generateAnchorId(heading);
 
@@ -1007,7 +1047,8 @@ public class MarkdownParser {
                 currentLeaf.unlink(); // Remove paragraph
                 parent.appendChild(heading);
 
-                if (onBlockFinalized != null) onBlockFinalized.accept(heading);
+                if (onBlockFinalized != null)
+                    onBlockFinalized.accept(heading);
 
                 currentLeaf = null;
                 currentLeafContent.setLength(0);
@@ -1024,7 +1065,8 @@ public class MarkdownParser {
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(tb);
 
-                if (onBlockFinalized != null) onBlockFinalized.accept(tb);
+                if (onBlockFinalized != null)
+                    onBlockFinalized.accept(tb);
 
                 lastLineContentDepth = Integer.MAX_VALUE;
                 return;
@@ -1036,7 +1078,7 @@ public class MarkdownParser {
                 Node heading = parseAtxHeading(contentLine);
                 heading.setStartLine(lineNumber);
                 heading.setEndLine(lineNumber);
-                
+
                 // Auto-generate anchor ID
                 if (heading instanceof Heading) {
                     generateAnchorId((Heading) heading);
@@ -1108,9 +1150,11 @@ public class MarkdownParser {
 
         void markLoose(Node list) {
             if (list instanceof BulletList) {
-                if (list.getFirstChild() != null) ((BulletList) list).setTight(false);
+                if (list.getFirstChild() != null)
+                    ((BulletList) list).setTight(false);
             } else if (list instanceof OrderedList) {
-                if (list.getFirstChild() != null) ((OrderedList) list).setTight(false);
+                if (list.getFirstChild() != null)
+                    ((OrderedList) list).setTight(false);
             } else if (list instanceof ListItem) {
                 if (list.getFirstChild() != null) {
                     Node parent = list.getParent();
@@ -1121,7 +1165,8 @@ public class MarkdownParser {
             }
         }
 
-        private static final Pattern DISALLOWED_TAG_PATTERN = Pattern.compile("(?i)<(/?)((?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)(?=[\\s/>]|$))");
+        private static final Pattern DISALLOWED_TAG_PATTERN = Pattern.compile(
+                "(?i)<(/?)((?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)(?=[\\s/>]|$))");
 
         private String filterDisallowedTags(String content) {
             Matcher matcher = DISALLOWED_TAG_PATTERN.matcher(content);
@@ -1185,7 +1230,7 @@ public class MarkdownParser {
             } else {
                 finalizeCurrentLeaf(lastLineNumber - 1);
             }
-            // Close all containers? 
+            // Close all containers?
             // They are already in the tree.
             if (onBlockClosed != null) {
                 for (int i = openContainers.size() - 1; i >= 0; i--) {
@@ -1207,7 +1252,8 @@ public class MarkdownParser {
             String text = sb.toString().trim();
             // Slugify: lowercase, replace spaces with dashes, remove non-alphanumeric
             String id = text.toLowerCase().replaceAll("\\s+", "-").replaceAll("[^a-z0-9\\-]", "");
-            if (id.isEmpty()) id = "heading";
+            if (id.isEmpty())
+                id = "heading";
             heading.setAnchorId(id);
         }
 
@@ -1222,14 +1268,16 @@ public class MarkdownParser {
                 return null; // Looks like Setext
             }
 
-            // GFM Spec: A delimiter row consists of cells of dashes -, and optionally, a leading or trailing pipe,
+            // GFM Spec: A delimiter row consists of cells of dashes -, and optionally, a
+            // leading or trailing pipe,
             // and optionally a colon : at the beginning or end of each cell.
 
-            // It MUST contain at least one pipe, OR if it doesn't, it must not look like setext.
+            // It MUST contain at least one pipe, OR if it doesn't, it must not look like
+            // setext.
             // But wait, GFM table rows don't strictly require leading/trailing pipes.
             // However, a delimiter row usually involves pipes.
 
-            // Issue with Example 200: | f\|oo  | \n | ------ |
+            // Issue with Example 200: | f\|oo | \n | ------ |
             // The delimiter row | ------ | is standard.
             // But the first row has escaped pipe.
 
@@ -1238,14 +1286,19 @@ public class MarkdownParser {
             // "The delimiter row consists of ... one or more cells"
             // "The header row must match the delimiter row in the number of cells."
 
-            if (!s.contains("-")) return null; // Must have at least one dash
+            if (!s.contains("-"))
+                return null; // Must have at least one dash
 
             // Remove leading/trailing pipes if present
-            if (s.startsWith("|")) s = s.substring(1);
-            if (s.endsWith("|") && !s.endsWith("\\|")) s = s.substring(0, s.length() - 1);
+            if (s.startsWith("|"))
+                s = s.substring(1);
+            if (s.endsWith("|") && !s.endsWith("\\|"))
+                s = s.substring(0, s.length() - 1);
 
-            // Use splitTableCells instead of simple split to handle escaped pipes if any (though delimiter row shouldn't have escaped pipes usually)
-            // But delimiter row cells only contain -, : and space. So simple split by | is fine?
+            // Use splitTableCells instead of simple split to handle escaped pipes if any
+            // (though delimiter row shouldn't have escaped pipes usually)
+            // But delimiter row cells only contain -, : and space. So simple split by | is
+            // fine?
             // "Cells in the delimiter row can contain optional whitespace"
 
             String[] parts = s.split("\\|");
@@ -1260,7 +1313,8 @@ public class MarkdownParser {
 
                 if (cell.isEmpty()) {
                     // If we have "||", split gives empty string.
-                    // This is valid if it's meant to be an empty cell? No, delimiter cells MUST have dashes.
+                    // This is valid if it's meant to be an empty cell? No, delimiter cells MUST
+                    // have dashes.
                     return null;
                 }
 
@@ -1269,19 +1323,27 @@ public class MarkdownParser {
 
                 // Strip colons to check for dashes
                 String content = cell;
-                if (left) content = content.substring(1);
-                if (right) content = content.substring(0, content.length() - 1);
+                if (left)
+                    content = content.substring(1);
+                if (right)
+                    content = content.substring(0, content.length() - 1);
 
-                if (content.isEmpty()) return null;
+                if (content.isEmpty())
+                    return null;
                 // Check if content consists only of dashes
                 for (int i = 0; i < content.length(); i++) {
-                    if (content.charAt(i) != '-') return null;
+                    if (content.charAt(i) != '-')
+                        return null;
                 }
 
-                if (left && right) alignments.add(TableCell.Alignment.CENTER);
-                else if (left) alignments.add(TableCell.Alignment.LEFT);
-                else if (right) alignments.add(TableCell.Alignment.RIGHT);
-                else alignments.add(TableCell.Alignment.NONE);
+                if (left && right)
+                    alignments.add(TableCell.Alignment.CENTER);
+                else if (left)
+                    alignments.add(TableCell.Alignment.LEFT);
+                else if (right)
+                    alignments.add(TableCell.Alignment.RIGHT);
+                else
+                    alignments.add(TableCell.Alignment.NONE);
             }
 
             return alignments;
@@ -1325,9 +1387,11 @@ public class MarkdownParser {
             while (i < row.length()) {
                 if (row.charAt(i) == '`') {
                     int s = i;
-                    while (i < row.length() && row.charAt(i) == '`') i++;
+                    while (i < row.length() && row.charAt(i) == '`')
+                        i++;
                     int len = i - s;
-                    if (len == runLength) return s;
+                    if (len == runLength)
+                        return s;
                     i = s;
                 } else if (row.charAt(i) == '\\') {
                     i += 2;
@@ -1345,9 +1409,11 @@ public class MarkdownParser {
 
             int i = 0;
             // Trim leading/trailing pipe logic should be consistent
-            if (row.startsWith("|")) i++;
+            if (row.startsWith("|"))
+                i++;
             int limit = row.length();
-            if (row.endsWith("|") && !row.endsWith("\\|")) limit--;
+            if (row.endsWith("|") && !row.endsWith("\\|"))
+                limit--;
 
             boolean lastCharWasDelimiter = false;
 
@@ -1363,7 +1429,7 @@ public class MarkdownParser {
                 }
 
                 if (c == '\\') {
-                    // Check if next char is pipe, if so, escape it. 
+                    // Check if next char is pipe, if so, escape it.
                     // GFM spec: \| is a literal pipe.
                     if (i + 1 < limit && row.charAt(i + 1) == '|') {
                         current.append('|');
@@ -1378,24 +1444,29 @@ public class MarkdownParser {
                     // and let InlineParser handle it later.
                     // UNLESS the next char is a pipe, which we handled above.
                     // Wait, if we have `\\`, we append `\` and then next char is `\`.
-                    // If we set escaped=true, next `\` is appended. Result `\\`. InlineParser sees `\\` -> `\`. Correct.
+                    // If we set escaped=true, next `\` is appended. Result `\\`. InlineParser sees
+                    // `\\` -> `\`. Correct.
 
                     // If we have `\a`, we append `\`. Next char `a`.
-                    // If we set escaped=true, next `a` is appended. Result `\a`. InlineParser sees `\a` -> `a` (escaped a? No, only punctuation).
+                    // If we set escaped=true, next `a` is appended. Result `\a`. InlineParser sees
+                    // `\a` -> `a` (escaped a? No, only punctuation).
                     // Actually `\a` is not an escape in Markdown usually.
 
                     // The issue in Example 200 is `| b `\|` az |`.
                     // Here `\|` is INSIDE code span.
                     // My parser handles code span FIRST.
                     // `if (c == '`')` block comes AFTER `if (c == '\\')`.
-                    // This is WRONG priority. Backslash escaping should NOT happen inside code spans.
+                    // This is WRONG priority. Backslash escaping should NOT happen inside code
+                    // spans.
                     // BUT, to detect code span, we need to scan for backticks.
-                    // And backticks can be escaped? No, backticks in code span delimiters cannot be escaped.
+                    // And backticks can be escaped? No, backticks in code span delimiters cannot be
+                    // escaped.
                     // But inside code span, backslash is literal.
 
                     // So we must check for code span start BEFORE checking for backslash escape?
                     // NO. `\` escapes backticks? `\` escapes `|`?
-                    // "Code spans are delimited by backticks. Backslash escapes are NOT active in code spans."
+                    // "Code spans are delimited by backticks. Backslash escapes are NOT active in
+                    // code spans."
 
                     // So if we see a backtick, we should check if it starts a code span.
                     // BUT, `\` can escape a backtick to prevent it from starting a code span?
@@ -1403,7 +1474,8 @@ public class MarkdownParser {
                     // Example: \` is not a code span start.
 
                     // So `if (c == '\\')` MUST come first to handle `\` escaping a backtick.
-                    // But inside `if (c == '\\')`, if we consume the backslash and the next char, we effectively "escape" it.
+                    // But inside `if (c == '\\')`, if we consume the backslash and the next char,
+                    // we effectively "escape" it.
 
                     // In Example 200: `b `\|` az`.
                     // i points to first backtick.
@@ -1433,12 +1505,15 @@ public class MarkdownParser {
                     // "Block-level structure... takes precedence over inline structure."
                     // "Splitting into cells... happens BEFORE inline parsing."
 
-                    // So, `splitTableCells` MUST handle `\|` as "escaped pipe" (i.e. treat as content, not delimiter)
+                    // So, `splitTableCells` MUST handle `\|` as "escaped pipe" (i.e. treat as
+                    // content, not delimiter)
                     // EVEN IF it looks like it's inside a code span?
                     // "Parsing of the row into cells happens before parsing of inline content."
                     // So `splitTableCells` doesn't know about code spans?
-                    // WRONG. If it doesn't know about code spans, it might split inside a code span.
-                    // Example: `| `a|b` |` -> Cell 1: ` `a|b` `. Pipe inside code span should NOT split cell.
+                    // WRONG. If it doesn't know about code spans, it might split inside a code
+                    // span.
+                    // Example: `| `a|b` |` -> Cell 1: ` `a|b` `. Pipe inside code span should NOT
+                    // split cell.
                     // So `splitTableCells` MUST know about code spans.
 
                     // So:
@@ -1454,7 +1529,8 @@ public class MarkdownParser {
                     // `| `a|b` |` -> Pipe inside code span does NOT split.
                     // `| `a\|b` |` -> Pipe inside code span does NOT split.
 
-                    // So my logic of handling code spans seems correct: consume everything inside backticks.
+                    // So my logic of handling code spans seems correct: consume everything inside
+                    // backticks.
                     // So `\|` is consumed as part of code span content.
                     // So cell content becomes ` b `\|` az `.
                     // Then InlineParser parses this.
@@ -1463,7 +1539,8 @@ public class MarkdownParser {
 
                     // BUT Expected is `<code>|</code>`.
                     // This implies that `\|` was unescaped to `|` BEFORE code span parsing?
-                    // OR that `\|` in a table cell is ALWAYS unescaped to `|`, even inside code spans?
+                    // OR that `\|` in a table cell is ALWAYS unescaped to `|`, even inside code
+                    // spans?
                     // "To include a pipe | in a cell, it must be escaped: \|."
                     // This rule applies to the raw line text, BEFORE any other processing?
 
@@ -1477,14 +1554,10 @@ public class MarkdownParser {
                     // This appends `|`.
                     // So `current` becomes ` b `|` az `.
                     // Wait, my code does exactly this!
-                    
+
                     /*
-                    if (i + 1 < limit && row.charAt(i + 1) == '|') {
-                        current.append('|');
-                        i += 2;
-                        continue; 
-                    }
-                    */
+                     * if (i + 1 < limit && row.charAt(i + 1) == '|') { current.append('|'); i += 2; continue; }
+                     */
 
                     // So why did Actual output show `<code>\|</code>`?
                     // Maybe because I didn't reach that block?
@@ -1496,8 +1569,10 @@ public class MarkdownParser {
                     // It copies `\|` verbatim!
 
                     // AHA!
-                    // If `\|` is inside a code span, my code span logic swallows it without unescaping.
-                    // But apparently, even inside a code span (in the context of a table row), `\|` should be treated as an escaped pipe and unescaped?
+                    // If `\|` is inside a code span, my code span logic swallows it without
+                    // unescaping.
+                    // But apparently, even inside a code span (in the context of a table row), `\|`
+                    // should be treated as an escaped pipe and unescaped?
                     // This is weird because "Backslash escapes are never active in code spans".
                     // But Table parsing happens BEFORE Inline parsing.
                     // So we are stripping the "Table encoding" first.
@@ -1515,12 +1590,14 @@ public class MarkdownParser {
 
                 if (c == '`') {
                     int start = i;
-                    while (i < limit && row.charAt(i) == '`') i++;
+                    while (i < limit && row.charAt(i) == '`')
+                        i++;
                     int runLength = i - start;
 
                     int match = findCodeSpanEnd(row, i, runLength);
                     if (match != -1) {
-                        for (int k = 0; k < runLength; k++) current.append('`');
+                        for (int k = 0; k < runLength; k++)
+                            current.append('`');
                         // Process code span content to unescape \| to |
                         String content = row.substring(i, match);
 
@@ -1547,10 +1624,12 @@ public class MarkdownParser {
                         }
                         current.append(unescapedContent.toString());
 
-                        for (int k = 0; k < runLength; k++) current.append('`');
+                        for (int k = 0; k < runLength; k++)
+                            current.append('`');
                         i = match + runLength;
                     } else {
-                        for (int k = 0; k < runLength; k++) current.append('`');
+                        for (int k = 0; k < runLength; k++)
+                            current.append('`');
                     }
                     continue;
                 }
@@ -1593,7 +1672,8 @@ public class MarkdownParser {
                 i++;
                 indent++;
             }
-            if (i >= line.length()) return null;
+            if (i >= line.length())
+                return null;
 
             char c = line.charAt(i);
 
@@ -1614,12 +1694,15 @@ public class MarkdownParser {
                 int start = i;
                 while (i < line.length() && Character.isDigit(line.charAt(i))) {
                     i++;
-                    if (i - start > 9) return null;
+                    if (i - start > 9)
+                        return null;
                 }
-                if (i >= line.length()) return null;
+                if (i >= line.length())
+                    return null;
 
                 char delim = line.charAt(i);
-                if (delim != '.' && delim != ')') return null;
+                if (delim != '.' && delim != ')')
+                    return null;
 
                 if (i + 1 >= line.length() || line.charAt(i + 1) == ' ' || line.charAt(i + 1) == '\t') {
                     ListMarker m = new ListMarker();
@@ -1635,7 +1718,8 @@ public class MarkdownParser {
             return null;
         }
 
-        ListMarker calculateListMarkerIndent(String line, int markerStart, int markerLength, int markerIndent, ListMarker m) {
+        ListMarker calculateListMarkerIndent(String line, int markerStart, int markerLength, int markerIndent,
+                ListMarker m) {
             int i = markerStart + markerLength;
 
             if (i >= line.length()) {
@@ -1673,19 +1757,24 @@ public class MarkdownParser {
         int countIndent(String line) {
             int count = 0;
             for (int i = 0; i < line.length(); i++) {
-                if (line.charAt(i) == ' ') count++;
-                else break;
+                if (line.charAt(i) == ' ')
+                    count++;
+                else
+                    break;
             }
             return count;
         }
 
         boolean isSetextHeading(String line) {
             String s = line.trim();
-            if (s.isEmpty()) return false;
+            if (s.isEmpty())
+                return false;
             char c = s.charAt(0);
-            if (c != '=' && c != '-') return false;
+            if (c != '=' && c != '-')
+                return false;
             for (int i = 1; i < s.length(); i++) {
-                if (s.charAt(i) != c) return false;
+                if (s.charAt(i) != c)
+                    return false;
             }
             return true;
         }
@@ -1704,20 +1793,24 @@ public class MarkdownParser {
                 indent++;
                 i++;
             }
-            if (i >= line.length()) return null;
+            if (i >= line.length())
+                return null;
             char c = line.charAt(i);
-            if (c != '`' && c != '~') return null;
+            if (c != '`' && c != '~')
+                return null;
 
             int start = i;
             while (i < line.length() && line.charAt(i) == c) {
                 i++;
             }
             int length = i - start;
-            if (length < 3) return null;
+            if (length < 3)
+                return null;
 
             // Info string
             String info = unescape(line.substring(i).trim());
-            if (c == '`' && info.contains("`")) return null;
+            if (c == '`' && info.contains("`"))
+                return null;
 
             FencedCodeStart res = new FencedCodeStart();
             res.fenceChar = c;
@@ -1732,18 +1825,22 @@ public class MarkdownParser {
             while (i < line.length() && line.charAt(i) == ' ') {
                 i++;
             }
-            if (i >= line.length()) return false;
-            if (line.charAt(i) != fenceChar) return false;
+            if (i >= line.length())
+                return false;
+            if (line.charAt(i) != fenceChar)
+                return false;
 
             int start = i;
             while (i < line.length() && line.charAt(i) == fenceChar) {
                 i++;
             }
             int length = i - start;
-            if (length < minLength) return false;
+            if (length < minLength)
+                return false;
 
             while (i < line.length()) {
-                if (line.charAt(i) != ' ') return false;
+                if (line.charAt(i) != ' ')
+                    return false;
                 i++;
             }
             return true;
@@ -1761,10 +1858,13 @@ public class MarkdownParser {
 
         boolean isThematicBreak(String line) {
             int i = 0;
-            while (i < line.length() && line.charAt(i) == ' ') i++;
-            if (i >= line.length()) return false;
+            while (i < line.length() && line.charAt(i) == ' ')
+                i++;
+            if (i >= line.length())
+                return false;
             char c = line.charAt(i);
-            if (c != '-' && c != '_' && c != '*') return false;
+            if (c != '-' && c != '_' && c != '*')
+                return false;
 
             int count = 0;
             while (i < line.length()) {
@@ -1781,21 +1881,28 @@ public class MarkdownParser {
 
         boolean isAtxHeading(String line) {
             int i = 0;
-            while (i < line.length() && line.charAt(i) == ' ') i++;
-            if (i >= line.length() || line.charAt(i) != '#') return false;
+            while (i < line.length() && line.charAt(i) == ' ')
+                i++;
+            if (i >= line.length() || line.charAt(i) != '#')
+                return false;
             int start = i;
-            while (i < line.length() && line.charAt(i) == '#') i++;
+            while (i < line.length() && line.charAt(i) == '#')
+                i++;
             int level = i - start;
-            if (level < 1 || level > 6) return false;
-            if (i < line.length() && line.charAt(i) != ' ') return false;
+            if (level < 1 || level > 6)
+                return false;
+            if (i < line.length() && line.charAt(i) != ' ')
+                return false;
             return true;
         }
 
         Node parseAtxHeading(String line) {
             int i = 0;
-            while (i < line.length() && line.charAt(i) == ' ') i++;
+            while (i < line.length() && line.charAt(i) == ' ')
+                i++;
             int start = i;
-            while (i < line.length() && line.charAt(i) == '#') i++;
+            while (i < line.length() && line.charAt(i) == '#')
+                i++;
             int level = i - start;
 
             String content = line.substring(i).trim();
@@ -1818,22 +1925,30 @@ public class MarkdownParser {
         int getHtmlBlockStartCondition(String line) {
             String s = line.trim();
             String lower = s.toLowerCase();
-            if (lower.startsWith("<script") || lower.startsWith("<pre") || lower.startsWith("<style") || lower.startsWith("<textarea"))
+            if (lower.startsWith("<script") || lower.startsWith("<pre") || lower.startsWith("<style")
+                    || lower.startsWith("<textarea"))
                 return 1;
-            if (s.startsWith("<!--")) return 2;
-            if (s.startsWith("<?")) return 3;
-            if (s.startsWith("<!") && s.length() >= 3 && Character.isUpperCase(s.charAt(2))) return 4;
-            if (s.startsWith("<![CDATA[")) return 5;
+            if (s.startsWith("<!--"))
+                return 2;
+            if (s.startsWith("<?"))
+                return 3;
+            if (s.startsWith("<!") && s.length() >= 3 && Character.isUpperCase(s.charAt(2)))
+                return 4;
+            if (s.startsWith("<![CDATA["))
+                return 5;
 
             if (s.startsWith("<")) {
                 if (s.length() > 1 && s.charAt(1) != ' ') {
                     int i = 1;
-                    if (s.charAt(i) == '/') i++;
+                    if (s.charAt(i) == '/')
+                        i++;
                     int startName = i;
-                    while (i < s.length() && Character.isLetterOrDigit(s.charAt(i))) i++;
+                    while (i < s.length() && Character.isLetterOrDigit(s.charAt(i)))
+                        i++;
                     String name = s.substring(startName, i).toLowerCase();
 
-                    if (name.isEmpty()) return 0;
+                    if (name.isEmpty())
+                        return 0;
 
                     if (isBlockTag(name)) {
                         return 6;
@@ -1850,16 +1965,19 @@ public class MarkdownParser {
         boolean isCompleteTagAndRestWhitespace(String line, int startName) {
             int i = startName;
             // Skip name
-            while (i < line.length() && (Character.isLetterOrDigit(line.charAt(i)) || line.charAt(i) == '-')) i++;
+            while (i < line.length() && (Character.isLetterOrDigit(line.charAt(i)) || line.charAt(i) == '-'))
+                i++;
 
             boolean isClosing = (startName > 1 && line.charAt(startName - 1) == '/');
 
             if (isClosing) {
-                while (i < line.length() && Character.isWhitespace(line.charAt(i))) i++;
+                while (i < line.length() && Character.isWhitespace(line.charAt(i)))
+                    i++;
                 if (i < line.length() && line.charAt(i) == '>') {
                     i++;
                     while (i < line.length()) {
-                        if (!Character.isWhitespace(line.charAt(i))) return false;
+                        if (!Character.isWhitespace(line.charAt(i)))
+                            return false;
                         i++;
                     }
                     return true;
@@ -1877,7 +1995,8 @@ public class MarkdownParser {
                     i++;
                 }
 
-                if (i >= line.length()) return false;
+                if (i >= line.length())
+                    return false;
                 char c = line.charAt(i);
 
                 if (c == '/') {
@@ -1885,7 +2004,8 @@ public class MarkdownParser {
                     if (i < line.length() && line.charAt(i) == '>') {
                         i++;
                         while (i < line.length()) {
-                            if (!Character.isWhitespace(line.charAt(i))) return false;
+                            if (!Character.isWhitespace(line.charAt(i)))
+                                return false;
                             i++;
                         }
                         return true;
@@ -1896,14 +2016,16 @@ public class MarkdownParser {
                 if (c == '>') {
                     i++;
                     while (i < line.length()) {
-                        if (!Character.isWhitespace(line.charAt(i))) return false;
+                        if (!Character.isWhitespace(line.charAt(i)))
+                            return false;
                         i++;
                     }
                     return true;
                 }
 
                 // Attribute
-                if (requireWhitespace && !hasWhitespace) return false;
+                if (requireWhitespace && !hasWhitespace)
+                    return false;
 
                 // Attribute Name
                 int attrStart = i;
@@ -1915,16 +2037,20 @@ public class MarkdownParser {
                         break;
                     }
                 }
-                if (i == attrStart) return false; // Invalid attribute start char
+                if (i == attrStart)
+                    return false; // Invalid attribute start char
 
                 // Attribute Value
                 int afterName = i;
-                while (i < line.length() && Character.isWhitespace(line.charAt(i))) i++;
+                while (i < line.length() && Character.isWhitespace(line.charAt(i)))
+                    i++;
 
                 if (i < line.length() && line.charAt(i) == '=') {
                     i++;
-                    while (i < line.length() && Character.isWhitespace(line.charAt(i))) i++;
-                    if (i >= line.length()) return false;
+                    while (i < line.length() && Character.isWhitespace(line.charAt(i)))
+                        i++;
+                    if (i >= line.length())
+                        return false;
 
                     char valStart = line.charAt(i);
                     if (valStart == '"' || valStart == '\'') {
@@ -1939,14 +2065,17 @@ public class MarkdownParser {
                             }
                             i++;
                         }
-                        if (!foundClose) return false;
+                        if (!foundClose)
+                            return false;
                     } else {
                         // Unquoted
-                        if (valStart == '"' || valStart == '\'' || valStart == '=' || valStart == '<' || valStart == '>' || valStart == '`')
+                        if (valStart == '"' || valStart == '\'' || valStart == '=' || valStart == '<' || valStart == '>'
+                                || valStart == '`')
                             return false;
                         while (i < line.length()) {
                             char ch = line.charAt(i);
-                            if (Character.isWhitespace(ch) || ch == '"' || ch == '\'' || ch == '=' || ch == '<' || ch == '>' || ch == '`') {
+                            if (Character.isWhitespace(ch) || ch == '"' || ch == '\'' || ch == '=' || ch == '<'
+                                    || ch == '>' || ch == '`') {
                                 break;
                             }
                             i++;
@@ -1964,33 +2093,40 @@ public class MarkdownParser {
         }
 
         boolean isBlockTag(String name) {
-            return name.equals("address") || name.equals("article") || name.equals("aside") || name.equals("base") ||
-                    name.equals("basefont") || name.equals("blockquote") || name.equals("body") || name.equals("caption") ||
-                    name.equals("center") || name.equals("col") || name.equals("colgroup") || name.equals("dd") ||
-                    name.equals("details") || name.equals("dialog") || name.equals("dir") || name.equals("div") ||
-                    name.equals("dl") || name.equals("dt") || name.equals("fieldset") || name.equals("figcaption") ||
-                    name.equals("figure") || name.equals("footer") || name.equals("form") || name.equals("frame") ||
-                    name.equals("frameset") || name.equals("h1") || name.equals("h2") || name.equals("h3") ||
-                    name.equals("h4") || name.equals("h5") || name.equals("h6") || name.equals("head") ||
-                    name.equals("header") || name.equals("hr") || name.equals("html") || name.equals("iframe") ||
-                    name.equals("legend") || name.equals("li") || name.equals("link") || name.equals("main") ||
-                    name.equals("menu") || name.equals("menuitem") || name.equals("meta") || name.equals("nav") ||
-                    name.equals("noframes") || name.equals("ol") || name.equals("optgroup") || name.equals("option") ||
-                    name.equals("p") || name.equals("param") || name.equals("section") || name.equals("source") ||
-                    name.equals("summary") || name.equals("table") || name.equals("tbody") || name.equals("td") ||
-                    name.equals("tfoot") || name.equals("th") || name.equals("thead") || name.equals("title") ||
-                    name.equals("tr") || name.equals("track") || name.equals("ul");
+            return name.equals("address") || name.equals("article") || name.equals("aside") || name.equals("base")
+                    || name.equals("basefont") || name.equals("blockquote") || name.equals("body")
+                    || name.equals("caption") || name.equals("center") || name.equals("col") || name.equals("colgroup")
+                    || name.equals("dd") || name.equals("details") || name.equals("dialog") || name.equals("dir")
+                    || name.equals("div") || name.equals("dl") || name.equals("dt") || name.equals("fieldset")
+                    || name.equals("figcaption") || name.equals("figure") || name.equals("footer")
+                    || name.equals("form") || name.equals("frame") || name.equals("frameset") || name.equals("h1")
+                    || name.equals("h2") || name.equals("h3") || name.equals("h4") || name.equals("h5")
+                    || name.equals("h6") || name.equals("head") || name.equals("header") || name.equals("hr")
+                    || name.equals("html") || name.equals("iframe") || name.equals("legend") || name.equals("li")
+                    || name.equals("link") || name.equals("main") || name.equals("menu") || name.equals("menuitem")
+                    || name.equals("meta") || name.equals("nav") || name.equals("noframes") || name.equals("ol")
+                    || name.equals("optgroup") || name.equals("option") || name.equals("p") || name.equals("param")
+                    || name.equals("section") || name.equals("source") || name.equals("summary") || name.equals("table")
+                    || name.equals("tbody") || name.equals("td") || name.equals("tfoot") || name.equals("th")
+                    || name.equals("thead") || name.equals("title") || name.equals("tr") || name.equals("track")
+                    || name.equals("ul");
         }
 
         boolean isHtmlBlockEnd(String line, int condition) {
             if (condition == 1) {
-                return line.toLowerCase().contains("</script>") || line.toLowerCase().contains("</pre>") || line.toLowerCase().contains("</style>") || line.toLowerCase().contains("</textarea>");
+                return line.toLowerCase().contains("</script>") || line.toLowerCase().contains("</pre>")
+                        || line.toLowerCase().contains("</style>") || line.toLowerCase().contains("</textarea>");
             }
-            if (condition == 2) return line.contains("-->");
-            if (condition == 3) return line.contains("?>");
-            if (condition == 4) return line.contains(">");
-            if (condition == 5) return line.contains("]]>");
-            if (condition == 6 || condition == 7) return line.trim().isEmpty();
+            if (condition == 2)
+                return line.contains("-->");
+            if (condition == 3)
+                return line.contains("?>");
+            if (condition == 4)
+                return line.contains(">");
+            if (condition == 5)
+                return line.contains("]]>");
+            if (condition == 6 || condition == 7)
+                return line.trim().isEmpty();
             return false;
         }
     }
@@ -2001,11 +2137,13 @@ public class MarkdownParser {
             while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 index++;
             }
-            if (index >= text.length()) break;
+            if (index >= text.length())
+                break;
 
             int start = index;
             // Label
-            if (text.charAt(index) != '[') return false;
+            if (text.charAt(index) != '[')
+                return false;
             index++;
             int labelStart = index;
             int labelEnd = -1;
@@ -2027,16 +2165,20 @@ public class MarkdownParser {
                 }
                 index++;
             }
-            if (labelEnd == -1) return false;
+            if (labelEnd == -1)
+                return false;
 
             String label = text.substring(labelStart, labelEnd);
-            if (label.trim().isEmpty()) return false;
+            if (label.trim().isEmpty())
+                return false;
 
             index = labelEnd + 1;
-            if (index >= text.length() || text.charAt(index) != ':') return false;
+            if (index >= text.length() || text.charAt(index) != ':')
+                return false;
             index++;
 
-            while (index < text.length() && Character.isWhitespace(text.charAt(index))) index++;
+            while (index < text.length() && Character.isWhitespace(text.charAt(index)))
+                index++;
 
             // Destination
             boolean inAngleBrackets = false;
@@ -2044,24 +2186,31 @@ public class MarkdownParser {
                 inAngleBrackets = true;
                 index++;
                 while (index < text.length() && text.charAt(index) != '>') {
-                    if (text.charAt(index) == '\\') index += 2;
-                    else index++;
+                    if (text.charAt(index) == '\\')
+                        index += 2;
+                    else
+                        index++;
                 }
-                if (index >= text.length()) return false;
+                if (index >= text.length())
+                    return false;
                 index++;
             } else {
                 int destStart = index;
                 while (index < text.length() && !Character.isWhitespace(text.charAt(index))) {
-                    if (text.charAt(index) == '\\') index += 2;
-                    else index++;
+                    if (text.charAt(index) == '\\')
+                        index += 2;
+                    else
+                        index++;
                 }
-                if (index == destStart) return false; // Empty destination
+                if (index == destStart)
+                    return false; // Empty destination
             }
 
             // Optional Title
             if (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 int lookahead = index;
-                while (lookahead < text.length() && Character.isWhitespace(text.charAt(lookahead))) lookahead++;
+                while (lookahead < text.length() && Character.isWhitespace(text.charAt(lookahead)))
+                    lookahead++;
                 if (lookahead < text.length()) {
                     char open = text.charAt(lookahead);
                     if (open == '"' || open == '\'' || open == '(') {
@@ -2086,7 +2235,8 @@ public class MarkdownParser {
                             boolean valid = true;
                             while (afterTitle < text.length()) {
                                 char c = text.charAt(afterTitle);
-                                if (c == '\n' || c == '\r') break;
+                                if (c == '\n' || c == '\r')
+                                    break;
                                 if (!Character.isWhitespace(c)) {
                                     valid = false;
                                     break;
@@ -2108,14 +2258,16 @@ public class MarkdownParser {
             boolean validLineEnd = true;
             while (index < text.length()) {
                 char c = text.charAt(index);
-                if (c == '\n' || c == '\r') break;
+                if (c == '\n' || c == '\r')
+                    break;
                 if (!Character.isWhitespace(c)) {
                     validLineEnd = false;
                     break;
                 }
                 index++;
             }
-            if (!validLineEnd) return false;
+            if (!validLineEnd)
+                return false;
         }
         return true;
     }
@@ -2199,7 +2351,8 @@ public class MarkdownParser {
         }
     }
 
-    public static void processInlineContainerStatic(Document doc, Node container, MarkdownParserOptions options, List<InlineContentParserFactory> factories) {
+    public static void processInlineContainerStatic(Document doc, Node container, MarkdownParserOptions options,
+            List<InlineContentParserFactory> factories) {
         Node first = container.getFirstChild();
         if (first instanceof Text) {
             StringBuilder sb = new StringBuilder();
@@ -2232,7 +2385,8 @@ public class MarkdownParser {
     }
 
     public static int parseLinkReferenceDefinitions(String text, Document doc) {
-        if (doc == null) return 0;
+        if (doc == null)
+            return 0;
 
         int index = 0;
         while (index < text.length()) {
@@ -2240,7 +2394,8 @@ public class MarkdownParser {
             while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 index++;
             }
-            if (index >= text.length()) break;
+            if (index >= text.length())
+                break;
 
             int start = index;
 
@@ -2304,8 +2459,10 @@ public class MarkdownParser {
                 inAngleBrackets = true;
                 index++;
                 while (index < text.length() && text.charAt(index) != '>') {
-                    if (text.charAt(index) == '\\') index += 2;
-                    else index++;
+                    if (text.charAt(index) == '\\')
+                        index += 2;
+                    else
+                        index++;
                 }
                 if (index >= text.length()) {
                     index = start;
@@ -2315,8 +2472,10 @@ public class MarkdownParser {
                 index++;
             } else {
                 while (index < text.length() && !Character.isWhitespace(text.charAt(index))) {
-                    if (text.charAt(index) == '\\') index += 2;
-                    else index++;
+                    if (text.charAt(index) == '\\')
+                        index += 2;
+                    else
+                        index++;
                 }
                 destination = text.substring(destStart, index);
             }
@@ -2364,7 +2523,8 @@ public class MarkdownParser {
                             boolean valid = true;
                             while (afterTitle < text.length()) {
                                 char c = text.charAt(afterTitle);
-                                if (c == '\n' || c == '\r') break;
+                                if (c == '\n' || c == '\r')
+                                    break;
                                 if (!Character.isWhitespace(c)) {
                                     valid = false;
                                     break;
@@ -2393,7 +2553,8 @@ public class MarkdownParser {
                 boolean validLineEnd = true;
                 while (index < text.length()) {
                     char c = text.charAt(index);
-                    if (c == '\n' || c == '\r') break;
+                    if (c == '\n' || c == '\r')
+                        break;
                     if (!Character.isWhitespace(c)) {
                         validLineEnd = false;
                         break;
@@ -2411,7 +2572,8 @@ public class MarkdownParser {
             // Handle Unicode case folding for sharp S (ẞ)
             label = label.replace("ẞ", "ss");
             label = label.toUpperCase(java.util.Locale.ROOT).toLowerCase(java.util.Locale.ROOT);
-            doc.addLinkReference(new LinkReference(label, unescape(destination), title != null ? unescape(title) : null));
+            doc.addLinkReference(
+                    new LinkReference(label, unescape(destination), title != null ? unescape(title) : null));
         }
 
         return index;
@@ -2423,7 +2585,8 @@ public class MarkdownParser {
     }
 
     private static String unescape(String s) {
-        if (s == null) return null;
+        if (s == null)
+            return null;
         StringBuilder sb = new StringBuilder();
         int i = 0;
         while (i < s.length()) {
@@ -2454,6 +2617,7 @@ public class MarkdownParser {
         return sb.toString();
     }
 
+    @SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
     private static String decodeEntity(Matcher matcher) {
         String name = matcher.group(1);
         String decimal = matcher.group(2);
@@ -2461,12 +2625,16 @@ public class MarkdownParser {
 
         if (name != null) {
             String decoded = EntityDecoder.decode(name);
-            if (decoded != null) return decoded;
+            if (decoded != null) {
+                return decoded;
+            }
             return matcher.group();
         } else if (decimal != null) {
             try {
                 int codePoint = Integer.parseInt(decimal);
-                if (codePoint == 0) return "\uFFFD";
+                if (codePoint == 0) {
+                    return "\uFFFD";
+                }
                 return new String(Character.toChars(codePoint));
             } catch (IllegalArgumentException e) {
                 return "\uFFFD";
@@ -2474,7 +2642,9 @@ public class MarkdownParser {
         } else if (hex != null) {
             try {
                 int codePoint = Integer.parseInt(hex, 16);
-                if (codePoint == 0) return "\uFFFD";
+                if (codePoint == 0) {
+                    return "\uFFFD";
+                }
                 return new String(Character.toChars(codePoint));
             } catch (IllegalArgumentException e) {
                 return "\uFFFD";

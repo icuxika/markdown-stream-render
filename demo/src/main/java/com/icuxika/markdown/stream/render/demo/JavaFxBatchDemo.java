@@ -4,6 +4,8 @@ import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import java.util.Map;
+import java.util.TreeMap;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,9 +17,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import jfx.incubator.scene.control.richtext.CodeArea;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 public class JavaFxBatchDemo extends Application {
 
     private JavaFxRenderer renderer;
@@ -26,17 +25,17 @@ public class JavaFxBatchDemo extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        BorderPane root = new BorderPane();
-        MarkdownTheme theme = new MarkdownTheme();
+        final MarkdownTheme theme = new MarkdownTheme();
 
         // Input Area
         CodeArea inputArea = new CodeArea();
         inputArea.setLineNumbersEnabled(true);
         inputArea.setSyntaxDecorator(new MarkdownSyntaxDecorator());
         // Force wrap text if possible, or leave as is.
-        // CodeArea styling for input area itself (background, text color) needs to be managed.
+        // CodeArea styling for input area itself (background, text color) needs to be
+        // managed.
         // We can bind its style or add a listener to theme.
-        
+
         // Load comprehensive.md (or template.md fallback)
         try (java.io.InputStream is = getClass().getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
@@ -68,23 +67,43 @@ public class JavaFxBatchDemo extends Application {
                 theme.setTheme(MarkdownTheme.Theme.LIGHT);
             }
             // Explicitly re-render to apply new theme to the generated nodes?
-            // The nodes use CSS variables, so they should update automatically IF they are attached to the Scene.
+            // The nodes use CSS variables, so they should update automatically IF they are
+            // attached to the Scene.
             // But if the Scene stylesheet changes, nodes should pick it up.
             // Let's verify if 'outputBox' children pick up the change.
             // They should.
             // Maybe inputArea needs help?
             // CodeArea (RichTextFX) often has its own CSS logic.
-            /*
             if (theme.getTheme() == MarkdownTheme.Theme.DARK) {
                 inputArea.setStyle("-fx-background-color: #0d1117; -fx-text-fill: #c9d1d9;");
             } else {
                 inputArea.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #24292f;");
             }
-            */
+        });
+
+        Button loadBtn = new Button("Load File");
+        loadBtn.setOnAction(e -> {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.getExtensionFilters()
+                    .add(new javafx.stage.FileChooser.ExtensionFilter("Markdown Files", "*.md", "*.markdown"));
+            java.io.File file = fileChooser.showOpenDialog(primaryStage);
+            if (file != null) {
+                loadFile(file, inputArea);
+            }
+        });
+
+        Button exportBtn = new Button("Export HTML");
+        exportBtn.setOnAction(e -> {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("HTML Files", "*.html"));
+            java.io.File file = fileChooser.showSaveDialog(primaryStage);
+            if (file != null) {
+                exportHtml(file);
+            }
         });
 
         // Toolbar for controls
-        ToolBar toolBar = new ToolBar(renderBtn, themeBtn);
+        ToolBar toolBar = new ToolBar(renderBtn, themeBtn, loadBtn, exportBtn);
 
         // Layout
         VBox leftBox = new VBox(toolBar, inputArea);
@@ -94,20 +113,21 @@ public class JavaFxBatchDemo extends Application {
         splitPane.getItems().addAll(leftBox, outputScroll);
         splitPane.setDividerPositions(0.5);
 
+        BorderPane root = new BorderPane();
         root.setCenter(splitPane);
 
         Scene scene = new Scene(root, 1024, 768);
 
         // Apply theme
         theme.apply(scene);
-        
+
         // Initial Input Area Style
-        // inputArea.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #24292f;");
+        inputArea.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #24292f;");
 
         primaryStage.setTitle("Markdown Stream Renderer - JavaFX Demo");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
+
         // Initial Render
         render(getText(inputArea), outputScroll);
 
@@ -120,7 +140,9 @@ public class JavaFxBatchDemo extends Application {
                 int line = 0;
                 if (charIndex <= text.length()) {
                     for (int i = 0; i < charIndex; i++) {
-                        if (text.charAt(i) == '\n') line++;
+                        if (text.charAt(i) == '\n') {
+                            line++;
+                        }
                     }
                 }
                 syncScrollToPreview(line);
@@ -135,6 +157,21 @@ public class JavaFxBatchDemo extends Application {
     private String getText(CodeArea area) {
         // common API
         return area.getText();
+    }
+
+    private void loadFile(java.io.File file, CodeArea area) {
+        try {
+            String content = java.nio.file.Files.readString(file.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+            area.clear();
+            area.appendText(content);
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportHtml(java.io.File file) {
+        // TODO: Implement HTML export
+        System.out.println("Export HTML to " + file.getAbsolutePath());
     }
 
     private void render(String markdown, ScrollPane outputScroll) {
@@ -161,10 +198,14 @@ public class JavaFxBatchDemo extends Application {
     }
 
     private void syncScrollToPreview(int lineNumber) {
-        if (renderer == null) return;
+        if (renderer == null) {
+            return;
+        }
 
         TreeMap<Integer, javafx.scene.Node> map = renderer.getLineToNodeMap();
-        if (map.isEmpty()) return;
+        if (map.isEmpty()) {
+            return;
+        }
 
         // Find the closest line number <= current line number
         Map.Entry<Integer, javafx.scene.Node> entry = map.floorEntry(lineNumber);

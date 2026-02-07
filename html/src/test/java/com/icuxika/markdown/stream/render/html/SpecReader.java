@@ -58,12 +58,11 @@ public class SpecReader {
                     if (EXAMPLE_END.matcher(line).matches()) {
                         inExample = false;
                         // Add example
-                        examples.add(new SpecExample(
-                                markdownBuffer.toString().replace("→", "\t"), // Spec uses → for tab visualization sometimes, but usually raw tabs
-                                htmlBuffer.toString().replace("→", "\t"),
-                                currentSection,
-                                exampleCount
-                        ));
+                        examples.add(new SpecExample(markdownBuffer.toString().replace("→", "\t"), // Spec uses → for
+                                                                                                   // tab visualization
+                                                                                                   // sometimes, but
+                                                                                                   // usually raw tabs
+                                htmlBuffer.toString().replace("→", "\t"), currentSection, exampleCount));
                     } else if (line.equals(".")) {
                         readingHtml = true;
                     } else {

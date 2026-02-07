@@ -8,8 +8,7 @@ import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,6 +20,12 @@ public class HtmlBatchServerDemo {
 
     private static final int PORT = 8082;
 
+    /**
+     * Main entry point for the HTML Batch Server Demo.
+     *
+     * @param args
+     *            Command line arguments (not used).
+     */
     public static void main(String[] args) {
         try {
             startServer();
@@ -29,6 +34,12 @@ public class HtmlBatchServerDemo {
         }
     }
 
+    /**
+     * Starts the HTTP server.
+     *
+     * @throws IOException
+     *             If an I/O error occurs.
+     */
     public static void startServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/", new BatchHandler());
@@ -58,10 +69,10 @@ public class HtmlBatchServerDemo {
             CoreExtension.addDefaults(parserBuilder);
             MarkdownParser parser = parserBuilder.build();
             com.icuxika.markdown.stream.render.core.ast.Document doc = parser.parse(markdown);
-            
+
             com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions options = new com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions();
             options.setGenerateHeadingIds(true);
-            
+
             HtmlRenderer.Builder builder = HtmlRenderer.builder().options(options);
             HtmlRendererExtension.addDefaults(builder);
             HtmlRenderer renderer = builder.build();
@@ -72,40 +83,27 @@ public class HtmlBatchServerDemo {
             String demoCss = loadResource("/css/demo.css");
 
             // Wrap in full HTML with Modern Sidebar Layout
-            String response = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" +
-                    "<meta charset='UTF-8'>" +
-                    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-                    "<title>Markdown Batch Render Demo</title>" +
-                    "<style>" + demoCss + "</style>" +
-                    "<style>" + HtmlCssProvider.getAllCss() + "</style>" +
-                    "</head><body>" +
-                    "<div class='app-container'>" +
+            String response = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" + "<meta charset='UTF-8'>"
+                    + "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+                    + "<title>Markdown Batch Render Demo</title>" + "<style>" + demoCss + "</style>" + "<style>"
+                    + HtmlCssProvider.getAllCss() + "</style>" + "</head><body>" + "<div class='app-container'>"
+                    +
                     // Sidebar
-                    "<aside class='sidebar'>" +
-                    "<div class='sidebar-header'>⚡ Batch Render</div>" +
-                    "<a href='#' class='nav-item active'>Documentation</a>" +
-                    "<a href='#' class='nav-item'>API Reference</a>" +
-                    "<a href='#' class='nav-item'>Examples</a>" +
-                    "<div class='spacer'></div>" +
-                    "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" +
-                    "</aside>" +
+                    "<aside class='sidebar'>" + "<div class='sidebar-header'>⚡ Batch Render</div>"
+                    + "<a href='#' class='nav-item active'>Documentation</a>"
+                    + "<a href='#' class='nav-item'>API Reference</a>" + "<a href='#' class='nav-item'>Examples</a>"
+                    + "<div class='spacer'></div>"
+                    + "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" + "</aside>"
+                    +
                     // Main Content
-                    "<main class='main-content'>" +
-                    "<div class='markdown-root'>" + 
-                    htmlContent + 
-                    "</div>" +
-                    "</main>" +
-                    "</div>" +
+                    "<main class='main-content'>" + "<div class='markdown-root'>" + htmlContent + "</div>" + "</main>"
+                    + "</div>"
+                    +
                     // Script
-                    "<script>" +
-                    "function toggleTheme() {" +
-                    "  const html = document.documentElement;" +
-                    "  const current = html.getAttribute('data-theme');" +
-                    "  const next = current === 'dark' ? 'light' : 'dark';" +
-                    "  html.setAttribute('data-theme', next);" +
-                    "}" +
-                    "</script>" +
-                    "</body></html>";
+                    "<script>" + "function toggleTheme() {" + "  const html = document.documentElement;"
+                    + "  const current = html.getAttribute('data-theme');"
+                    + "  const next = current === 'dark' ? 'light' : 'dark';"
+                    + "  html.setAttribute('data-theme', next);" + "}" + "</script>" + "</body></html>";
 
             byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
             t.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
@@ -116,10 +114,14 @@ public class HtmlBatchServerDemo {
         }
 
         private String loadResource(String path) {
-             try (InputStream is = getClass().getResourceAsStream(path)) {
-                 if (is != null) return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-             } catch (Exception e) { e.printStackTrace(); }
-             return "";
+            try (InputStream is = getClass().getResourceAsStream(path)) {
+                if (is != null) {
+                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "";
         }
     }
 
@@ -128,9 +130,11 @@ public class HtmlBatchServerDemo {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             } else {
-                 try (InputStream is2 = HtmlBatchServerDemo.class.getResourceAsStream("/template.md")) {
-                     if (is2 != null) return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
-                 }
+                try (InputStream is2 = HtmlBatchServerDemo.class.getResourceAsStream("/template.md")) {
+                    if (is2 != null) {
+                        return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

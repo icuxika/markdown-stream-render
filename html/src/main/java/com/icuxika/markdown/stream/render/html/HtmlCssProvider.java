@@ -6,18 +6,38 @@ import java.nio.charset.StandardCharsets;
 
 public class HtmlCssProvider {
 
+    /**
+     * Get the default Markdown CSS.
+     *
+     * @return CSS content
+     */
     public static String getMarkdownCss() {
         return loadCss("css/markdown.css");
     }
 
+    /**
+     * Get the Admonition extension CSS.
+     *
+     * @return CSS content
+     */
     public static String getAdmonitionCss() {
         return loadCss("css/extensions/admonition.css");
     }
 
+    /**
+     * Get the Math extension CSS.
+     *
+     * @return CSS content
+     */
     public static String getMathCss() {
         return loadCss("css/extensions/math.css");
     }
 
+    /**
+     * Get all CSS combined.
+     *
+     * @return CSS content
+     */
     public static String getAllCss() {
         StringBuilder sb = new StringBuilder();
         sb.append(getMarkdownCss()).append("\n");

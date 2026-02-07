@@ -23,6 +23,7 @@ public class AdmonitionBlock extends Block {
     @Override
     public void accept(Visitor visitor) {
         // Standard Visitor doesn't support custom nodes.
-        // Our Renderer architecture uses NodeRendererMap instead of Visitor traversal for children.
+        // Our Renderer architecture uses NodeRendererMap instead of Visitor traversal
+        // for children.
     }
 }

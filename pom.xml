@@ -123,7 +123,7 @@
                 <configuration>
                     <configLocation>${maven.multiModuleProjectDirectory}/config/checkstyle/checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>false</failsOnError>
+                    <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
                 </configuration>
                 <executions>
@@ -133,6 +133,31 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <version>4.29</version> <!-- Eclipse JDT version -->
+                            <file>${maven.multiModuleProjectDirectory}/config/spotless/eclipse-formatter.xml</file>
+                        </eclipse>
+                        <removeUnusedImports />
+                        <importOrder>
+                            <!-- Use default import order -->
+                        </importOrder>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>

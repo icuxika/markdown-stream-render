@@ -5,14 +5,14 @@ import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParser
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineParserState;
 import com.icuxika.markdown.stream.render.core.parser.inline.ParsedInline;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class InlineParser implements InlineParserState {
 
-    private static final Pattern HTML_TAG = Pattern.compile("^<([A-Za-z][A-Za-z0-9-]*)((?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:[^\"'=<>`\\s]+|'[^']*'|\"[^\"]*\"))?)*)\\s*/?>");
+    private static final Pattern HTML_TAG = Pattern.compile(
+            "^<([A-Za-z][A-Za-z0-9-]*)((?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:[^\"'=<>`\\s]+|'[^']*'|\"[^\"]*\"))?)*)\\s*/?>");
     private static final Pattern HTML_CLOSE_TAG = Pattern.compile("^</([A-Za-z][A-Za-z0-9-]*)\\s*>");
     private static final Pattern HTML_COMMENT = Pattern.compile("^<!--((?!-->).)*-->", Pattern.DOTALL);
     private static final Pattern HTML_PI = Pattern.compile("^<\\?.*?\\?>", Pattern.DOTALL);
@@ -23,11 +23,13 @@ public class InlineParser implements InlineParserState {
     private static final Pattern HTML_COMMENT_SHORT = Pattern.compile("^<!-->");
     private static final Pattern HTML_COMMENT_SHORT_2 = Pattern.compile("^<!--->");
 
-    private static final Pattern ENTITY = Pattern.compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
+    private static final Pattern ENTITY = Pattern
+            .compile("^&(?:([a-zA-Z0-9]+)|#([0-9]{1,7})|#(?i:x)([0-9a-fA-F]{1,6}));");
 
     // Autolinks
     private static final Pattern AUTOLINK_URI = Pattern.compile("^<[a-zA-Z][a-zA-Z0-9.+-]{1,31}:[^<>\u0000-\u0020]*>");
-    private static final Pattern AUTOLINK_EMAIL = Pattern.compile("^<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>");
+    private static final Pattern AUTOLINK_EMAIL = Pattern.compile(
+            "^<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>");
 
     private final String text;
     private final Map<String, LinkReference> references;
@@ -49,7 +51,8 @@ public class InlineParser implements InlineParserState {
         this(text, references, options, Collections.emptyList());
     }
 
-    public InlineParser(String text, Map<String, LinkReference> references, MarkdownParserOptions options, List<InlineContentParserFactory> inlineParserFactories) {
+    public InlineParser(String text, Map<String, LinkReference> references, MarkdownParserOptions options,
+            List<InlineContentParserFactory> inlineParserFactories) {
         this.text = text;
         this.references = references;
         this.options = options != null ? options : new MarkdownParserOptions();
@@ -70,7 +73,8 @@ public class InlineParser implements InlineParserState {
             char c = text.charAt(index);
 
             // GFM Extended Autolinks
-            if (handleExtendedAutolink()) continue;
+            if (handleExtendedAutolink())
+                continue;
 
             // Check custom parsers first
             List<InlineContentParser> parsers = customParsers.get(c);
@@ -88,7 +92,8 @@ public class InlineParser implements InlineParserState {
                     }
                 }
             }
-            if (handled) continue;
+            if (handled)
+                continue;
 
             if (c == '\n') {
                 handleNewLine();
@@ -334,15 +339,9 @@ public class InlineParser implements InlineParserState {
 
     private boolean isDisallowedTag(String tagName) {
         // GFM disallowed tags
-        return tagName.equals("title") ||
-                tagName.equals("textarea") ||
-                tagName.equals("style") ||
-                tagName.equals("xmp") ||
-                tagName.equals("iframe") ||
-                tagName.equals("noembed") ||
-                tagName.equals("noframes") ||
-                tagName.equals("script") ||
-                tagName.equals("plaintext");
+        return tagName.equals("title") || tagName.equals("textarea") || tagName.equals("style") || tagName.equals("xmp")
+                || tagName.equals("iframe") || tagName.equals("noembed") || tagName.equals("noframes")
+                || tagName.equals("script") || tagName.equals("plaintext");
     }
 
     private void handleEntity() {
@@ -366,12 +365,14 @@ public class InlineParser implements InlineParserState {
 
         if (name != null) {
             String decoded = EntityDecoder.decode(name);
-            if (decoded != null) return decoded;
+            if (decoded != null)
+                return decoded;
             return matcher.group();
         } else if (decimal != null) {
             try {
                 int codePoint = Integer.parseInt(decimal);
-                if (codePoint == 0) return "\uFFFD";
+                if (codePoint == 0)
+                    return "\uFFFD";
                 return new String(Character.toChars(codePoint));
             } catch (IllegalArgumentException e) {
                 return "\uFFFD";
@@ -379,7 +380,8 @@ public class InlineParser implements InlineParserState {
         } else if (hex != null) {
             try {
                 int codePoint = Integer.parseInt(hex, 16);
-                if (codePoint == 0) return "\uFFFD";
+                if (codePoint == 0)
+                    return "\uFFFD";
                 return new String(Character.toChars(codePoint));
             } catch (IllegalArgumentException e) {
                 return "\uFFFD";
@@ -446,7 +448,8 @@ public class InlineParser implements InlineParserState {
         if (closeStart != -1) {
             String content = text.substring(contentStart, closeStart);
             content = content.replace('\n', ' ');
-            if (content.length() >= 2 && content.startsWith(" ") && content.endsWith(" ") && !content.trim().isEmpty()) {
+            if (content.length() >= 2 && content.startsWith(" ") && content.endsWith(" ")
+                    && !content.trim().isEmpty()) {
                 content = content.substring(1, content.length() - 1);
             }
             nodes.add(new Code(content));
@@ -514,7 +517,8 @@ public class InlineParser implements InlineParserState {
                                 }
                             } else {
                                 // Title MUST be separated by whitespace
-                                // If we see a quote but no whitespace, it's invalid unless it's the closing paren?
+                                // If we see a quote but no whitespace, it's invalid unless it's the closing
+                                // paren?
                                 // Actually, if we are at ')' it is fine.
                             }
                         }
@@ -617,17 +621,20 @@ public class InlineParser implements InlineParserState {
     private boolean containsLinkInChildren(Node node) {
         Node child = node.getFirstChild();
         while (child != null) {
-            if (containsLink(child)) return true;
+            if (containsLink(child))
+                return true;
             child = child.getNext();
         }
         return false;
     }
 
     private boolean containsLink(Node node) {
-        if (node instanceof Link) return true;
+        if (node instanceof Link)
+            return true;
         Node child = node.getFirstChild();
         while (child != null) {
-            if (containsLink(child)) return true;
+            if (containsLink(child))
+                return true;
             child = child.getNext();
         }
         return false;
@@ -651,7 +658,8 @@ public class InlineParser implements InlineParserState {
             // Inline image: ![alt](url)
             if (afterEnd < text.length() && text.charAt(afterEnd) == '(') {
                 int i = afterEnd + 1;
-                while (i < text.length() && isWhitespace(text.charAt(i))) i++;
+                while (i < text.length() && isWhitespace(text.charAt(i)))
+                    i++;
 
                 String destination = null;
                 String title = null;
@@ -677,7 +685,8 @@ public class InlineParser implements InlineParserState {
                                     if (parsedTitle != null) {
                                         title = parsedTitle.title;
                                         i = parsedTitle.endIndex;
-                                        while (i < text.length() && isWhitespace(text.charAt(i))) i++;
+                                        while (i < text.length() && isWhitespace(text.charAt(i)))
+                                            i++;
                                     }
                                 }
                             }
@@ -848,7 +857,8 @@ public class InlineParser implements InlineParserState {
             if (c == '[') {
                 depth++;
             } else if (c == ']') {
-                if (depth == 0) return i;
+                if (depth == 0)
+                    return i;
                 depth--;
             }
             i++;
@@ -861,7 +871,8 @@ public class InlineParser implements InlineParserState {
     }
 
     private ParsedDestination parseLinkDestination(int startIndex) {
-        if (startIndex >= text.length()) return null;
+        if (startIndex >= text.length())
+            return null;
         char c = text.charAt(startIndex);
 
         if (c == '<') {
@@ -892,11 +903,13 @@ public class InlineParser implements InlineParserState {
                     }
                 }
 
-                if (ch == '\n' || ch == '\r') return null; // No newlines
+                if (ch == '\n' || ch == '\r')
+                    return null; // No newlines
                 if (ch == '>') {
                     return new ParsedDestination(sb.toString(), i + 1);
                 }
-                if (ch == '<') return null; // Unescaped < not allowed
+                if (ch == '<')
+                    return null; // Unescaped < not allowed
                 sb.append(ch);
                 i++;
             }
@@ -909,8 +922,10 @@ public class InlineParser implements InlineParserState {
 
             while (i < text.length()) {
                 char ch = text.charAt(i);
-                if (Character.isISOControl(ch) && !Character.isWhitespace(ch)) return null; // Control chars
-                if (isWhitespace(ch)) break;
+                if (Character.isISOControl(ch) && !Character.isWhitespace(ch))
+                    return null; // Control chars
+                if (isWhitespace(ch))
+                    break;
 
                 if (ch == '\\') {
                     if (i + 1 < text.length()) {
@@ -937,7 +952,8 @@ public class InlineParser implements InlineParserState {
                 if (ch == '(') {
                     parenDepth++;
                 } else if (ch == ')') {
-                    if (parenDepth == 0) break; // End of destination
+                    if (parenDepth == 0)
+                        break; // End of destination
                     parenDepth--;
                 }
 
@@ -945,20 +961,26 @@ public class InlineParser implements InlineParserState {
                 i++;
             }
 
-            if (parenDepth != 0) return null; // Unbalanced
+            if (parenDepth != 0)
+                return null; // Unbalanced
             // Can be empty? Yes.
             return new ParsedDestination(sb.toString(), i);
         }
     }
 
     private ParsedTitle parseLinkTitle(int startIndex) {
-        if (startIndex >= text.length()) return null;
+        if (startIndex >= text.length())
+            return null;
         char opener = text.charAt(startIndex);
         char closer;
-        if (opener == '"') closer = '"';
-        else if (opener == '\'') closer = '\'';
-        else if (opener == '(') closer = ')';
-        else return null;
+        if (opener == '"')
+            closer = '"';
+        else if (opener == '\'')
+            closer = '\'';
+        else if (opener == '(')
+            closer = ')';
+        else
+            return null;
 
         StringBuilder sb = new StringBuilder();
         int i = startIndex + 1;
@@ -991,7 +1013,8 @@ public class InlineParser implements InlineParserState {
                 return new ParsedTitle(sb.toString(), i + 1);
             }
 
-            if (opener == '(' && ch == '(') return null; // Nested parens not allowed in title
+            if (opener == '(' && ch == '(')
+                return null; // Nested parens not allowed in title
 
             sb.append(ch);
             i++;
@@ -1039,7 +1062,8 @@ public class InlineParser implements InlineParserState {
 
                 // We stop if:
                 // 1. Current char could start a link (h, f, w, or email start?)
-                // 2. Previous char (which we just consumed or passed) was a boundary (whitespace, etc.)
+                // 2. Previous char (which we just consumed or passed) was a boundary
+                // (whitespace, etc.)
 
                 // But handleText loop consumes c.
                 // If c is ' ', we consume it.
@@ -1056,7 +1080,8 @@ public class InlineParser implements InlineParserState {
                 }
             }
 
-            if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '[' || c == '!' || c == '~' || customParsers.containsKey(c)) {
+            if (c == '\n' || c == '\\' || c == '<' || c == '`' || c == '&' || c == '*' || c == '_' || c == '['
+                    || c == '!' || c == '~' || customParsers.containsKey(c)) {
                 break;
             }
             index++;
@@ -1068,17 +1093,14 @@ public class InlineParser implements InlineParserState {
     }
 
     private static final Pattern EXTENDED_AUTOLINK_URI = Pattern.compile(
-            "(?:(https?|ftp)://|www\\.)[a-zA-Z0-9.+-]+(?:/[a-zA-Z0-9._+/?#@!$&'()*+,;=-]*)?",
-            Pattern.CASE_INSENSITIVE
-    );
+            "(?:(https?|ftp)://|www\\.)[a-zA-Z0-9.+-]+(?:/[a-zA-Z0-9._+/?#@!$&'()*+,;=-]*)?", Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern EXTENDED_AUTOLINK_EMAIL = Pattern.compile(
-            "[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{1,}",
-            Pattern.CASE_INSENSITIVE
-    );
+    private static final Pattern EXTENDED_AUTOLINK_EMAIL = Pattern
+            .compile("[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{1,}", Pattern.CASE_INSENSITIVE);
 
     private boolean handleExtendedAutolink() {
-        if (!options.isGfm()) return false;
+        if (!options.isGfm())
+            return false;
 
         String remaining = text.substring(index);
         Matcher matcher = EXTENDED_AUTOLINK_URI.matcher(remaining);
@@ -1086,7 +1108,8 @@ public class InlineParser implements InlineParserState {
         if (matcher.lookingAt()) {
             // Check boundary
             boolean boundary = false;
-            if (index == 0) boundary = true;
+            if (index == 0)
+                boundary = true;
             else {
                 char prev = text.charAt(index - 1);
                 if (isWhitespace(prev) || prev == '*' || prev == '_' || prev == '~' || prev == '(') {
@@ -1113,7 +1136,8 @@ public class InlineParser implements InlineParserState {
                 }
 
                 // If trimmed match is empty or invalid?
-                if (match.isEmpty()) return false;
+                if (match.isEmpty())
+                    return false;
 
                 if (match.toLowerCase(java.util.Locale.ROOT).startsWith("www.")) {
                     linkDest = "http://" + match;
@@ -1133,7 +1157,8 @@ public class InlineParser implements InlineParserState {
         matcher = EXTENDED_AUTOLINK_EMAIL.matcher(remaining);
         if (matcher.lookingAt()) {
             boolean boundary = false;
-            if (index == 0) boundary = true;
+            if (index == 0)
+                boundary = true;
             else {
                 char prev = text.charAt(index - 1);
                 if (isWhitespace(prev) || prev == '*' || prev == '_' || prev == '~' || prev == '(') {
@@ -1143,7 +1168,8 @@ public class InlineParser implements InlineParserState {
 
             if (boundary) {
                 String match = matcher.group();
-                if (match.endsWith("-") || match.endsWith("_")) return false;
+                if (match.endsWith("-") || match.endsWith("_"))
+                    return false;
 
                 // Check what follows
                 int end = matcher.end();
@@ -1155,7 +1181,8 @@ public class InlineParser implements InlineParserState {
                 }
 
                 match = trimTrailingPunctuation(match);
-                if (match.endsWith(".")) match = match.substring(0, match.length() - 1);
+                if (match.endsWith("."))
+                    match = match.substring(0, match.length() - 1);
 
                 String linkDest = "mailto:" + match;
                 Link link = new Link(linkDest, "");
@@ -1179,10 +1206,13 @@ public class InlineParser implements InlineParserState {
                     int open = 0;
                     int close = 0;
                     for (int i = 0; i < end; i++) {
-                        if (s.charAt(i) == '(') open++;
-                        if (s.charAt(i) == ')') close++;
+                        if (s.charAt(i) == '(')
+                            open++;
+                        if (s.charAt(i) == ')')
+                            close++;
                     }
-                    if (open >= close) break; // Balanced or more open, keep it
+                    if (open >= close)
+                        break; // Balanced or more open, keep it
                 }
                 // Strip
                 end--;
@@ -1198,23 +1228,19 @@ public class InlineParser implements InlineParserState {
     }
 
     private boolean isUnicodeWhitespace(char c) {
-        return Character.getType(c) == Character.SPACE_SEPARATOR || c == '\t' || c == '\n' || c == '\u000B' || c == '\u000C' || c == '\r';
+        return Character.getType(c) == Character.SPACE_SEPARATOR || c == '\t' || c == '\n' || c == '\u000B'
+                || c == '\u000C' || c == '\r';
     }
 
     private boolean isUnicodePunctuation(char c) {
-        if (isPunctuation(c)) return true;
+        if (isPunctuation(c))
+            return true;
         int type = Character.getType(c);
-        return type == Character.DASH_PUNCTUATION ||
-                type == Character.START_PUNCTUATION ||
-                type == Character.END_PUNCTUATION ||
-                type == Character.CONNECTOR_PUNCTUATION ||
-                type == Character.OTHER_PUNCTUATION ||
-                type == Character.INITIAL_QUOTE_PUNCTUATION ||
-                type == Character.FINAL_QUOTE_PUNCTUATION ||
-                type == Character.CURRENCY_SYMBOL ||
-                type == Character.MATH_SYMBOL ||
-                type == Character.MODIFIER_SYMBOL ||
-                type == Character.OTHER_SYMBOL;
+        return type == Character.DASH_PUNCTUATION || type == Character.START_PUNCTUATION
+                || type == Character.END_PUNCTUATION || type == Character.CONNECTOR_PUNCTUATION
+                || type == Character.OTHER_PUNCTUATION || type == Character.INITIAL_QUOTE_PUNCTUATION
+                || type == Character.FINAL_QUOTE_PUNCTUATION || type == Character.CURRENCY_SYMBOL
+                || type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL || type == Character.OTHER_SYMBOL;
     }
 
     private void handleEmphasis(char c) {
@@ -1232,11 +1258,11 @@ public class InlineParser implements InlineParserState {
         char before = (start > 0) ? text.charAt(start - 1) : '\n';
         char after = (index < text.length()) ? text.charAt(index) : '\n';
 
-        boolean leftFlanking = !isUnicodeWhitespace(after) &&
-                (!isUnicodePunctuation(after) || isUnicodeWhitespace(before) || isUnicodePunctuation(before));
+        boolean leftFlanking = !isUnicodeWhitespace(after)
+                && (!isUnicodePunctuation(after) || isUnicodeWhitespace(before) || isUnicodePunctuation(before));
 
-        boolean rightFlanking = !isUnicodeWhitespace(before) &&
-                (!isUnicodePunctuation(before) || isUnicodeWhitespace(after) || isUnicodePunctuation(after));
+        boolean rightFlanking = !isUnicodeWhitespace(before)
+                && (!isUnicodePunctuation(before) || isUnicodeWhitespace(after) || isUnicodePunctuation(after));
 
         boolean canOpen;
         boolean canClose;
@@ -1279,9 +1305,8 @@ public class InlineParser implements InlineParserState {
             while (opener != null) {
                 if (opener.c == d.c && opener.canOpen) {
                     // Check Rule of 3
-                    if ((opener.canClose || d.canOpen) &&
-                            (opener.length + d.length) % 3 == 0 &&
-                            (opener.length % 3 != 0) && (d.length % 3 != 0)) {
+                    if ((opener.canClose || d.canOpen) && (opener.length + d.length) % 3 == 0
+                            && (opener.length % 3 != 0) && (d.length % 3 != 0)) {
                         opener = opener.previous;
                         continue;
                     }
@@ -1414,7 +1439,8 @@ public class InlineParser implements InlineParserState {
         Delimiter previous;
         Delimiter next;
 
-        public Delimiter(Node node, char c, int length, int index, boolean canOpen, boolean canClose, Delimiter previous) {
+        public Delimiter(Node node, char c, int length, int index, boolean canOpen, boolean canClose,
+                Delimiter previous) {
             this.node = node;
             this.c = c;
             this.length = length;

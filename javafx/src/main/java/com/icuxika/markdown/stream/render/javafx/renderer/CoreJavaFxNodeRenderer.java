@@ -1,6 +1,35 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
+import com.icuxika.markdown.stream.render.core.ast.Code;
+import com.icuxika.markdown.stream.render.core.ast.CodeBlock;
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Emphasis;
+import com.icuxika.markdown.stream.render.core.ast.HardBreak;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.HtmlBlock;
+import com.icuxika.markdown.stream.render.core.ast.HtmlInline;
+import com.icuxika.markdown.stream.render.core.ast.Image;
+import com.icuxika.markdown.stream.render.core.ast.Link;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.SoftBreak;
+import com.icuxika.markdown.stream.render.core.ast.Strikethrough;
+import com.icuxika.markdown.stream.render.core.ast.StrongEmphasis;
+import com.icuxika.markdown.stream.render.core.ast.Table;
+import com.icuxika.markdown.stream.render.core.ast.TableBody;
+import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.TableHead;
+import com.icuxika.markdown.stream.render.core.ast.TableRow;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+import java.util.function.Consumer;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -9,13 +38,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-import java.util.function.Consumer;
-
 /**
- * 核心 JavaFX 节点渲染器。
+ * 核心 JavaFX 节点渲染器.
  * <p>
  * 实现了标准 CommonMark 节点（如段落、标题、列表、表格、代码块等）的 JavaFX 渲染逻辑。
  * </p>
@@ -171,8 +195,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     }
 
     /**
-     * 渲染段落。
-     * 段落通常作为 TextFlow 容器，用于包含行内文本和元素。
+     * 渲染段落. 段落通常作为 TextFlow 容器，用于包含行内文本和元素。
      */
     private void renderParagraph(Paragraph paragraph) {
         TextFlow flow = new TextFlow();
@@ -189,8 +212,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     }
 
     /**
-     * 渲染标题。
-     * 根据标题级别应用不同的样式类（markdown-h1 ~ markdown-h6）。
+     * 渲染标题. 根据标题级别应用不同的样式类（markdown-h1 ~ markdown-h6）。
      */
     private void renderHeading(Heading heading) {
         TextFlow flow = new TextFlow();
@@ -212,8 +234,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     }
 
     /**
-     * 渲染纯文本。
-     * 根据当前状态应用样式（粗体、斜体、删除线、代码、链接等）。
+     * 渲染纯文本. 根据当前状态应用样式（粗体、斜体、删除线、代码、链接等）。
      */
     private void renderText(Text text) {
         javafx.scene.text.Text t = new javafx.scene.text.Text(text.getLiteral());
@@ -290,6 +311,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         context.popContainer();
     }
 
+    @SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
     private void renderListItem(ListItem listItem) {
         javafx.scene.layout.HBox itemBox = new javafx.scene.layout.HBox();
         itemBox.setSpacing(5);
@@ -337,15 +359,17 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             checkBox.setSelected(listItem.isChecked());
             checkBox.setDisable(true); // Read-only
             checkBox.getStyleClass().add("markdown-task-checkbox");
-            
+
             // Fix vertical alignment: CheckBox in JavaFX defaults to CENTER_LEFT.
-            // If the text is multi-line, we want it top-aligned? 
-            // Actually, usually CheckBox icon is small, so CENTER_LEFT relative to first line of text is good.
+            // If the text is multi-line, we want it top-aligned?
+            // Actually, usually CheckBox icon is small, so CENTER_LEFT relative to first
+            // line of text is good.
             // But if we put it in an HBox with TOP_LEFT alignment, it might stick to top.
-            // Let's ensure it has a min-height matching the text line-height to center the box relative to text.
-            checkBox.setMinHeight(20); 
+            // Let's ensure it has a min-height matching the text line-height to center the
+            // box relative to text.
+            checkBox.setMinHeight(20);
             checkBox.setAlignment(javafx.geometry.Pos.TOP_LEFT); // Align the box itself to top if it has height?
-            
+
             markers.add(checkBox);
         }
 
@@ -427,12 +451,12 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         // Wrap in StackPane to allow adding copy button
         javafx.scene.layout.StackPane stack = new javafx.scene.layout.StackPane();
         stack.getStyleClass().add("markdown-code-block-container");
-        
+
         Label l = new Label(literal);
         l.getStyleClass().add("markdown-code-block");
         l.setMaxWidth(Double.MAX_VALUE);
         stack.getChildren().add(l);
-        
+
         addCopyButton(stack, literal);
 
         context.getCurrentContainer().getChildren().add(stack);
@@ -451,7 +475,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         for (String token : tokens) {
             javafx.scene.text.Text t = new javafx.scene.text.Text(token);
             t.getStyleClass().add("markdown-code-text");
-            
+
             if (isJavaKeyword(token)) {
                 t.getStyleClass().add("code-keyword");
             } else if (token.matches("\".*\"")) {
@@ -461,10 +485,10 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             }
             flow.getChildren().add(t);
         }
-        
+
         stack.getChildren().add(flow);
         addCopyButton(stack, code);
-        
+
         context.getCurrentContainer().getChildren().add(stack);
     }
 
@@ -474,13 +498,13 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
 
         TextFlow flow = new TextFlow();
         flow.getStyleClass().add("markdown-code-block-flow");
-        
+
         // Simple tokenizer for JSON
         String[] tokens = code.split("(?<=\\s)|(?=\\s)|(?<=[\\{\\}\\[\\]:,])|(?=[\\{\\}\\[\\]:,])");
         for (String token : tokens) {
             javafx.scene.text.Text t = new javafx.scene.text.Text(token);
             t.getStyleClass().add("markdown-code-text");
-            
+
             if (token.matches("\".*\":")) { // Key
                 t.getStyleClass().add("code-json-key");
             } else if (token.matches("\".*\"")) { // String value
@@ -511,7 +535,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         for (String token : tokens) {
             javafx.scene.text.Text t = new javafx.scene.text.Text(token);
             t.getStyleClass().add("markdown-code-text");
-            
+
             if (token.startsWith("<") && token.length() > 1 && !token.startsWith("<!--")) {
                 t.getStyleClass().add("code-tag");
             } else if (token.equals(">") || token.equals("<") || token.equals("/>") || token.equals("</")) {
@@ -543,7 +567,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         for (String token : tokens) {
             javafx.scene.text.Text t = new javafx.scene.text.Text(token);
             t.getStyleClass().add("markdown-code-text");
-            
+
             if (token.startsWith(".")) {
                 t.getStyleClass().add("code-class");
             } else if (token.startsWith("#")) {
@@ -572,7 +596,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         for (String token : tokens) {
             javafx.scene.text.Text t = new javafx.scene.text.Text(token);
             t.getStyleClass().add("markdown-code-text");
-            
+
             if (isSqlKeyword(token)) {
                 t.getStyleClass().add("code-keyword");
             } else if (token.matches("'.*'") || token.matches("\".*\"")) {
@@ -599,7 +623,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         for (String token : tokens) {
             javafx.scene.text.Text t = new javafx.scene.text.Text(token);
             t.getStyleClass().add("markdown-code-text");
-            
+
             if (token.startsWith("#")) {
                 t.getStyleClass().add("code-comment");
             } else if (token.startsWith("-")) {
@@ -618,22 +642,20 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     }
 
     private boolean isSqlKeyword(String text) {
-        Set<String> keywords = Set.of(
-            "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE", 
-            "DROP", "ALTER", "INDEX", "AND", "OR", "NOT", "NULL", "TRUE", "FALSE", "JOIN", "LEFT", "RIGHT", "INNER", 
-            "OUTER", "ON", "GROUP", "BY", "ORDER", "ASC", "DESC", "LIMIT", "OFFSET", "COUNT", "SUM", "AVG", "MAX", "MIN",
-            "select", "from", "where", "insert", "into", "values", "update", "set", "delete", "create", "table",
-            "drop", "alter", "index", "and", "or", "not", "null", "true", "false", "join", "left", "right", "inner",
-            "outer", "on", "group", "by", "order", "asc", "desc", "limit", "offset", "count", "sum", "avg", "max", "min"
-        );
+        Set<String> keywords = Set.of("SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE",
+                "CREATE", "TABLE", "DROP", "ALTER", "INDEX", "AND", "OR", "NOT", "NULL", "TRUE", "FALSE", "JOIN",
+                "LEFT", "RIGHT", "INNER", "OUTER", "ON", "GROUP", "BY", "ORDER", "ASC", "DESC", "LIMIT", "OFFSET",
+                "COUNT", "SUM", "AVG", "MAX", "MIN", "select", "from", "where", "insert", "into", "values", "update",
+                "set", "delete", "create", "table", "drop", "alter", "index", "and", "or", "not", "null", "true",
+                "false", "join", "left", "right", "inner", "outer", "on", "group", "by", "order", "asc", "desc",
+                "limit", "offset", "count", "sum", "avg", "max", "min");
         return keywords.contains(text.trim());
     }
 
     private boolean isBashKeyword(String text) {
-        Set<String> keywords = Set.of(
-            "if", "then", "else", "elif", "fi", "case", "esac", "for", "select", "while", "until", "do", "done", 
-            "in", "function", "time", "{", "}", "!", "[[", "]]", "return", "exit", "echo", "printf", "cd", "pwd", "ls"
-        );
+        Set<String> keywords = Set.of("if", "then", "else", "elif", "fi", "case", "esac", "for", "select", "while",
+                "until", "do", "done", "in", "function", "time", "{", "}", "!", "[[", "]]", "return", "exit", "echo",
+                "printf", "cd", "pwd", "ls");
         return keywords.contains(text.trim());
     }
 
@@ -641,11 +663,11 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
         javafx.scene.control.Button copyBtn = new javafx.scene.control.Button("Copy");
         copyBtn.getStyleClass().add("markdown-copy-button");
         copyBtn.setVisible(false);
-        
+
         // Position top-right
         javafx.scene.layout.StackPane.setAlignment(copyBtn, javafx.geometry.Pos.TOP_RIGHT);
         javafx.scene.layout.StackPane.setMargin(copyBtn, new javafx.geometry.Insets(5));
-        
+
         copyBtn.setOnAction(e -> {
             javafx.scene.input.ClipboardContent clipboardContent = new javafx.scene.input.ClipboardContent();
             clipboardContent.putString(content);
@@ -662,17 +684,15 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
 
         stack.setOnMouseEntered(e -> copyBtn.setVisible(true));
         stack.setOnMouseExited(e -> copyBtn.setVisible(false));
-        
+
         stack.getChildren().add(copyBtn);
     }
 
     private boolean isJavaKeyword(String text) {
-        Set<String> keywords = Set.of(
-            "public", "private", "protected", "class", "interface", "enum", "extends", "implements",
-            "static", "final", "void", "return", "if", "else", "for", "while", "do", "switch", "case",
-            "try", "catch", "finally", "throw", "throws", "new", "this", "super", "boolean", "int", 
-            "long", "float", "double", "byte", "short", "char", "package", "import", "null", "true", "false"
-        );
+        Set<String> keywords = Set.of("public", "private", "protected", "class", "interface", "enum", "extends",
+                "implements", "static", "final", "void", "return", "if", "else", "for", "while", "do", "switch", "case",
+                "try", "catch", "finally", "throw", "throws", "new", "this", "super", "boolean", "int", "long", "float",
+                "double", "byte", "short", "char", "package", "import", "null", "true", "false");
         return keywords.contains(text.trim());
     }
 
@@ -688,7 +708,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     private void renderImage(Image image) {
         try {
             String url = image.getDestination();
-            
+
             // Use background loading (true)
             javafx.scene.image.Image img = IMAGE_CACHE.computeIfAbsent(url, k -> new javafx.scene.image.Image(k, true));
 
@@ -696,43 +716,46 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             iv.getStyleClass().add("markdown-image");
             iv.setFitWidth(200); // Default width, can be adjusted via CSS or attributes if supported
             iv.setPreserveRatio(true);
-            
+
             // Placeholder / Error handling
             // Since Image is loading in background, we can check progress or error
             // But ImageView handles loading state gracefully (transparent until loaded).
-            // To show a placeholder, we could use a StackPane with a ProgressIndicator behind the ImageView?
+            // To show a placeholder, we could use a StackPane with a ProgressIndicator
+            // behind the ImageView?
             // Or better: bind to image properties.
-            
+
             // Simple Error Handling:
-            // If image fails to load (error property), replace with broken image icon or text
+            // If image fails to load (error property), replace with broken image icon or
+            // text
             // But we need a container to swap content.
             // TextFlow/VBox container is already there.
             // Let's wrap ImageView in a StackPane to show placeholder/error.
-            
+
             javafx.scene.layout.StackPane imgContainer = new javafx.scene.layout.StackPane();
             imgContainer.getStyleClass().add("markdown-image-container");
             // Limit container size to match image fit width?
             imgContainer.setMaxWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
-            
+
             // Loading Indicator (optional, maybe too noisy for stream)
-            // javafx.scene.control.ProgressIndicator pi = new javafx.scene.control.ProgressIndicator();
+            // javafx.scene.control.ProgressIndicator pi = new
+            // javafx.scene.control.ProgressIndicator();
             // pi.setMaxSize(20, 20);
             // pi.visibleProperty().bind(img.progressProperty().lessThan(1).and(img.errorProperty().not()));
-            
+
             // Error Label
             Label errorLabel = new Label("❌ Image failed: " + url);
             errorLabel.getStyleClass().add("markdown-image-error");
             errorLabel.setVisible(false);
             errorLabel.setWrapText(true);
-            
+
             // Set exception handler BEFORE starting loading if possible, or use listener.
             // Image(url, true) starts loading immediately.
             // If exception occurs, errorProperty becomes true and exception is set.
             // Sometimes it happens very fast (e.g. invalid URL format).
-            
+
             if (img.isError()) {
-                 iv.setVisible(false);
-                 errorLabel.setVisible(true);
+                iv.setVisible(false);
+                errorLabel.setVisible(true);
             }
 
             img.errorProperty().addListener((obs, old, isError) -> {
@@ -747,7 +770,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
                     }
                 }
             });
-            
+
             imgContainer.getChildren().addAll(errorLabel, iv); // iv on top (if visible)
 
             if (currentTextFlow != null) {
@@ -759,14 +782,14 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             }
         } catch (Exception e) {
             if (currentTextFlow != null) {
-                currentTextFlow.getChildren().add(new javafx.scene.text.Text("[Image Error: " + image.getDestination() + "]"));
+                currentTextFlow.getChildren()
+                        .add(new javafx.scene.text.Text("[Image Error: " + image.getDestination() + "]"));
             }
         }
     }
 
     /**
-     * 渲染表格。
-     * 使用 GridPane 实现，并自动处理单元格对齐和斑马纹样式。
+     * 渲染表格. 使用 GridPane 实现，并自动处理单元格对齐和斑马纹样式。
      */
     private void renderTable(Table table) {
         javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
@@ -802,14 +825,14 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     private void renderTableCell(TableCell tableCell) {
         Pane parent = context.getCurrentContainer();
         if (parent instanceof javafx.scene.layout.GridPane) {
-            javafx.scene.layout.GridPane grid = (javafx.scene.layout.GridPane) parent;
+            final javafx.scene.layout.GridPane grid = (javafx.scene.layout.GridPane) parent;
 
             TextFlow flow = new TextFlow();
             flow.getStyleClass().add("markdown-table-cell");
-            
+
             // Allow cell content to wrap if needed, but in tables usually we want to expand
             // TextFlow by default doesn't have a max width unless constrained.
-            
+
             if (tableCell.isHeader()) {
                 flow.getStyleClass().add("markdown-table-header");
             } else {
@@ -824,19 +847,22 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             // Handle alignment
             if (tableCell.getAlignment() != null) {
                 switch (tableCell.getAlignment()) {
-                    case CENTER:
+                    case CENTER :
                         flow.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
                         break;
-                    case RIGHT:
+                    case RIGHT :
                         flow.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
                         break;
-                    case LEFT:
+                    case LEFT :
                         flow.setTextAlignment(javafx.scene.text.TextAlignment.LEFT);
+                        break;
+                    default :
                         break;
                 }
             }
 
-            // Create a StackPane wrapper to handle background fill properly if TextFlow doesn't fill cell
+            // Create a StackPane wrapper to handle background fill properly if TextFlow
+            // doesn't fill cell
             // But TextFlow with proper background-color should work if it stretches.
             // Let's ensure TextFlow fills the grid cell.
             javafx.scene.layout.GridPane.setFillWidth(flow, true);

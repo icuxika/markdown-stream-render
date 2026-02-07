@@ -1,12 +1,12 @@
 package com.icuxika.markdown.stream.render.html;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Edge Case Tests to increase coverage and verify robustness.
@@ -138,7 +138,8 @@ public class EdgeCaseTest {
     @Test
     public void testMalformedTaskBox() {
         String input = "- [v] Invalid\n- [ ]Valid"; // Missing space in second one?
-        // "- [ ]Valid" -> is valid task list item? CommonMark spec says space required after ]?
+        // "- [ ]Valid" -> is valid task list item? CommonMark spec says space required
+        // after ]?
         // GFM says space required.
         String html = render(input);
         assertTrue(html.contains("[v] Invalid"), "Should treat invalid box as text");
