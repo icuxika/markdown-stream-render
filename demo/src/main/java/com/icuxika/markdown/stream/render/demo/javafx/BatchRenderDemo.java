@@ -1,4 +1,4 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.javafx;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
@@ -17,7 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import jfx.incubator.scene.control.richtext.CodeArea;
 
-public class JavaFxBatchDemo extends Application {
+public class BatchRenderDemo extends Application {
 
     private JavaFxRenderer renderer;
     private ScrollPane outputScroll;

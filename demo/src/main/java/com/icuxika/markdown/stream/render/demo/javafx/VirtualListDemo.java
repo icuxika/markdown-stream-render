@@ -1,4 +1,4 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.javafx;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;

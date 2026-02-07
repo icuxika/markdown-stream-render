@@ -1,4 +1,4 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.javafx;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;
@@ -22,7 +22,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class JavaFxStreamDemo extends Application {
+public class StreamRenderDemo extends Application {
 
     private StreamMarkdownParser parser;
     private ScheduledExecutorService executor;

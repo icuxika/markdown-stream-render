@@ -1,4 +1,4 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.server;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
@@ -16,9 +16,11 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
-public class HtmlStreamServerDemo {
+public class StreamServerDemo {
 
     private static final int PORT = 8082;
+
+    // ...
 
     /**
      * Main entry point for the HTML Stream Server Demo.
@@ -183,11 +185,11 @@ public class HtmlStreamServerDemo {
     }
 
     private static String loadTemplate() {
-        try (InputStream is = HtmlStreamServerDemo.class.getResourceAsStream("/comprehensive.md")) {
+        try (InputStream is = StreamServerDemo.class.getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             } else {
-                try (InputStream is2 = HtmlStreamServerDemo.class.getResourceAsStream("/template.md")) {
+                try (InputStream is2 = StreamServerDemo.class.getResourceAsStream("/template.md")) {
                     if (is2 != null) {
                         return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
                     }

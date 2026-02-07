@@ -1,4 +1,4 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.javafx;
 
 import java.util.HashMap;
 import java.util.Map;

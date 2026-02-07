@@ -1,5 +1,11 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import com.icuxika.markdown.stream.render.demo.javafx.AiChatDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.BatchRenderDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.StreamRenderDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo;
+import com.icuxika.markdown.stream.render.demo.server.BatchServerDemo;
+import com.icuxika.markdown.stream.render.demo.server.StreamServerDemo;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -33,15 +39,15 @@ public class Launcher extends Application {
 
         Button streamDemoBtn = new Button("Streaming Demo (Incremental)");
         streamDemoBtn.setPrefWidth(250);
-        streamDemoBtn.setOnAction(e -> launchDemo(new JavaFxStreamDemo()));
+        streamDemoBtn.setOnAction(e -> launchDemo(new StreamRenderDemo()));
 
         Button batchDemoBtn = new Button("Batch Demo (Full Parse)");
         batchDemoBtn.setPrefWidth(250);
-        batchDemoBtn.setOnAction(e -> launchDemo(new JavaFxBatchDemo()));
+        batchDemoBtn.setOnAction(e -> launchDemo(new BatchRenderDemo()));
 
         Button chatDemoBtn = new Button("AI Chat Demo (Streaming)");
         chatDemoBtn.setPrefWidth(250);
-        chatDemoBtn.setOnAction(e -> launchDemo(new JavaFxAiChatDemo()));
+        chatDemoBtn.setOnAction(e -> launchDemo(new AiChatDemo()));
 
         Button virtualDemoBtn = new Button("Virtual List Demo (High Perf)");
         virtualDemoBtn.setPrefWidth(250);
@@ -55,7 +61,7 @@ public class Launcher extends Application {
         htmlStreamBtn.setPrefWidth(250);
         htmlStreamBtn.setOnAction(e -> launchServer(() -> {
             try {
-                HtmlStreamServerDemo.startServer();
+                StreamServerDemo.startServer();
                 showInfo("Streaming Server Started", "Server running at http://localhost:8082/");
             } catch (Exception ex) {
                 showError("Error", ex.getMessage());
@@ -66,7 +72,7 @@ public class Launcher extends Application {
         htmlBatchBtn.setPrefWidth(250);
         htmlBatchBtn.setOnAction(e -> launchServer(() -> {
             try {
-                HtmlBatchServerDemo.startServer();
+                BatchServerDemo.startServer();
                 showInfo("Batch Server Started", "Server running at http://localhost:8081/");
             } catch (Exception ex) {
                 showError("Error", ex.getMessage());

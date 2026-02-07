@@ -1,4 +1,4 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.server;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
@@ -16,9 +16,11 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-public class HtmlBatchServerDemo {
+public class BatchServerDemo {
 
     private static final int PORT = 8082;
+
+    // ...
 
     /**
      * Main entry point for the HTML Batch Server Demo.
@@ -126,11 +128,11 @@ public class HtmlBatchServerDemo {
     }
 
     private static String loadTemplate() {
-        try (InputStream is = HtmlBatchServerDemo.class.getResourceAsStream("/comprehensive.md")) {
+        try (InputStream is = BatchServerDemo.class.getResourceAsStream("/comprehensive.md")) {
             if (is != null) {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             } else {
-                try (InputStream is2 = HtmlBatchServerDemo.class.getResourceAsStream("/template.md")) {
+                try (InputStream is2 = BatchServerDemo.class.getResourceAsStream("/template.md")) {
                     if (is2 != null) {
                         return new String(is2.readAllBytes(), StandardCharsets.UTF_8);
                     }

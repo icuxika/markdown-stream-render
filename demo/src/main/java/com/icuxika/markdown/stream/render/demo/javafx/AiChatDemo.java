@@ -1,8 +1,9 @@
-package com.icuxika.markdown.stream.render.demo;
+package com.icuxika.markdown.stream.render.demo.javafx;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.demo.client.DeepSeekClient;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
-public class JavaFxAiChatDemo extends Application {
+public class AiChatDemo extends Application {
 
     private final ListView<ChatMessage> chatList = new ListView<>();
     private final ObservableList<ChatMessage> messages = FXCollections.observableArrayList();
