@@ -5,24 +5,14 @@ import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.demo.client.DeepSeekClient;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
@@ -40,8 +30,8 @@ import javafx.stage.Stage;
  */
 public class AiChatDemo extends Application {
 
-    private final ListView<ChatMessage> chatList = new ListView<>();
-    private final ObservableList<ChatMessage> messages = FXCollections.observableArrayList();
+    private final ScrollPane chatScrollPane = new ScrollPane();
+    private final VBox chatBox = new VBox();
     private final TextArea inputArea = new TextArea();
     private final Button sendButton = new Button("Send");
     private DeepSeekClient client;
@@ -75,11 +65,21 @@ public class AiChatDemo extends Application {
 
         history.add(new DeepSeekClient.ChatMessage("system", "You are a helpful assistant."));
 
-        // Setup ListView
-        chatList.setItems(messages);
-        chatList.setCellFactory(param -> new ChatListCell());
-        chatList.setFocusTraversable(false);
-        VBox.setVgrow(chatList, Priority.ALWAYS);
+        // Setup ScrollPane and ChatBox
+        chatBox.setPadding(new Insets(10));
+        chatBox.setSpacing(10);
+        chatBox.setStyle("-fx-background-color: transparent;");
+
+        chatScrollPane.setContent(chatBox);
+        chatScrollPane.setFitToWidth(true);
+        chatScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        chatScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        chatScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        // Auto-scroll logic
+        chatBox.heightProperty().addListener((observable, oldValue, newValue) -> {
+            chatScrollPane.setVvalue(1.0);
+        });
 
         // Input Area
         inputArea.setPromptText("Type a message... (Enter to send, Shift+Enter for new line)");
@@ -113,7 +113,7 @@ public class AiChatDemo extends Application {
 
         BorderPane root = new BorderPane();
         root.setTop(toolBar);
-        root.setCenter(chatList);
+        root.setCenter(chatScrollPane);
         root.setBottom(bottomBox);
 
         Scene scene = new Scene(root, 900, 700);
@@ -216,137 +216,52 @@ public class AiChatDemo extends Application {
 
         inputArea.clear();
 
-        // Add user message
-        ChatMessage userMsg = new ChatMessage(text, true);
-        messages.add(userMsg);
+        // Add user message bubble
+        MarkdownBubble userBubble = new MarkdownBubble();
+        userBubble.configure(true);
+        userBubble.resetAndSetText(text);
+        chatBox.getChildren().add(userBubble);
+
         history.add(new DeepSeekClient.ChatMessage("user", text));
         scrollToBottom();
 
-        // Create AI message placeholder
-        ChatMessage aiMsg = new ChatMessage("", false);
-        messages.add(aiMsg);
+        // Create AI message bubble
+        MarkdownBubble aiBubble = new MarkdownBubble();
+        aiBubble.configure(false);
+        aiBubble.resetAndSetText("");
+        chatBox.getChildren().add(aiBubble);
         scrollToBottom();
 
         StringBuilder assistantResponse = new StringBuilder();
 
         client.streamChat(history, token -> {
-            // Update message content and notify listeners (Cells)
+            // Update message content
             Platform.runLater(() -> {
-                aiMsg.appendToken(token);
+                aiBubble.append(token);
                 assistantResponse.append(token);
-                scrollToBottom();
+                // Scroll is handled by height listener, but we can force it too
+                // scrollToBottom();
             });
         }, () -> {
             Platform.runLater(() -> {
                 history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
-                // Mark as finished if we had a flag? Not strictly needed as token stream ends.
             });
         }, error -> Platform.runLater(() -> {
-            aiMsg.appendToken("\n\n**Error**: " + error.getMessage());
+            aiBubble.append("\n\n**Error**: " + error.getMessage());
             scrollToBottom();
         }));
     }
 
     private void scrollToBottom() {
-        // Simple scroll to bottom
-        if (!messages.isEmpty()) {
-            chatList.scrollTo(messages.size() - 1);
-        }
+        // Force layout update and scroll
+        Platform.runLater(() -> {
+            chatBox.layout();
+            chatScrollPane.layout();
+            chatScrollPane.setVvalue(1.0);
+        });
     }
 
     // --- Inner Classes ---
-
-    /**
-     * Chat Message Model.
-     */
-    public static class ChatMessage {
-        public final StringProperty content = new SimpleStringProperty("");
-        public final BooleanProperty isUser = new SimpleBooleanProperty(true);
-        private final List<Consumer<String>> tokenListeners = new ArrayList<>();
-
-        /**
-         * Constructor.
-         *
-         * @param content
-         *            content
-         * @param isUser
-         *            is user
-         */
-        public ChatMessage(String content, boolean isUser) {
-            this.content.set(content);
-            this.isUser.set(isUser);
-        }
-
-        /**
-         * Append token.
-         *
-         * @param token
-         *            token
-         */
-        public void appendToken(String token) {
-            content.set(content.get() + token);
-            for (Consumer<String> l : new ArrayList<>(tokenListeners)) {
-                l.accept(token);
-            }
-        }
-
-        /**
-         * Add listener.
-         *
-         * @param l
-         *            listener
-         */
-        public void addTokenListener(Consumer<String> l) {
-            tokenListeners.add(l);
-        }
-
-        /**
-         * Remove listener.
-         *
-         * @param l
-         *            listener
-         */
-        public void removeTokenListener(Consumer<String> l) {
-            tokenListeners.remove(l);
-        }
-    }
-
-    private static class ChatListCell extends ListCell<ChatMessage> {
-        private final MarkdownBubble bubble;
-        private Consumer<String> tokenListener;
-
-        public ChatListCell() {
-            bubble = new MarkdownBubble();
-            setGraphic(bubble);
-            setStyle("-fx-background-color: transparent;");
-        }
-
-        @Override
-        protected void updateItem(ChatMessage item, boolean empty) {
-            // Unsubscribe from previous item
-            if (getItem() != null && tokenListener != null) {
-                getItem().removeTokenListener(tokenListener);
-            }
-
-            super.updateItem(item, empty);
-
-            if (empty || item == null) {
-                setGraphic(null);
-                bubble.setVisible(false);
-            } else {
-                setGraphic(bubble);
-                bubble.setVisible(true);
-                bubble.configure(item.isUser.get());
-
-                // Reset renderer and set initial content
-                bubble.resetAndSetText(item.content.get());
-
-                // Subscribe for updates
-                tokenListener = token -> bubble.append(token);
-                item.addTokenListener(tokenListener);
-            }
-        }
-    }
 
     private static class MarkdownBubble extends HBox {
         private final VBox contentBox = new VBox();
