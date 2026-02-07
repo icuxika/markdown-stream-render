@@ -68,11 +68,43 @@ public class HtmlBatchServerDemo {
             renderer.render(doc);
             String htmlContent = (String) renderer.getResult();
 
-            // Wrap in full HTML
-            String response = "<html><head><meta charset='UTF-8'><style>" +
-                    HtmlCssProvider.getAllCss() +
-                    "</style></head><body>" +
-                    htmlContent +
+            // Load Demo CSS
+            String demoCss = loadResource("/css/demo.css");
+
+            // Wrap in full HTML with Modern Sidebar Layout
+            String response = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" +
+                    "<meta charset='UTF-8'>" +
+                    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                    "<title>Markdown Batch Render Demo</title>" +
+                    "<style>" + demoCss + "</style>" +
+                    "<style>" + HtmlCssProvider.getAllCss() + "</style>" +
+                    "</head><body>" +
+                    "<div class='app-container'>" +
+                    // Sidebar
+                    "<aside class='sidebar'>" +
+                    "<div class='sidebar-header'>⚡ Batch Render</div>" +
+                    "<a href='#' class='nav-item active'>Documentation</a>" +
+                    "<a href='#' class='nav-item'>API Reference</a>" +
+                    "<a href='#' class='nav-item'>Examples</a>" +
+                    "<div class='spacer'></div>" +
+                    "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" +
+                    "</aside>" +
+                    // Main Content
+                    "<main class='main-content'>" +
+                    "<div class='markdown-root'>" + 
+                    htmlContent + 
+                    "</div>" +
+                    "</main>" +
+                    "</div>" +
+                    // Script
+                    "<script>" +
+                    "function toggleTheme() {" +
+                    "  const html = document.documentElement;" +
+                    "  const current = html.getAttribute('data-theme');" +
+                    "  const next = current === 'dark' ? 'light' : 'dark';" +
+                    "  html.setAttribute('data-theme', next);" +
+                    "}" +
+                    "</script>" +
                     "</body></html>";
 
             byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
@@ -81,6 +113,13 @@ public class HtmlBatchServerDemo {
             try (OutputStream os = t.getResponseBody()) {
                 os.write(bytes);
             }
+        }
+
+        private String loadResource(String path) {
+             try (InputStream is = getClass().getResourceAsStream(path)) {
+                 if (is != null) return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+             } catch (Exception e) { e.printStackTrace(); }
+             return "";
         }
     }
 

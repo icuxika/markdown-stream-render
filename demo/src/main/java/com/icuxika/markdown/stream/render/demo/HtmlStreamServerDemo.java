@@ -51,36 +51,58 @@ public class HtmlStreamServerDemo {
     private static class StreamHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
-            // Set headers for chunked transfer encoding (streaming)
+            // Set headers
             t.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
             t.getResponseHeaders().set("Transfer-Encoding", "chunked");
-            // Disable caching
             t.getResponseHeaders().set("Cache-Control", "no-cache, no-store, must-revalidate");
             t.getResponseHeaders().set("Pragma", "no-cache");
             t.getResponseHeaders().set("Expires", "0");
 
-            // Send 200 OK with 0 length (implies chunked in some servers, but for HttpServer we use 0)
             t.sendResponseHeaders(200, 0);
 
             try (OutputStream os = t.getResponseBody()) {
-                // Write Header
-                String header = "<html><head><meta charset='UTF-8'><style>" +
-                        HtmlCssProvider.getAllCss() +
-                        "</style></head><body>\n" +
-                        "<div id='content' class='markdown-root'></div>\n"; // Container for stream
-                os.write(header.getBytes(StandardCharsets.UTF_8));
+                // Load Demo CSS
+                String demoCss = loadResource("/css/demo.css");
+                
+                // Construct Page Shell
+                String head = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" +
+                        "<meta charset='UTF-8'>" +
+                        "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                        "<title>Markdown Stream Render Demo</title>" +
+                        "<style>" + demoCss + "</style>" +
+                        "<style>" + HtmlCssProvider.getAllCss() + "</style>" +
+                        "</head><body>";
+                
+                String bodyStart = "<div class='app-container'>" +
+                        // Sidebar
+                        "<aside class='sidebar'>" +
+                        "<div class='sidebar-header'>⚡ Stream Render</div>" +
+                        "<a href='#' class='nav-item active'>Documentation</a>" +
+                        "<a href='#' class='nav-item'>API Reference</a>" +
+                        "<a href='#' class='nav-item'>Examples</a>" +
+                        "<div class='spacer'></div>" +
+                        "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" +
+                        "</aside>" +
+                        // Main Content
+                        "<main class='main-content'>" +
+                        "<div id='content' class='markdown-root'>"; // OPEN, DO NOT CLOSE YET
+
+                // Script (can be sent early or late, but early is fine if we don't close body)
+                // However, for streaming, usually we put script at the end or use DOMContentLoaded
+                // But here we need the observer to run immediately as content arrives.
+                // We'll output the script at the END to be safe and clean, 
+                // OR we can output it now but we must ensure we don't close main/app-container.
+                
+                os.write(head.getBytes(StandardCharsets.UTF_8));
+                os.write(bodyStart.getBytes(StandardCharsets.UTF_8));
                 os.flush();
 
-                // Streaming Content
+                // Streaming Content Logic ...
                 String content = loadTemplate();
-                
-                // Simulate LLM streaming (char by char or small chunks)
-                // Use random chunk size for realism
                 final String finalContent = content;
                 java.util.Random random = new java.util.Random();
                 int index = 0;
 
-                // Create a bridge: HtmlStreamRenderer writes to StringBuilder -> we flush to OutputStream
                 StringBuilder buffer = new StringBuilder();
                 HtmlStreamRenderer renderer = new HtmlStreamRenderer(buffer);
                 StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder()
@@ -90,7 +112,7 @@ public class HtmlStreamServerDemo {
 
                 while (index < finalContent.length()) {
                     int remaining = finalContent.length() - index;
-                    int chunkSize = random.nextInt(10) + 1; // 1-10 chars
+                    int chunkSize = random.nextInt(15) + 5; // Faster chunking for better demo
                     if (chunkSize > remaining) chunkSize = remaining;
                     
                     String chunk = finalContent.substring(index, index + chunkSize);
@@ -98,40 +120,54 @@ public class HtmlStreamServerDemo {
 
                     parser.push(chunk);
 
-                    // Flush buffer to socket
                     if (buffer.length() > 0) {
-                        // Append to div using simple script injection (since we can't easily modify DOM in pure HTML stream without JS)
-                        // Actually, HtmlStreamRenderer outputs HTML fragments.
-                        // If we just write them, they appear at the end of body.
-                        // But we want them inside <div id='content'>? 
-                        // Browsers are forgiving. If we didn't close div, writing more content appends to it.
-                        // So we just write content.
-                        // But wait, HtmlStreamRenderer might output structural tags.
-                        // Let's just output directly.
                         os.write(buffer.toString().getBytes(StandardCharsets.UTF_8));
-                        // Auto-scroll
-                        os.write("<script>window.scrollTo(0, document.body.scrollHeight);</script>".getBytes(StandardCharsets.UTF_8));
                         os.flush();
                         buffer.setLength(0);
                     }
 
-                    // Simulate delay
                     try {
-                        Thread.sleep(random.nextInt(40) + 10); // 10-50ms
-                    } catch (InterruptedException ignored) {
-                    }
+                        Thread.sleep(random.nextInt(20) + 5); 
+                    } catch (InterruptedException ignored) {}
                 }
 
                 parser.close();
-                // Final flush
                 if (buffer.length() > 0) {
                     os.write(buffer.toString().getBytes(StandardCharsets.UTF_8));
                 }
 
-                os.write("</body></html>".getBytes(StandardCharsets.UTF_8));
+                // Close tags and add script at the end
+                String bodyEnd = "</div>" + // close markdown-root
+                        "</main>" +
+                        "</div>" + // close app-container
+                        "<script>" +
+                        "function toggleTheme() {" +
+                        "  const html = document.documentElement;" +
+                        "  const current = html.getAttribute('data-theme');" +
+                        "  const next = current === 'dark' ? 'light' : 'dark';" +
+                        "  html.setAttribute('data-theme', next);" +
+                        "}" +
+                        // Auto-scroll logic
+                        "const contentDiv = document.getElementById('content');" +
+                        "const observer = new MutationObserver(() => {" +
+                        "  window.scrollTo(0, document.body.scrollHeight);" +
+                        "});" +
+                        "if (contentDiv) observer.observe(contentDiv, { childList: true, subtree: true });" +
+                        "</script>" +
+                        "</body></html>";
+                
+                os.write(bodyEnd.getBytes(StandardCharsets.UTF_8));
                 os.flush();
             }
         }
+        
+        private String loadResource(String path) {
+             try (InputStream is = getClass().getResourceAsStream(path)) {
+                 if (is != null) return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+             } catch (Exception e) { e.printStackTrace(); }
+             return "";
+        }
+
     }
 
     private static String loadTemplate() {

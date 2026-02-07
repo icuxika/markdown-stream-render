@@ -1,19 +1,27 @@
 .root, .markdown-root {
-    -md-fg-color: #24292f;
-    -md-sub-text-color: #6a737d;
-    -md-bg-color: #ffffff;
-    -md-link-color: #0969da;
-    -md-code-fg-color: #cf222e;
-    -md-code-bg-color: #f6f8fa;
-    -md-border-color: #d0d7de;
-    -md-quote-bg-color: #f6f8fa;
-    -md-quote-border-color: #dfe2e5;
-    -md-table-header-bg: #f6f8fa;
-    -md-table-row-odd-bg: #ffffff;
+    /* UI Pro Max: SaaS Dashboard (Light) Palette */
+    /* Base Colors */
+    -md-bg-color: #F8FAFC; /* Slate 50 Background */
+    -md-fg-color: #1E293B; /* Slate 800 Text */
+    -md-sub-text-color: #64748B; /* Slate 500 */
+    
+    /* Accents */
+    -md-link-color: #2563EB; /* Primary Blue 600 */
+    -md-border-color: #E2E8F0; /* Slate 200 */
+    
+    /* Code Blocks & Panels */
+    -md-code-fg-color: #0F172A; /* Slate 900 */
+    -md-code-bg-color: #FFFFFF; /* White */
+    
+    /* Elements */
+    -md-quote-bg-color: #FFFFFF;
+    -md-quote-border-color: #E2E8F0;
+    -md-table-header-bg: #FFFFFF;
+    -md-table-row-odd-bg: #F8FAFC;
 
-    /* Chat Bubble Colors */
-    -chat-user-bg: #e3f2fd;
-    -chat-user-border: #bbdefb;
-    -chat-assistant-bg: #f6f8fa;
-    -chat-assistant-border: #d0d7de;
+    /* Chat Bubble Colors (Derived from Palette) */
+    -chat-user-bg: #EFF6FF; /* Blue 50 */
+    -chat-user-border: #BFDBFE; /* Blue 200 */
+    -chat-assistant-bg: #FFFFFF; /* White */
+    -chat-assistant-border: #E2E8F0; /* Slate 200 */
 }

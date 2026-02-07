@@ -1,83 +1,81 @@
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
+/* 
+ * Core Markdown Styles
+ * Scoped to .markdown-root or generic elements within context.
+ * Relies on CSS variables for theming.
+ */
+
+.markdown-root {
+    font-family: var(--md-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
     line-height: 1.6;
-    color: #24292f;
+    color: var(--md-fg-color);
+    background-color: var(--md-bg-color);
 }
 
-h1, h2, h3, h4, h5, h6 {
+.markdown-root h1, .markdown-root h2, .markdown-root h3, 
+.markdown-root h4, .markdown-root h5, .markdown-root h6 {
     margin-top: 24px;
     margin-bottom: 16px;
     font-weight: 600;
     line-height: 1.25;
+    color: var(--md-fg-color);
 }
 
-h1 {
+.markdown-root h1 {
     font-size: 2em;
-    border-bottom: 1px solid #eaecef;
+    border-bottom: 1px solid var(--md-border-color);
     padding-bottom: .3em;
 }
 
-h2 {
+.markdown-root h2 {
     font-size: 1.5em;
-    border-bottom: 1px solid #eaecef;
+    border-bottom: 1px solid var(--md-border-color);
     padding-bottom: .3em;
 }
 
-h3 {
-    font-size: 1.25em;
-}
+.markdown-root h3 { font-size: 1.25em; }
+.markdown-root h4 { font-size: 1em; }
+.markdown-root h5 { font-size: 0.875em; }
+.markdown-root h6 { font-size: 0.85em; color: var(--md-sub-text-color); }
 
-h4 {
-    font-size: 1em;
-}
-
-h5 {
-    font-size: 0.875em;
-}
-
-h6 {
-    font-size: 0.85em;
-    color: #6a737d;
-}
-
-p {
+.markdown-root p {
     margin-top: 0;
     margin-bottom: 16px;
 }
 
-code {
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    background-color: rgba(175, 184, 193, 0.2);
+.markdown-root code {
+    font-family: var(--md-mono-font, ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace);
+    background-color: var(--md-code-bg-color);
+    color: var(--md-code-fg-color);
     padding: 0.2em 0.4em;
     border-radius: 6px;
     font-size: 85%;
 }
 
-pre {
+.markdown-root pre {
     padding: 16px;
     overflow: auto;
     font-size: 85%;
     line-height: 1.45;
-    background-color: #f6f8fa;
+    background-color: var(--md-code-bg-color);
     border-radius: 6px;
+    border: 1px solid var(--md-border-color);
 }
 
-pre code {
+.markdown-root pre code {
     background-color: transparent;
     padding: 0;
+    color: inherit;
 }
 
-blockquote {
+.markdown-root blockquote {
     padding: 0 1em;
-    color: #6a737d;
-    border-left: 0.25em solid #dfe2e5;
+    color: var(--md-sub-text-color);
+    border-left: 0.25em solid var(--md-border-color);
     margin: 0 0 16px 0;
+    background-color: var(--md-quote-bg-color);
 }
 
-table {
+.markdown-root table {
     border-spacing: 0;
     border-collapse: collapse;
     margin-top: 0;
@@ -85,30 +83,40 @@ table {
     width: 100%;
 }
 
-table th, table td {
+.markdown-root table th, .markdown-root table td {
     padding: 6px 13px;
-    border: 1px solid #d0d7de;
+    border: 1px solid var(--md-border-color);
 }
 
-table th {
+.markdown-root table th {
     font-weight: 600;
-    background-color: #f2f2f2;
+    background-color: var(--md-table-header-bg);
 }
 
-table tr:nth-child(2n) {
-    background-color: #f6f8fa;
+.markdown-root table tr:nth-child(2n) {
+    background-color: var(--md-table-row-odd-bg);
 }
 
-img {
+.markdown-root img {
     max-width: 100%;
     box-sizing: content-box;
-    background-color: #ffffff;
+    background-color: transparent;
 }
 
-hr {
+.markdown-root hr {
     height: 0.25em;
     padding: 0;
     margin: 24px 0;
-    background-color: #e1e4e8;
+    background-color: var(--md-border-color);
     border: 0;
 }
+
+.markdown-root a {
+    color: var(--md-link-color);
+    text-decoration: none;
+}
+
+.markdown-root a:hover {
+    text-decoration: underline;
+}
+

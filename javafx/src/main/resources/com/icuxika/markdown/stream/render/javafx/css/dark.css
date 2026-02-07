@@ -1,19 +1,27 @@
 .root, .markdown-root {
-    -md-fg-color: #c9d1d9;
-    -md-sub-text-color: #8b949e;
-    -md-bg-color: #0d1117;
-    -md-link-color: #58a6ff;
-    -md-code-fg-color: #ff7b72;
-    -md-code-bg-color: #161b22;
-    -md-border-color: #30363d;
-    -md-quote-bg-color: #161b22;
-    -md-quote-border-color: #30363d;
-    -md-table-header-bg: #161b22;
-    -md-table-row-odd-bg: #0d1117;
+    /* UI Pro Max: Developer Tools (Dark) Palette */
+    /* Base Colors */
+    -md-bg-color: #0F172A; /* Deep Slate Background */
+    -md-fg-color: #F1F5F9; /* Light Slate Text */
+    -md-sub-text-color: #94A3B8; /* Muted Slate */
+    
+    /* Accents */
+    -md-link-color: #3B82F6; /* Primary Blue */
+    -md-border-color: #334155; /* Slate 700 */
+    
+    /* Code Blocks & Panels */
+    -md-code-fg-color: #E2E8F0; /* Slate 200 */
+    -md-code-bg-color: #1E293B; /* Slate 800 */
+    
+    /* Elements */
+    -md-quote-bg-color: #1E293B;
+    -md-quote-border-color: #334155;
+    -md-table-header-bg: #1E293B;
+    -md-table-row-odd-bg: #0F172A;
 
-    /* Chat Bubble Colors */
-    -chat-user-bg: #1f2428; /* Darker than blue, maybe subtle? Or use primary color tint */
-    -chat-user-border: #30363d;
-    -chat-assistant-bg: #161b22;
-    -chat-assistant-border: #30363d;
+    /* Chat Bubble Colors (Derived from Palette) */
+    -chat-user-bg: #1E293B; /* Secondary Slate */
+    -chat-user-border: #334155;
+    -chat-assistant-bg: #0F172A; /* Match Main BG */
+    -chat-assistant-border: #334155;
 }

@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    /* Fonts */
+    --md-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --md-mono-font: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    /* Transition defaults */
+    --transition-speed: 0.2s;
+}
+
+/* Light Theme (Default) - SaaS Dashboard Inspired */
+:root, [data-theme="light"] {
+    /* Base */
+    --md-bg-color: #F8FAFC;       /* Slate 50 */
+    --md-fg-color: #1E293B;       /* Slate 800 */
+    --md-sub-text-color: #64748B; /* Slate 500 */
+    
+    /* Accents */
+    --md-link-color: #2563EB;     /* Blue 600 */
+    --md-border-color: #E2E8F0;   /* Slate 200 */
+    
+    /* Code & Panels */
+    --md-code-fg-color: #0F172A;  /* Slate 900 */
+    --md-code-bg-color: #FFFFFF;  /* White */
+    
+    /* Elements */
+    --md-quote-bg-color: #FFFFFF;
+    --md-table-header-bg: #FFFFFF;
+    --md-table-row-odd-bg: #F8FAFC;
+
+    /* Demo Shell Specific */
+    --demo-sidebar-bg: #FFFFFF;
+    --demo-sidebar-border: #E2E8F0;
+    --demo-sidebar-fg: #475569;
+    --demo-sidebar-fg-hover: #1E293B;
+    --demo-sidebar-bg-hover: #F1F5F9;
+}
+
+/* Dark Theme - Developer Tools Inspired */
+[data-theme="dark"] {
+    /* Base */
+    --md-bg-color: #0F172A;       /* Deep Slate */
+    --md-fg-color: #F1F5F9;       /* Light Slate */
+    --md-sub-text-color: #94A3B8; /* Muted Slate */
+    
+    /* Accents */
+    --md-link-color: #3B82F6;     /* Blue 500 */
+    --md-border-color: #334155;   /* Slate 700 */
+    
+    /* Code & Panels */
+    --md-code-fg-color: #E2E8F0;  /* Slate 200 */
+    --md-code-bg-color: #1E293B;  /* Slate 800 */
+    
+    /* Elements */
+    --md-quote-bg-color: #1E293B;
+    --md-table-header-bg: #1E293B;
+    --md-table-row-odd-bg: #0F172A;
+
+    /* Demo Shell Specific */
+    --demo-sidebar-bg: #020617;   /* Almost Black */
+    --demo-sidebar-border: #1E293B;
+    --demo-sidebar-fg: #94A3B8;
+    --demo-sidebar-fg-hover: #F8FAFC;
+    --demo-sidebar-bg-hover: #1E293B;
+}
+
+/* Reset & Shell Layout */
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--md-font-family);
+    background-color: var(--md-bg-color);
+    color: var(--md-fg-color);
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%; /* Ensure container takes full width */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background-color: var(--demo-sidebar-bg);
+    border-right: 1px solid var(--demo-sidebar-border);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    /* Removed fixed positioning to use Flexbox layout */
+    overflow-y: auto;
+    transition: all var(--transition-speed);
+    /* Ensure it doesn't shrink */
+    flex-shrink: 0; 
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar-header {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 32px;
+    color: var(--md-fg-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-item {
+    display: block;
+    padding: 10px 12px;
+    color: var(--demo-sidebar-fg);
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.nav-item:hover {
+    background-color: var(--demo-sidebar-bg-hover);
+    color: var(--demo-sidebar-fg-hover);
+}
+
+.nav-item.active {
+    background-color: var(--md-link-color);
+    color: white;
+}
+
+.spacer { flex: 1; }
+
+.theme-toggle {
+    margin-top: auto;
+    background: none;
+    border: 1px solid var(--demo-sidebar-border);
+    color: var(--demo-sidebar-fg);
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+    background-color: var(--demo-sidebar-bg-hover);
+    color: var(--demo-sidebar-fg-hover);
+}
+
+/* Main Content */
+.main-content {
+    /* Removed margin-left and calc width */
+    flex: 1;
+    padding: 40px 60px;
+    /* max-width: 100%; REMOVE THIS: Flex item will expand to fill available space */
+    width: 0; /* TRICK: Allow flex item to shrink below content size if needed, preventing overflow */
+    min-width: 0; /* TRICK: Same as above for Firefox */
+    box-sizing: border-box;
+    /* overflow-y: auto; Handle internal scroll if needed, but usually body scrolls */
+}
+
+/* Inner content constraint for readability */
+.main-content > .markdown-root {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none; /* Simplest way to hide on mobile */
+    }
+    .main-content {
+        padding: 20px;
+        width: 100%; /* Ensure full width on mobile */
+    }
+}
