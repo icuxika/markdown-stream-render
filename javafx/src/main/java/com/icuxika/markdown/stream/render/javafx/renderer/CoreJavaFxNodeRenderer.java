@@ -345,7 +345,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
             markers.add(markerLabel);
         } else if (!listItem.isTask()) {
             // Only show bullet if NOT a task (GitHub style: bullet replaced by checkbox)
-            String markerText = "\u2022";
+            String markerText = "•";
             Label markerLabel = new Label(markerText);
             markerLabel.getStyleClass().add("markdown-list-marker");
             markerLabel.setMinWidth(20);
@@ -397,7 +397,7 @@ public class CoreJavaFxNodeRenderer implements JavaFxNodeRenderer {
     }
 
     private void renderCode(Code code) {
-        boolean old = codeVal;
+        final boolean old = codeVal;
         codeVal = true;
 
         // Use Label for inline code to support background color and padding

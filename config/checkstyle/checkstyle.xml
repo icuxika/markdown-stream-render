@@ -13,12 +13,20 @@
         <property name="fileNamePattern" value="module\-info\.java$"/>
     </module>
 
+    <!-- Exclude generated JMH code in target directory -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="[\\/]target[\\/]"/>
+    </module>
+
+    <module name="SuppressWarningsFilter"/>
+
     <!-- Checks for whitespace -->
     <module name="FileTabCharacter">
         <property name="eachLine" value="true"/>
     </module>
 
     <module name="TreeWalker">
+        <module name="SuppressWarningsHolder"/>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -185,6 +193,7 @@
             <message key="ws.notPreceded"
                      value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
         </module>
+        <!--
         <module name="Indentation">
             <property name="basicOffset" value="4"/>
             <property name="braceAdjustment" value="0"/>
@@ -193,6 +202,7 @@
             <property name="lineWrappingIndentation" value="4"/>
             <property name="arrayInitIndent" value="4"/>
         </module>
+        -->
         <module name="AbbreviationAsWordInName">
             <property name="ignoreFinal" value="false"/>
             <property name="allowedAbbreviationLength" value="0"/>

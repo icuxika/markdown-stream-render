@@ -5,6 +5,16 @@ public class LinkReference {
     private final String destination;
     private final String title;
 
+    /**
+     * Constructor.
+     *
+     * @param label
+     *            label
+     * @param destination
+     *            destination
+     * @param title
+     *            title
+     */
     public LinkReference(String label, String destination, String title) {
         this.label = label;
         this.destination = destination;

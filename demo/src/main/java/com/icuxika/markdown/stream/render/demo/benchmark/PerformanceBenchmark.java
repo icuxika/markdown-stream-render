@@ -14,6 +14,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * Performance Benchmark.
+ */
 public class PerformanceBenchmark extends Application {
 
     private static final int ITEM_COUNT = 5000;
@@ -26,7 +29,7 @@ public class PerformanceBenchmark extends Application {
         // We will run two tests sequentially
         new Thread(() -> {
             try {
-                runVBoxTest();
+                runVboxTest();
                 Thread.sleep(2000); // Give GC time to run and UI to settle
                 runVirtualTest();
                 Platform.exit();
@@ -36,11 +39,11 @@ public class PerformanceBenchmark extends Application {
         }).start();
     }
 
-    private void runVBoxTest() throws InterruptedException {
+    private void runVboxTest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             System.out.println("=== VBox Benchmark (Traditional) ===");
-            long start = System.currentTimeMillis();
+            final long start = System.currentTimeMillis();
 
             VBox root = new VBox();
             JavaFxRenderer renderer = new JavaFxRenderer(); // Use one renderer for config, but render individual nodes?
@@ -80,7 +83,7 @@ public class PerformanceBenchmark extends Application {
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             System.out.println("\n=== ListView Benchmark (Virtualization) ===");
-            long start = System.currentTimeMillis();
+            final long start = System.currentTimeMillis();
 
             ListView<Node> listView = new ListView<>();
             List<Node> items = new ArrayList<>();
@@ -134,12 +137,19 @@ public class PerformanceBenchmark extends Application {
         try {
             Thread.sleep(100);
         } catch (Exception e) {
+            // Ignore interruption
         }
         Runtime rt = Runtime.getRuntime();
         long used = (rt.totalMemory() - rt.freeMemory()) / 1024 / 1024;
         System.out.println("Approx. Memory Used (" + label + "): " + used + " MB");
     }
 
+    /**
+     * Main.
+     *
+     * @param args
+     *            args
+     */
     public static void main(String[] args) {
         launch(args);
     }

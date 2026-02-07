@@ -27,19 +27,25 @@ import com.icuxika.markdown.stream.render.core.ast.TableRow;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
-import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext {
+public class HtmlRenderer implements MarkdownRenderer, HtmlNodeRendererContext {
     private final StringBuilder sb = new StringBuilder();
     private final HtmlWriter htmlWriter;
     private final MarkdownParserOptions options;
     private final List<HtmlNodeRenderer> nodeRenderers = new ArrayList<>();
     private final Map<Class<? extends Node>, HtmlNodeRenderer> rendererMap = new HashMap<>();
 
+    /**
+     * Create a new renderer with builder.
+     *
+     * @param builder
+     *            builder
+     */
     public HtmlRenderer(Builder builder) {
         this.options = builder.options;
         this.sb.append(""); // Or initialize if needed
@@ -160,6 +166,12 @@ public class HtmlRenderer implements IMarkdownRenderer, HtmlNodeRendererContext 
         }
     }
 
+    /**
+     * Render a node.
+     *
+     * @param node
+     *            node
+     */
     public void render(Node node) {
         HtmlNodeRenderer renderer = rendererMap.get(node.getClass());
         if (renderer != null) {

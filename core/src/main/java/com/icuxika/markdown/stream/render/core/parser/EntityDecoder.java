@@ -3,6 +3,7 @@ package com.icuxika.markdown.stream.render.core.parser;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
 public class EntityDecoder {
     private static final Map<String, String> ENTITIES = new HashMap<>();
 

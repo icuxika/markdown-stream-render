@@ -27,7 +27,7 @@ import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.core.extension.math.MathNode;
-import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
 import java.io.IOException;
 
 /**
@@ -36,7 +36,7 @@ import java.io.IOException;
  * 将接收到的 AST 节点直接转换为 HTML 字符串并写入输出流。
  * </p>
  */
-public class HtmlStreamRenderer implements IStreamMarkdownRenderer {
+public class HtmlStreamRenderer implements StreamMarkdownRenderer {
 
     private final Appendable out;
 

@@ -8,7 +8,7 @@ import com.icuxika.markdown.stream.render.core.ast.ListItem;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.OrderedList;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
-import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
 import java.util.Stack;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -25,7 +25,7 @@ import javafx.scene.layout.VBox;
  * 将接收到的 AST 节点实时转换为 JavaFX 节点并追加到 UI 中。
  * </p>
  */
-public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
+public class JavaFxStreamRenderer implements StreamMarkdownRenderer {
 
     private final VBox root;
     private final JavaFxRenderer internalRenderer;
@@ -298,7 +298,7 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
                 checkBox.getStyleClass().add("markdown-task-checkbox");
                 return checkBox;
             } else {
-                String markerText = "\u2022";
+                String markerText = "•";
                 Label markerLabel = new Label(markerText);
                 markerLabel.getStyleClass().add("markdown-list-marker");
                 markerLabel.setMinWidth(20);

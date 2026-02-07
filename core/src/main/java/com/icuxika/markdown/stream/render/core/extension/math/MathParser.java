@@ -19,8 +19,9 @@ public class MathParser implements InlineContentParser {
             if (c == '$') {
                 // Found closer
                 String content = input.substring(start, i);
-                if (content.isEmpty())
+                if (content.isEmpty()) {
                     return ParsedInline.none(); // $$ is empty or handled as Text?
+                }
 
                 return ParsedInline.of(new MathNode(content), i + 1);
             }

@@ -24,6 +24,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * Virtual List Demo.
+ */
 public class VirtualListDemo extends Application {
 
     private StreamMarkdownParser parser;
@@ -33,8 +36,6 @@ public class VirtualListDemo extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        MarkdownTheme theme = new MarkdownTheme();
-
         // 1. Data Model
         markdownNodes = FXCollections.observableArrayList();
 
@@ -66,14 +67,15 @@ public class VirtualListDemo extends Application {
         // We add a stylesheet to the scene or apply inline styles to cells?
         // Inline style on ListView works for the container, but Cell styles are in .list-cell
         // Let's add a custom stylesheet for this demo to override list-cell selection
-        scene.getStylesheets().add("data:text/css," +
-                ".list-cell:filled:selected, .list-cell:filled:selected:focused { " +
-                "-fx-background-color: transparent; " +
-                "-fx-text-fill: inherit; " +
-                "-fx-border-color: transparent; } " +
-                ".list-cell { -fx-background-color: transparent; -fx-padding: 0px; }");
+        scene.getStylesheets().add("data:text/css,"
+                + ".list-cell:filled:selected, .list-cell:filled:selected:focused { "
+                + "-fx-background-color: transparent; "
+                + "-fx-text-fill: inherit; "
+                + "-fx-border-color: transparent; } "
+                + ".list-cell { -fx-background-color: transparent; -fx-padding: 0px; }");
 
         // Apply theme (loads CSS)
+        MarkdownTheme theme = new MarkdownTheme();
         theme.apply(scene);
 
         // Also load extension CSS manually if theme doesn't include them?
@@ -179,6 +181,12 @@ public class VirtualListDemo extends Application {
         }
     }
 
+    /**
+     * Main.
+     *
+     * @param args
+     *            args
+     */
     public static void main(String[] args) {
         launch(args);
     }

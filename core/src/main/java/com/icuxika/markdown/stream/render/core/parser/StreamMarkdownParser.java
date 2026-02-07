@@ -8,7 +8,7 @@ import com.icuxika.markdown.stream.render.core.ast.TableCell;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
-import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class StreamMarkdownParser {
     private final MarkdownParserOptions options;
     private final List<BlockParserFactory> blockParserFactories;
     private final List<InlineContentParserFactory> inlineParserFactories;
-    private final IStreamMarkdownRenderer renderer;
+    private final StreamMarkdownRenderer renderer;
 
     // Internal State
     private final Document doc;
@@ -199,7 +199,7 @@ public class StreamMarkdownParser {
         private MarkdownParserOptions options = new MarkdownParserOptions();
         private List<BlockParserFactory> blockParserFactories = new ArrayList<>();
         private List<InlineContentParserFactory> inlineParserFactories = new ArrayList<>();
-        private IStreamMarkdownRenderer renderer;
+        private StreamMarkdownRenderer renderer;
 
         public Builder options(MarkdownParserOptions options) {
             this.options = options;
@@ -216,7 +216,7 @@ public class StreamMarkdownParser {
             return this;
         }
 
-        public Builder renderer(IStreamMarkdownRenderer renderer) {
+        public Builder renderer(StreamMarkdownRenderer renderer) {
             this.renderer = renderer;
             return this;
         }

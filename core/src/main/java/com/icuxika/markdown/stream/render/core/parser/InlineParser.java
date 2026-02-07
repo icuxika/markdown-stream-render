@@ -1,14 +1,34 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
+import com.icuxika.markdown.stream.render.core.ast.Code;
+import com.icuxika.markdown.stream.render.core.ast.Emphasis;
+import com.icuxika.markdown.stream.render.core.ast.HardBreak;
+import com.icuxika.markdown.stream.render.core.ast.HtmlInline;
+import com.icuxika.markdown.stream.render.core.ast.Image;
+import com.icuxika.markdown.stream.render.core.ast.Link;
+import com.icuxika.markdown.stream.render.core.ast.LinkReference;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.SoftBreak;
+import com.icuxika.markdown.stream.render.core.ast.Strikethrough;
+import com.icuxika.markdown.stream.render.core.ast.StrongEmphasis;
+import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParser;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineParserState;
 import com.icuxika.markdown.stream.render.core.parser.inline.ParsedInline;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Inline Parser.
+ */
+@SuppressWarnings({"checkstyle:NeedBraces", "checkstyle:AvoidEscapedUnicodeCharacters", "checkstyle:IllegalTokenText",
+        "checkstyle:MemberName", "checkstyle:MissingJavadocMethod"})
 public class InlineParser implements InlineParserState {
 
     private static final Pattern HTML_TAG = Pattern.compile(
@@ -68,6 +88,11 @@ public class InlineParser implements InlineParserState {
         }
     }
 
+    /**
+     * Parse content.
+     *
+     * @return list of nodes
+     */
     public List<Node> parse() {
         while (index < text.length()) {
             char c = text.charAt(index);

@@ -35,6 +35,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
+/**
+ * AI Chat Demo using JavaFX Renderer.
+ */
 public class AiChatDemo extends Application {
 
     private final ListView<ChatMessage> chatList = new ListView<>();
@@ -48,6 +51,12 @@ public class AiChatDemo extends Application {
     private final CheckBox mockModeCbx = new CheckBox("Mock Mode");
     private String apiKey;
 
+    /**
+     * Main entry point.
+     *
+     * @param args
+     *            arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }
@@ -138,55 +147,60 @@ public class AiChatDemo extends Application {
     private void applyTheme(Scene scene) {
         if (isDarkMode) {
             scene.getRoot().setStyle(
-                    "-color-bg: #111827; " +
-                            "-color-bg-alt: #1F2937; " +
-                            "-color-text: #F9FAFB; " +
-                            "-color-text-muted: #9CA3AF; " +
-                            "-color-border: #374151; " +
-                            "-color-primary: #3B82F6; " +
-                            "-chat-user-bg: #374151; " +
-                            "-chat-user-text: #F9FAFB; " +
-                            "-chat-assistant-text: #E5E7EB;" +
+                    "-color-bg: #111827; "
+                            + "-color-bg-alt: #1F2937; "
+                            + "-color-text: #F9FAFB; "
+                            + "-color-text-muted: #9CA3AF; "
+                            + "-color-border: #374151; "
+                            + "-color-primary: #3B82F6; "
+                            + "-chat-user-bg: #374151; "
+                            + "-chat-user-text: #F9FAFB; "
+                            + "-chat-assistant-text: #E5E7EB;"
+                            +
                             // Markdown Dark Mode Overrides
-                            "-md-fg-color: #F9FAFB; " +
-                            "-md-bg-color: transparent; " +
-                            "-md-code-bg-color: #1F2937; " + // Slate 800
-                            "-md-border-color: #374151; " +
-                            "-md-quote-bg-color: #1F2937; " +
-                            "-md-quote-border-color: #374151; " +
-                            "-md-table-header-bg: #1F2937; " +
-                            "-md-table-row-odd-bg: transparent;" +
+                            "-md-fg-color: #F9FAFB; "
+                            + "-md-bg-color: transparent; "
+                            + "-md-code-bg-color: #1F2937; "
+                            + // Slate 800
+                            "-md-border-color: #374151; "
+                            + "-md-quote-bg-color: #1F2937; "
+                            + "-md-quote-border-color: #374151; "
+                            + "-md-table-header-bg: #1F2937; "
+                            + "-md-table-row-odd-bg: transparent;"
+                            +
                             // Code Highlight Dark Mode
-                            "-md-code-keyword: #ff7b72;" +
-                            "-md-code-string: #a5d6ff;" +
-                            "-md-code-comment: #8b949e;" +
-                            "-md-code-json-key: #7ee787;" +
-                            "-md-code-number: #79c0ff;" +
-                            "-md-code-tag: #7ee787;" +
-                            "-md-code-class: #ffa657;" +
-                            "-md-code-id: #d2a8ff;" +
-                            "-md-code-color: #79c0ff;" +
-                            "-md-code-attr: #79c0ff;");
+                            "-md-code-keyword: #ff7b72;"
+                            + "-md-code-string: #a5d6ff;"
+                            + "-md-code-comment: #8b949e;"
+                            + "-md-code-json-key: #7ee787;"
+                            + "-md-code-number: #79c0ff;"
+                            + "-md-code-tag: #7ee787;"
+                            + "-md-code-class: #ffa657;"
+                            + "-md-code-id: #d2a8ff;"
+                            + "-md-code-color: #79c0ff;"
+                            + "-md-code-attr: #79c0ff;");
         } else {
             scene.getRoot().setStyle(
-                    "-color-bg: #FFFFFF; " +
-                            "-color-bg-alt: #F9FAFB; " +
-                            "-color-text: #111827; " +
-                            "-color-text-muted: #6B7280; " +
-                            "-color-border: #E5E7EB; " +
-                            "-color-primary: #2563EB; " +
-                            "-chat-user-bg: #E0E7FF; " +
-                            "-chat-user-text: #1E1B4B; " +
-                            "-chat-assistant-text: #111827;" +
+                    "-color-bg: #FFFFFF; "
+                            + "-color-bg-alt: #F9FAFB; "
+                            + "-color-text: #111827; "
+                            + "-color-text-muted: #6B7280; "
+                            + "-color-border: #E5E7EB; "
+                            + "-color-primary: #2563EB; "
+                            + "-chat-user-bg: #E0E7FF; "
+                            + "-chat-user-text: #1E1B4B; "
+                            + "-chat-assistant-text: #111827;"
+                            +
                             // Markdown Light Mode Overrides (Force visible background)
-                            "-md-fg-color: #111827; " +
-                            "-md-bg-color: transparent; " +
-                            "-md-code-bg-color: #F1F5F9; " + // Slate 100
-                            "-md-border-color: #E5E7EB; " +
-                            "-md-quote-bg-color: #F3F4F6; " +
-                            "-md-quote-border-color: #E5E7EB; " +
-                            "-md-table-header-bg: #F3F4F6; " +
-                            "-md-table-row-odd-bg: transparent;");
+                            "-md-fg-color: #111827; "
+                            + "-md-bg-color: transparent; "
+                            + "-md-code-bg-color: #F1F5F9; "
+                            + // Slate 100
+                            "-md-border-color: #E5E7EB; "
+                            + "-md-quote-bg-color: #F3F4F6; "
+                            + "-md-quote-border-color: #E5E7EB; "
+                            + "-md-table-header-bg: #F3F4F6; "
+                            + "-md-table-row-odd-bg: transparent;");
         }
     }
 
@@ -242,16 +256,33 @@ public class AiChatDemo extends Application {
 
     // --- Inner Classes ---
 
+    /**
+     * Chat Message Model.
+     */
     public static class ChatMessage {
         public final StringProperty content = new SimpleStringProperty("");
         public final BooleanProperty isUser = new SimpleBooleanProperty(true);
         private final List<Consumer<String>> tokenListeners = new ArrayList<>();
 
+        /**
+         * Constructor.
+         *
+         * @param content
+         *            content
+         * @param isUser
+         *            is user
+         */
         public ChatMessage(String content, boolean isUser) {
             this.content.set(content);
             this.isUser.set(isUser);
         }
 
+        /**
+         * Append token.
+         *
+         * @param token
+         *            token
+         */
         public void appendToken(String token) {
             content.set(content.get() + token);
             for (Consumer<String> l : new ArrayList<>(tokenListeners)) {
@@ -259,10 +290,22 @@ public class AiChatDemo extends Application {
             }
         }
 
+        /**
+         * Add listener.
+         *
+         * @param l
+         *            listener
+         */
         public void addTokenListener(Consumer<String> l) {
             tokenListeners.add(l);
         }
 
+        /**
+         * Remove listener.
+         *
+         * @param l
+         *            listener
+         */
         public void removeTokenListener(Consumer<String> l) {
             tokenListeners.remove(l);
         }
@@ -359,8 +402,9 @@ public class AiChatDemo extends Application {
 
         private void render() {
             renderer.clear();
-            if (currentText.isEmpty())
+            if (currentText.isEmpty()) {
                 return;
+            }
 
             MarkdownParser.Builder builder = MarkdownParser.builder();
             CoreExtension.addDefaults(builder);

@@ -2,7 +2,7 @@ package com.icuxika.markdown.stream.render.javafx.renderer;
 
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
 import java.util.Stack;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -14,7 +14,7 @@ import javafx.collections.ObservableList;
  * to be bound to a {@link javafx.scene.control.ListView}.
  * </p>
  */
-public class VirtualJavaFxStreamRenderer implements IStreamMarkdownRenderer {
+public class VirtualJavaFxStreamRenderer implements StreamMarkdownRenderer {
 
     private final ObservableList<Node> items;
     private final Stack<Node> blockStack = new Stack<>();

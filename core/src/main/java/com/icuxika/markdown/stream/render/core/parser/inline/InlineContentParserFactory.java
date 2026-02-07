@@ -8,12 +8,16 @@ import java.util.Set;
 public interface InlineContentParserFactory {
 
     /**
+     * Get trigger characters. /** Get trigger characters.
+     *
      * @return the set of characters that trigger this parser
      */
     Set<Character> getTriggerCharacters();
 
     /**
      * Create a parser instance.
+     *
+     * @return a new parser instance
      */
     InlineContentParser create();
 }

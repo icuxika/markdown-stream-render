@@ -26,7 +26,7 @@ import com.icuxika.markdown.stream.render.core.ast.TableHead;
 import com.icuxika.markdown.stream.render.core.ast.TableRow;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
-import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
 import com.icuxika.markdown.stream.render.javafx.extension.admonition.AdmonitionJavaFxRenderer;
 import com.icuxika.markdown.stream.render.javafx.extension.math.MathJavaFxRenderer;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import javafx.scene.layout.VBox;
  * 默认会自动加载核心渲染器以及 Admonition 和 Math 扩展渲染器。 样式文件位于 {@code /com/icuxika/markdown/stream/render/javafx/css/} 目录下。
  * </p>
  */
-public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererContext {
+public class JavaFxRenderer implements MarkdownRenderer, JavaFxNodeRendererContext {
     private final VBox root = new VBox();
     private final Stack<Pane> blockStack = new Stack<>();
 
@@ -184,29 +184,6 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         }
     }
 
-    @Override
-    public Object getResult() {
-        return root;
-    }
-
-    public TreeMap<Integer, javafx.scene.Node> getLineToNodeMap() {
-        return lineToNodeMap;
-    }
-
-    public void setOnLinkClick(Consumer<String> onLinkClick) {
-        this.onLinkClick = onLinkClick;
-        // Also update CoreJavaFxNodeRenderer if it was already created.
-        // But CoreJavaFxNodeRenderer is inside nodeRenderers list.
-        // We need to find it and update its callback?
-        // Actually, CoreJavaFxNodeRenderer is created with a lambda that captures
-        // 'this.onLinkClick'.
-        // Wait, line 63: "if (onLinkClick != null) onLinkClick.accept(link);"
-        // This lambda captures 'this' (JavaFxRenderer instance) and accesses
-        // 'this.onLinkClick'.
-        // So updating 'this.onLinkClick' field is sufficient!
-        // The lambda will look up the current value of the field when invoked.
-    }
-
     // --- JavaFxNodeRendererContext Implementation ---
 
     @Override
@@ -219,6 +196,12 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         }
     }
 
+    /**
+     * Render a node.
+     *
+     * @param node
+     *            node
+     */
     public void render(Node node) {
         JavaFxNodeRenderer renderer = rendererMap.get(node.getClass());
         if (renderer != null) {
@@ -265,6 +248,25 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         blockStack.push(root);
         lineToNodeMap.clear();
         // Do NOT clear nodeRenderers or rendererMap as they are configuration
+    }
+
+    @Override
+    public Object getResult() {
+        return root;
+    }
+
+    public TreeMap<Integer, javafx.scene.Node> getLineToNodeMap() {
+        return lineToNodeMap;
+    }
+
+    /**
+     * Set link click handler.
+     *
+     * @param onLinkClick
+     *            handler
+     */
+    public void setOnLinkClick(Consumer<String> onLinkClick) {
+        this.onLinkClick = onLinkClick;
     }
 
     // --- Visitor Implementation (Delegates to Renderer Map) ---

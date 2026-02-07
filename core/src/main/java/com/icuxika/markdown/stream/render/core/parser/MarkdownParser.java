@@ -1,9 +1,32 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import com.icuxika.markdown.stream.render.core.ast.*;
-import com.icuxika.markdown.stream.render.core.parser.block.*;
+import com.icuxika.markdown.stream.render.core.ast.Block;
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
+import com.icuxika.markdown.stream.render.core.ast.CodeBlock;
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.HtmlBlock;
+import com.icuxika.markdown.stream.render.core.ast.LinkReference;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.Table;
+import com.icuxika.markdown.stream.render.core.ast.TableBody;
+import com.icuxika.markdown.stream.render.core.ast.TableCell;
+import com.icuxika.markdown.stream.render.core.ast.TableHead;
+import com.icuxika.markdown.stream.render.core.ast.TableRow;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
+import com.icuxika.markdown.stream.render.core.parser.block.BlockContinue;
+import com.icuxika.markdown.stream.render.core.parser.block.BlockParser;
+import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
+import com.icuxika.markdown.stream.render.core.parser.block.BlockStart;
+import com.icuxika.markdown.stream.render.core.parser.block.MatchedBlockParser;
+import com.icuxika.markdown.stream.render.core.parser.block.ParserState;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
-import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -14,19 +37,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 核心 Markdown 解析器。
- * <p>
- * 负责将 Markdown 文本解析为 {@link Document} (AST 根节点)。 支持 CommonMark 规范的大部分特性，以及通过插件扩展自定义块级和行内元素。
- * </p>
- * <p>
- * 示例用法：
- * 
- * <pre>
- * MarkdownParser parser = new MarkdownParser();
- * Document doc = parser.parse("# Hello World");
- * </pre>
- * </p>
+ * 核心 Markdown 解析器.
  */
+@SuppressWarnings({"checkstyle:NeedBraces", "checkstyle:SummaryJavadoc", "checkstyle:MissingJavadocMethod",
+        "checkstyle:VariableDeclarationUsageDistance", "checkstyle:LocalVariableName",
+        "checkstyle:InvalidJavadocPosition"})
 public class MarkdownParser {
 
     private static final Pattern ENTITY = Pattern
@@ -125,7 +140,7 @@ public class MarkdownParser {
      * @throws IOException
      *             如果读取失败
      */
-    public void parse(Reader reader, IMarkdownRenderer renderer) throws IOException {
+    public void parse(Reader reader, MarkdownRenderer renderer) throws IOException {
         Document doc = new Document();
         BlockParserState state = new BlockParserState(blockParserFactories, options);
 
@@ -2147,6 +2162,13 @@ public class MarkdownParser {
         }
     }
 
+    /**
+     * Check if text is link reference definitions.
+     *
+     * @param text
+     *            text
+     * @return true if yes
+     */
     public static boolean isLinkReferenceDefinitions(String text) {
         int index = 0;
         while (index < text.length()) {
@@ -2367,6 +2389,18 @@ public class MarkdownParser {
         }
     }
 
+    /**
+     * Process inline container static.
+     *
+     * @param doc
+     *            doc
+     * @param container
+     *            container
+     * @param options
+     *            options
+     * @param factories
+     *            factories
+     */
     public static void processInlineContainerStatic(Document doc, Node container, MarkdownParserOptions options,
             List<InlineContentParserFactory> factories) {
         Node first = container.getFirstChild();
@@ -2400,9 +2434,19 @@ public class MarkdownParser {
         processInlineContainerStatic(doc, container, options, inlineParserFactories);
     }
 
+    /**
+     * Parse link reference definitions.
+     *
+     * @param text
+     *            text
+     * @param doc
+     *            doc
+     * @return count
+     */
     public static int parseLinkReferenceDefinitions(String text, Document doc) {
-        if (doc == null)
+        if (doc == null) {
             return 0;
+        }
 
         int index = 0;
         while (index < text.length()) {
@@ -2410,8 +2454,9 @@ public class MarkdownParser {
             while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
                 index++;
             }
-            if (index >= text.length())
+            if (index >= text.length()) {
                 break;
+            }
 
             int start = index;
 
@@ -2633,7 +2678,6 @@ public class MarkdownParser {
         return sb.toString();
     }
 
-    @SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
     private static String decodeEntity(Matcher matcher) {
         String name = matcher.group(1);
         String decimal = matcher.group(2);
@@ -2649,21 +2693,21 @@ public class MarkdownParser {
             try {
                 int codePoint = Integer.parseInt(decimal);
                 if (codePoint == 0) {
-                    return "\uFFFD";
+                    return String.valueOf((char) 0xFFFD);
                 }
                 return new String(Character.toChars(codePoint));
             } catch (IllegalArgumentException e) {
-                return "\uFFFD";
+                return String.valueOf((char) 0xFFFD);
             }
         } else if (hex != null) {
             try {
                 int codePoint = Integer.parseInt(hex, 16);
                 if (codePoint == 0) {
-                    return "\uFFFD";
+                    return String.valueOf((char) 0xFFFD);
                 }
                 return new String(Character.toChars(codePoint));
             } catch (IllegalArgumentException e) {
-                return "\uFFFD";
+                return String.valueOf((char) 0xFFFD);
             }
         }
         return matcher.group();

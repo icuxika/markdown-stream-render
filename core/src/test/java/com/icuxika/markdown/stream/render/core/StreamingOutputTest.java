@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.renderer.IMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class StreamingOutputTest {
 
         List<String> events = new ArrayList<>();
         // 创建一个追踪用的 Renderer，记录访问顺序
-        IMarkdownRenderer trackingRenderer = new IMarkdownRenderer() {
+        MarkdownRenderer trackingRenderer = new MarkdownRenderer() {
             @Override
             public Object getResult() {
                 return events;

@@ -11,6 +11,12 @@ public class Document extends Block {
         visitor.visit(this);
     }
 
+    /**
+     * Add a link reference definition.
+     *
+     * @param linkReference
+     *            link reference
+     */
     public void addLinkReference(LinkReference linkReference) {
         String key = normalizeLabel(linkReference.getLabel());
         if (!linkReferences.containsKey(key)) {

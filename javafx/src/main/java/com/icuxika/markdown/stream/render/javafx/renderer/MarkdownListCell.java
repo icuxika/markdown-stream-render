@@ -15,6 +15,9 @@ public class MarkdownListCell extends ListCell<Node> {
 
     private final JavaFxRenderer renderer;
 
+    /**
+     * Constructor.
+     */
     public MarkdownListCell() {
         // Create a renderer with default configuration
         this.renderer = new JavaFxRenderer();

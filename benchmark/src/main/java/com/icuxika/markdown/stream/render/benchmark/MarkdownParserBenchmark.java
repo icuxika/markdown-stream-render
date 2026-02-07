@@ -32,6 +32,9 @@ public class MarkdownParserBenchmark {
     private HtmlRenderer htmlRenderer;
     private Document preParsedDoc;
 
+    /**
+     * Setup benchmark data.
+     */
     @Setup
     public void setup() {
         parser = new MarkdownParser();

@@ -9,22 +9,34 @@ import com.icuxika.markdown.stream.render.core.parser.InlineParser;
 public interface BlockParser {
 
     /**
-     * Return true if the block is a container (can contain other blocks), false if it is a leaf.
+     * Is container.
+     *
+     * @return true if the block is a container (can contain other blocks), false if it is a leaf.
      */
     boolean isContainer();
 
     /**
-     * Check if the block can continue with the current line.
+     * Try continue.
+     *
+     * @param state
+     *            parser state
+     * @return Check if the block can continue with the current line.
      */
     BlockContinue tryContinue(ParserState state);
 
     /**
-     * Add a line to the block (if it's a leaf block).
+     * Add line.
+     *
+     * @param line
+     *            line content
      */
     void addLine(CharSequence line);
 
     /**
-     * Parse inlines for the block (if applicable).
+     * Parse inlines.
+     *
+     * @param inlineParser
+     *            inline parser
      */
     void parseInlines(InlineParser inlineParser);
 
@@ -34,6 +46,8 @@ public interface BlockParser {
     void closeBlock();
 
     /**
+     * Get block node.
+     *
      * @return the AST node corresponding to this block
      */
     Node getBlock();

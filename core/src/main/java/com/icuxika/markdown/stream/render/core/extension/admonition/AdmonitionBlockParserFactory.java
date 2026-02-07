@@ -21,9 +21,7 @@ public class AdmonitionBlockParserFactory implements BlockParserFactory {
         if (matcher.matches()) {
             String type = matcher.group(1);
             String title = matcher.group(2);
-            return BlockStart.of(new AdmonitionParser(type, title)).atIndex(state.getIndex() + currentLine.length()); // Consume
-                                                                                                                      // whole
-                                                                                                                      // line
+            return BlockStart.of(new AdmonitionParser(type, title)).atIndex(state.getIndex() + currentLine.length());
         }
 
         return BlockStart.none();
