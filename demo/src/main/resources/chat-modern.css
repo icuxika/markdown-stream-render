@@ -1,0 +1,161 @@
+/* Modern Chat Theme (Tailwind-inspired) */
+.root {
+    /* Light Mode Palette */
+    -color-bg: #FFFFFF;
+    -color-bg-alt: #F9FAFB;
+    -color-text: #111827; /* Gray 900 */
+    -color-text-muted: #6B7280; /* Gray 500 */
+    -color-border: #E5E7EB; /* Gray 200 */
+    -color-primary: #2563EB; /* Blue 600 */
+    -color-primary-fg: #FFFFFF;
+    -color-accent: #F3F4F6; /* Gray 100 */
+
+    -chat-user-bg: #E0E7FF; /* Light Indigo for User */
+    -chat-user-text: #1E1B4B; /* Dark Indigo */
+    -chat-user-border: transparent;
+    
+    -chat-assistant-bg: transparent;
+    -chat-assistant-text: #111827;
+    -chat-assistant-border: transparent;
+
+    -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: -color-bg;
+
+    /* Markdown Theme Mappings (Ensure code blocks have color) */
+    -md-fg-color: -color-text;
+    -md-bg-color: transparent; /* Handled by bubble */
+    -md-sub-text-color: -color-text-muted;
+    -md-link-color: -color-primary;
+    -md-code-bg-color: #F1F5F9; /* Slate 100 */
+    -md-border-color: -color-border;
+    -md-quote-bg-color: #F3F4F6;
+    -md-quote-border-color: -color-border;
+    -md-table-header-bg: #F3F4F6;
+    -md-table-row-odd-bg: transparent;
+}
+
+/* Dark Mode Palette overrides via code in JavaFxAiChatDemo */
+
+.list-view {
+    -fx-background-color: -color-bg;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8px 16px; /* Vertical Horizontal */
+    -fx-text-fill: -color-text;
+}
+
+.list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.list-cell:filled:selected, .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+    -fx-text-fill: inherit;
+}
+
+/* Input Area */
+.text-area {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-text-fill: -color-text;
+    -fx-prompt-text-fill: -color-text-muted;
+    -fx-highlight-fill: -color-primary;
+    -fx-highlight-text-fill: -color-primary-fg;
+}
+
+.text-area .content {
+    -fx-background-color: transparent;
+}
+
+.input-container {
+    -fx-background-color: -color-bg;
+    -fx-border-color: -color-border;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
+    -fx-padding: 8px;
+}
+
+.input-container:focused-within {
+    -fx-border-color: -color-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.2), 10, 0, 0, 4);
+}
+
+.button-primary {
+    -fx-background-color: -color-primary;
+    -fx-text-fill: -color-primary-fg;
+    -fx-background-radius: 8px;
+    -fx-padding: 6px 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.button-primary:hover {
+    -fx-background-color: derive(-color-primary, 10%);
+}
+
+.button-primary:pressed {
+    -fx-background-color: derive(-color-primary, -10%);
+}
+
+.toolbar {
+    -fx-background-color: -color-bg;
+    -fx-border-color: -color-border;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 10px;
+}
+
+/* Bubbles */
+.bubble-user {
+    -fx-background-color: -chat-user-bg;
+    -fx-background-radius: 18px 18px 4px 18px; /* TopL TopR BotR BotL */
+    -fx-padding: 12px 16px;
+    -fx-effect: null; /* Remove any shadows */
+}
+
+.bubble-ai {
+    -fx-background-color: -chat-assistant-bg;
+    -fx-background-radius: 4px 18px 18px 18px;
+    -fx-padding: 0; /* Minimal padding for AI, markdown handles spacing */
+    -fx-effect: null;
+}
+
+/* Fix for inner markdown renderer spacing/bg */
+.bubble-user .markdown-root, .bubble-ai .markdown-root {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 5;
+}
+
+/* Override Markdown text colors in bubbles to match theme variables */
+.bubble-user .markdown-text, 
+.bubble-user .markdown-paragraph,
+.bubble-user .text {
+    -fx-fill: -chat-user-text;
+    -fx-text-fill: -chat-user-text;
+}
+
+.bubble-ai .markdown-text, 
+.bubble-ai .markdown-paragraph,
+.bubble-ai .text {
+    -fx-fill: -chat-assistant-text;
+    -fx-text-fill: -chat-assistant-text;
+}
+
+/* ScrollBar */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -color-border;
+    -fx-background-radius: 4px;
+}
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -color-text-muted;
+}

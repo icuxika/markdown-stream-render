@@ -155,6 +155,12 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
     }
 
     private void renderNodeOnFxThread(Node node) {
+        // Prevent duplication for container blocks that are already handled in openBlock
+        if (node instanceof Document || node instanceof BlockQuote || node instanceof BulletList
+                || node instanceof OrderedList || node instanceof ListItem || node instanceof AdmonitionBlock) {
+            return;
+        }
+
         if (containerStack.isEmpty()) {
             // Should not happen if openBlock(Document) works, but fallback to root
             containerStack.push(root);
@@ -253,28 +259,10 @@ public class JavaFxStreamRenderer implements IStreamMarkdownRenderer {
             parent.getChildren().add(newContainer);
             containerStack.push(contentContainer);
         } else {
-            // For other blocks (like Table), we don't open a container in stream mode
-            // because they are rendered atomically in renderNode.
-            // But we must push SOMETHING to keep stack balanced if closeBlock is called?
-            // MarkdownParser calls onBlockStarted/Closed for Custom Blocks.
-            // If we ignore it here, we must ignore it in closeBlock.
-            // Let's push a dummy or null? No, that's dangerous.
-            // Better: push the parent again? Or don't push anything and track ignored
-            // blocks?
-            // Actually, Table is NOT treated as container in MarkdownParser (my previous
-            // analysis).
-            // So onBlockStarted won't be called for Table.
-            // It WILL be called for any Custom Block (via BlockParserFactory).
-            // If we have a Custom Block we don't recognize, we should probably create a
-            // generic container?
-            // Or just ignore.
-            // If we ignore, we must match closeBlock.
-            // Let's assume we only handle known containers.
-            // But wait, if I don't push, closeBlock will pop the PARENT!
-            // That would be catastrophic.
-            // So I MUST push something or track that I ignored it.
-            // Easiest: Push parent again (transparent).
-            containerStack.push(parent);
+            // Leaf blocks or non-container blocks (Paragraph, CodeBlock, Heading, Table, HtmlBlock)
+            // do not receive closeBlock from MarkdownParser (they are not added to openContainers stack),
+            // so we must NOT push to containerStack to avoid imbalance (popping the parent prematurely or never
+            // popping).
         }
     }
 

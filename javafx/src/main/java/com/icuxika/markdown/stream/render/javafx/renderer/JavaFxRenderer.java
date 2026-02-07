@@ -256,6 +256,17 @@ public class JavaFxRenderer implements IMarkdownRenderer, JavaFxNodeRendererCont
         return root;
     }
 
+    /**
+     * Clear the renderer state and output. Useful when reusing the renderer for virtualization cells.
+     */
+    public void clear() {
+        root.getChildren().clear();
+        blockStack.clear();
+        blockStack.push(root);
+        lineToNodeMap.clear();
+        // Do NOT clear nodeRenderers or rendererMap as they are configuration
+    }
+
     // --- Visitor Implementation (Delegates to Renderer Map) ---
 
     @Override

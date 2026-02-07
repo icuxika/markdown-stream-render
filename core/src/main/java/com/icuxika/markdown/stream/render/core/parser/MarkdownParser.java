@@ -863,6 +863,8 @@ public class MarkdownParser {
                     codeBlock.setInfo(start.info);
                     checkLooseList(openContainers.get(openContainers.size() - 1));
                     openContainers.get(openContainers.size() - 1).appendChild(codeBlock);
+                    if (onBlockStarted != null)
+                        onBlockStarted.accept(codeBlock);
                     currentLeaf = codeBlock;
                     inFencedCodeBlock = true;
                     fenceChar = start.fenceChar;
@@ -885,6 +887,8 @@ public class MarkdownParser {
                         htmlBlock.setStartLine(lineNumber);
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(htmlBlock);
+                        if (onBlockStarted != null)
+                            onBlockStarted.accept(htmlBlock);
                         currentLeaf = htmlBlock;
                         inHtmlBlock = true;
                         htmlBlockCondition = condition;
@@ -916,6 +920,8 @@ public class MarkdownParser {
                         codeBlock.setStartLine(lineNumber);
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(codeBlock);
+                        if (onBlockStarted != null)
+                            onBlockStarted.accept(codeBlock);
                         currentLeaf = codeBlock;
                         inIndentedCodeBlock = true;
                         currentLeafContent.append(getSubstringForColumn(originalLine, i + 4)).append("\n");
@@ -1005,6 +1011,8 @@ public class MarkdownParser {
                         table.setStartLine(pStartLine != -1 ? pStartLine : lineNumber - 1);
                         checkLooseList(openContainers.get(openContainers.size() - 1));
                         openContainers.get(openContainers.size() - 1).appendChild(table);
+                        if (onBlockStarted != null)
+                            onBlockStarted.accept(table);
 
                         TableHead head = new TableHead();
                         table.appendChild(head);
@@ -1046,6 +1054,8 @@ public class MarkdownParser {
                 Node parent = openContainers.get(openContainers.size() - 1);
                 currentLeaf.unlink(); // Remove paragraph
                 parent.appendChild(heading);
+                if (onBlockStarted != null)
+                    onBlockStarted.accept(heading);
 
                 if (onBlockFinalized != null)
                     onBlockFinalized.accept(heading);
@@ -1064,6 +1074,8 @@ public class MarkdownParser {
                 tb.setEndLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(tb);
+                if (onBlockStarted != null)
+                    onBlockStarted.accept(tb);
 
                 if (onBlockFinalized != null)
                     onBlockFinalized.accept(tb);
@@ -1086,6 +1098,8 @@ public class MarkdownParser {
 
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(heading);
+                if (onBlockStarted != null)
+                    onBlockStarted.accept(heading);
 
                 if (onBlockFinalized != null) {
                     onBlockFinalized.accept(heading);
@@ -1127,6 +1141,8 @@ public class MarkdownParser {
                 p.setStartLine(lineNumber);
                 checkLooseList(openContainers.get(openContainers.size() - 1));
                 openContainers.get(openContainers.size() - 1).appendChild(p);
+                if (onBlockStarted != null)
+                    onBlockStarted.accept(p);
                 currentLeaf = p;
                 currentLeafContent.append(trimLeading(getSubstringForColumn(originalLine, i)));
                 lastLineContentDepth = Integer.MAX_VALUE;

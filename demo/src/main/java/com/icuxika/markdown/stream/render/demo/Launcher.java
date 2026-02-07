@@ -43,6 +43,10 @@ public class Launcher extends Application {
         chatDemoBtn.setPrefWidth(250);
         chatDemoBtn.setOnAction(e -> launchDemo(new JavaFxAiChatDemo()));
 
+        Button virtualDemoBtn = new Button("Virtual List Demo (High Perf)");
+        virtualDemoBtn.setPrefWidth(250);
+        virtualDemoBtn.setOnAction(e -> launchDemo(new VirtualListDemo()));
+
         // HTML Demos
         Label htmlLabel = new Label("HTML Renderer (Browser)");
         htmlLabel.setStyle("-fx-font-weight: bold;");
@@ -70,6 +74,7 @@ public class Launcher extends Application {
         }));
 
         root.getChildren().addAll(title, new Separator(), fxLabel, streamDemoBtn, batchDemoBtn, chatDemoBtn,
+                virtualDemoBtn,
                 new Separator(), htmlLabel, htmlStreamBtn, htmlBatchBtn);
 
         Scene scene = new Scene(root, 400, 500);

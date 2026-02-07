@@ -75,6 +75,17 @@
     -fx-font-size: 14px;
 }
 
+.markdown-code-block {
+    -fx-padding: 10;
+    -fx-background-color: -md-code-bg-color;
+    -fx-border-color: -md-border-color;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-family: "Consolas", "Monospace";
+    -fx-font-size: 14px;
+    -fx-text-fill: -md-fg-color;
+}
+
 .markdown-copy-button {
     -fx-background-color: -md-bg-color;
     -fx-border-color: -md-border-color;
@@ -92,49 +103,49 @@
 }
 
 .code-keyword {
-    -fx-fill: #d73a49; /* Red/Purple for keywords */
+    -fx-fill: -md-code-keyword;
     -fx-font-weight: bold;
 }
 
 .code-string {
-    -fx-fill: #032f62; /* Dark Blue for strings */
+    -fx-fill: -md-code-string;
 }
 
 .code-comment {
-    -fx-fill: #6a737d; /* Grey for comments */
+    -fx-fill: -md-code-comment;
     -fx-font-style: italic;
 }
 
 .code-json-key {
-    -fx-fill: #22863a; /* Green for JSON keys */
+    -fx-fill: -md-code-json-key;
     -fx-font-weight: bold;
 }
 
 .code-number {
-    -fx-fill: #005cc5; /* Blue for numbers */
+    -fx-fill: -md-code-number;
 }
 
 .code-tag {
-    -fx-fill: #22863a; /* Green for tags */
+    -fx-fill: -md-code-tag;
     -fx-font-weight: bold;
 }
 
 .code-class {
-    -fx-fill: #6f42c1; /* Purple for classes */
+    -fx-fill: -md-code-class;
     -fx-font-weight: bold;
 }
 
 .code-id {
-    -fx-fill: #6f42c1; /* Purple for IDs */
+    -fx-fill: -md-code-id;
     -fx-font-weight: bold;
 }
 
 .code-color {
-    -fx-fill: #005cc5; /* Blue for colors */
+    -fx-fill: -md-code-color;
 }
 
 .code-attr {
-    -fx-fill: #005cc5; /* Blue for attributes/flags */
+    -fx-fill: -md-code-attr;
 }
 
 /* Blockquote */
@@ -251,4 +262,16 @@
     -md-quote-border-color: #dfe2e5;
     -md-table-header-bg: #f6f8fa;
     -md-table-row-odd-bg: #ffffff;
+    
+    /* Code Highlight Colors */
+    -md-code-keyword: #d73a49;
+    -md-code-string: #032f62;
+    -md-code-comment: #6a737d;
+    -md-code-json-key: #22863a;
+    -md-code-number: #005cc5;
+    -md-code-tag: #22863a;
+    -md-code-class: #6f42c1;
+    -md-code-id: #6f42c1;
+    -md-code-color: #005cc5;
+    -md-code-attr: #005cc5;
 }

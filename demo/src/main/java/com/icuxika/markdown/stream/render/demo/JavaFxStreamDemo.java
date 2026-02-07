@@ -3,7 +3,6 @@ package com.icuxika.markdown.stream.render.demo;
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.core.renderer.IStreamMarkdownRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -135,16 +134,6 @@ public class JavaFxStreamDemo extends Application {
         bottomBox.getChildren().addAll(buttonBox, logArea);
         root.setBottom(bottomBox);
 
-        // Setup Renderer and Parser
-        JavaFxStreamRenderer realRenderer = new JavaFxStreamRenderer(outputBox);
-        realRenderer.setOnLinkClick(url -> {
-            log("Link Clicked: " + url);
-            getHostServices().showDocument(url);
-        });
-        realRenderer.setOnHeadingRendered(heading -> {
-            Platform.runLater(() -> tocList.getItems().add(heading));
-        });
-
         // Load CSS (reuse batch demo logic implicitly by renderer but let's ensure
         // style)
         // Actually JavaFxStreamRenderer should attach stylesheets?
@@ -189,7 +178,7 @@ public class JavaFxStreamDemo extends Application {
                 .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
 
         // Re-init parser with logging renderer
-        initParser(realRenderer);
+        // initParser(realRenderer); // Moved to startStreaming
 
         primaryStage.setTitle("Markdown Stream JavaFX Demo - LLM Token Simulation");
         primaryStage.setScene(scene);
@@ -200,30 +189,18 @@ public class JavaFxStreamDemo extends Application {
         });
     }
 
-    private void initParser(JavaFxStreamRenderer realRenderer) {
-        // Proxy Renderer for Logging
-        IStreamMarkdownRenderer loggingRenderer = new IStreamMarkdownRenderer() {
-            @Override
-            public void renderNode(Node node) {
-                // log("RENDER: " + node.getClass().getSimpleName()); // Too verbose for
-                // char-by-char
-                realRenderer.renderNode(node);
-            }
+    private void initParser() {
+        // Setup Renderer and Parser
+        JavaFxStreamRenderer realRenderer = new JavaFxStreamRenderer(outputBox);
+        realRenderer.setOnLinkClick(url -> {
+            log("Link Clicked: " + url);
+            getHostServices().showDocument(url);
+        });
+        realRenderer.setOnHeadingRendered(heading -> {
+            Platform.runLater(() -> tocList.getItems().add(heading));
+        });
 
-            @Override
-            public void openBlock(Node node) {
-                log("OPEN: " + node.getClass().getSimpleName());
-                realRenderer.openBlock(node);
-            }
-
-            @Override
-            public void closeBlock(Node node) {
-                log("CLOSE: " + node.getClass().getSimpleName());
-                realRenderer.closeBlock(node);
-            }
-        };
-
-        StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder().renderer(loggingRenderer);
+        StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder().renderer(realRenderer);
 
         CoreExtension.addDefaults(parserBuilder);
         parser = parserBuilder.build();
@@ -258,6 +235,9 @@ public class JavaFxStreamDemo extends Application {
         }
 
         final String finalContent = content;
+
+        initParser();
+
         executor = Executors.newSingleThreadScheduledExecutor();
 
         // Use a recursive runnable to schedule next chunk with random delay
