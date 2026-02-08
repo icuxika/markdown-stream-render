@@ -163,10 +163,24 @@ root.getChildren().add(result);
 
 ### 5.2 样式定制 (CSS)
 
-JavaFX 模块提供了默认主题 `MarkdownTheme.LIGHT` 和 `MarkdownTheme.DARK`。
+JavaFX 模块提供了默认主题管理器 `MarkdownTheme`（内置 `LIGHT/DARK` 两种主题变量）。
+推荐将样式加载在 `Scene` 级别，以便主题切换与应用级覆盖更可控。
 
 ```java
-scene.getStylesheets().add(MarkdownTheme.LIGHT.getCssPath());
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+
+MarkdownTheme theme = new MarkdownTheme();
+theme.apply(scene); // 加载 markdown.css + 扩展样式 + 当前主题变量
+theme.setTheme(MarkdownTheme.Theme.DARK); // 切换暗色主题
+```
+
+如果你希望完全自定义主题（仅复用结构样式），可以只加载基础样式并自行提供变量/覆盖：
+
+```java
+import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
+
+MarkdownStyles.applyBase(scene, true); // true 表示同时加载扩展样式
+scene.getStylesheets().add(getClass().getResource("/your-theme.css").toExternalForm());
 ```
 
 ## 6. 功能特性

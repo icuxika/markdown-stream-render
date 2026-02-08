@@ -4,7 +4,6 @@ import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.MarkdownListCell;
 import com.icuxika.markdown.stream.render.javafx.renderer.VirtualJavaFxStreamRenderer;
 import java.io.InputStream;
@@ -77,15 +76,6 @@ public class VirtualListDemo extends Application {
         // Apply theme (loads CSS)
         MarkdownTheme theme = new MarkdownTheme();
         theme.apply(scene);
-
-        // Also load extension CSS manually if theme doesn't include them?
-        // MarkdownTheme usually loads base markdown.css.
-        // Let's ensure extensions are loaded.
-        scene.getStylesheets().add(JavaFxRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css")
-                .toExternalForm());
-        scene.getStylesheets().add(JavaFxRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
 
         primaryStage.setTitle("Markdown Virtualization Demo (ListView)");
         primaryStage.setScene(scene);

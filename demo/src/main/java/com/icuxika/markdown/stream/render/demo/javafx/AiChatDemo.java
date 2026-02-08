@@ -5,6 +5,7 @@ import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.demo.client.DeepSeekClient;
+import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.application.Application;
@@ -119,16 +120,8 @@ public class AiChatDemo extends Application {
         root.setBottom(bottomBox);
 
         Scene scene = new Scene(root, 900, 700);
+        MarkdownStyles.applyBase(scene, true);
         scene.getStylesheets().add(getClass().getResource("/chat-modern.css").toExternalForm());
-        // Load Markdown styles (essential for rendered content)
-        scene.getStylesheets().add(JavaFxRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css").toExternalForm());
-        scene.getStylesheets()
-                .add(JavaFxRenderer.class
-                        .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css")
-                        .toExternalForm());
-        scene.getStylesheets().add(JavaFxRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
 
         primaryStage.setTitle("DeepSeek Chat - AI Native UI");
         primaryStage.setScene(scene);

@@ -19,9 +19,22 @@
     -md-table-header-bg: #1E293B;
     -md-table-row-odd-bg: #0F172A;
 
-    /* Chat Bubble Colors (Derived from Palette) */
-    -chat-user-bg: #1E293B; /* Secondary Slate */
-    -chat-user-border: #334155;
-    -chat-assistant-bg: #0F172A; /* Match Main BG */
-    -chat-assistant-border: #334155;
+    -md-admonition-bg-color: #1E293B;
+    -md-admonition-border-color: #334155;
+    -md-admonition-info-color: #3B82F6;
+    -md-admonition-warning-color: #F59E0B;
+    -md-admonition-error-color: #EF4444;
+
+    -md-inline-math-bg-color: #1E293B;
+
+    -md-code-keyword: #ff7b72;
+    -md-code-string: #a5d6ff;
+    -md-code-comment: #8b949e;
+    -md-code-json-key: #7ee787;
+    -md-code-number: #79c0ff;
+    -md-code-tag: #7ee787;
+    -md-code-class: #ffa657;
+    -md-code-id: #d2a8ff;
+    -md-code-color: #79c0ff;
+    -md-code-attr: #79c0ff;
 }

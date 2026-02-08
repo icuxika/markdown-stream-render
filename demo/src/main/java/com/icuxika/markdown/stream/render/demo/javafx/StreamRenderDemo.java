@@ -3,6 +3,7 @@ package com.icuxika.markdown.stream.render.demo.javafx;
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -162,20 +163,8 @@ public class StreamRenderDemo extends Application {
         });
 
         Scene scene = new Scene(root, 800, 800);
-        // Use JavaFxStreamRenderer.class to load resources from the javafx module to
-        // avoid module encapsulation issues
-        // when running via Launcher (which might be in a different module context)
-        scene.getStylesheets().add(JavaFxStreamRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css").toExternalForm());
-        scene.getStylesheets().add(JavaFxStreamRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/light.css").toExternalForm());
-        // Extensions CSS
-        scene.getStylesheets()
-                .add(JavaFxStreamRenderer.class
-                        .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css")
-                        .toExternalForm());
-        scene.getStylesheets().add(JavaFxStreamRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
+        MarkdownTheme theme = new MarkdownTheme();
+        theme.apply(scene);
 
         // Re-init parser with logging renderer
         // initParser(realRenderer); // Moved to startStreaming

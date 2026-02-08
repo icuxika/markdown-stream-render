@@ -274,4 +274,12 @@
     -md-code-id: #6f42c1;
     -md-code-color: #005cc5;
     -md-code-attr: #005cc5;
+
+    -md-admonition-bg-color: #f9f9f9;
+    -md-admonition-border-color: -md-border-color;
+    -md-admonition-info-color: #448aff;
+    -md-admonition-warning-color: #ffc107;
+    -md-admonition-error-color: #f44336;
+
+    -md-inline-math-bg-color: #f0f0f0;
 }

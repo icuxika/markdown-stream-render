@@ -323,16 +323,17 @@ public class JavaFxStreamRenderer implements StreamMarkdownTypingRenderer {
         } else if (node instanceof AdmonitionBlock) {
             AdmonitionBlock ab = (AdmonitionBlock) node;
             VBox admonitionBox = new VBox();
-            admonitionBox.getStyleClass().addAll("admonition", "admonition-" + ab.getType().toLowerCase());
+            admonitionBox.getStyleClass()
+                    .addAll("markdown-admonition", "markdown-admonition-" + ab.getType().toLowerCase());
 
             if (ab.getTitle() != null && !ab.getTitle().isEmpty()) {
                 Label titleLabel = new Label(ab.getTitle());
-                titleLabel.getStyleClass().add("admonition-title");
+                titleLabel.getStyleClass().add("markdown-admonition-title");
                 admonitionBox.getChildren().add(titleLabel);
             }
 
             VBox contentBox = new VBox();
-            contentBox.getStyleClass().add("admonition-content");
+            contentBox.getStyleClass().add("markdown-admonition-content");
             admonitionBox.getChildren().add(contentBox);
 
             newContainer = admonitionBox;

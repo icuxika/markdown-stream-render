@@ -2,6 +2,7 @@ package com.icuxika.markdown.stream.render.demo.javafx;
 
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -84,16 +85,8 @@ public class TypewriterPreviewDemo extends Application {
         root.setBottom(buildControls(scrollPane));
 
         Scene scene = new Scene(root, 1000, 720);
-        scene.getStylesheets().add(JavaFxStreamRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/markdown.css").toExternalForm());
-        scene.getStylesheets().add(JavaFxStreamRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/light.css").toExternalForm());
-        scene.getStylesheets()
-                .add(JavaFxStreamRenderer.class
-                        .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css")
-                        .toExternalForm());
-        scene.getStylesheets().add(JavaFxStreamRenderer.class
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css").toExternalForm());
+        MarkdownTheme theme = new MarkdownTheme();
+        theme.apply(scene);
 
         stage.setTitle("Typewriter Preview Demo (Char-level Incremental Rendering)");
         stage.setScene(scene);

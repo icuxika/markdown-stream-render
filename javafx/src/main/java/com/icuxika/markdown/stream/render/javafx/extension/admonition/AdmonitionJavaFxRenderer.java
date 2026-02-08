@@ -26,15 +26,15 @@ public class AdmonitionJavaFxRenderer implements JavaFxNodeRenderer {
         AdmonitionBlock admonition = (AdmonitionBlock) node;
 
         VBox box = new VBox();
-        box.getStyleClass().add("admonition");
-        box.getStyleClass().add("admonition-" + admonition.getType());
+        box.getStyleClass().add("markdown-admonition");
+        box.getStyleClass().add("markdown-admonition-" + admonition.getType());
 
         // CSS file handles base styles (border, padding, background)
         // Type-specific colors are handled by specific CSS classes
 
         if (admonition.getTitle() != null) {
             Label titleLabel = new Label(admonition.getTitle());
-            titleLabel.getStyleClass().add("admonition-title");
+            titleLabel.getStyleClass().add("markdown-admonition-title");
             box.getChildren().add(titleLabel);
         }
 

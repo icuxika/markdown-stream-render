@@ -1,42 +1,45 @@
 /* Admonition Styles */
-.admonition {
-    -fx-border-color: #ddd;
+.markdown-admonition {
+    -fx-border-color: transparent transparent transparent -md-admonition-border-color;
     -fx-border-width: 0 0 0 4;
-    -fx-background-color: #f9f9f9;
+    -fx-background-color: -md-admonition-bg-color;
     -fx-padding: 10;
     -fx-spacing: 5;
 }
 
-.admonition-title {
-    -fx-font-family: "Arial";
+.markdown-admonition-title {
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-padding: 0 0 5 0;
 }
 
-/* Info Type */
-.admonition-info {
-    -fx-border-left-color: #448aff;
+.markdown-admonition-content {
+    -fx-spacing: 5;
 }
 
-.admonition-info .admonition-title {
-    -fx-text-fill: #448aff;
+/* Info Type */
+.markdown-admonition-info {
+    -fx-border-color: transparent transparent transparent -md-admonition-info-color;
+}
+
+.markdown-admonition-info .markdown-admonition-title {
+    -fx-text-fill: -md-admonition-info-color;
 }
 
 /* Warning Type */
-.admonition-warning {
-    -fx-border-left-color: #ffc107;
+.markdown-admonition-warning {
+    -fx-border-color: transparent transparent transparent -md-admonition-warning-color;
 }
 
-.admonition-warning .admonition-title {
-    -fx-text-fill: #ffc107;
+.markdown-admonition-warning .markdown-admonition-title {
+    -fx-text-fill: -md-admonition-warning-color;
 }
 
 /* Error Type */
-.admonition-error {
-    -fx-border-left-color: #f44336;
+.markdown-admonition-error {
+    -fx-border-color: transparent transparent transparent -md-admonition-error-color;
 }
 
-.admonition-error .admonition-title {
-    -fx-text-fill: #f44336;
+.markdown-admonition-error .markdown-admonition-title {
+    -fx-text-fill: -md-admonition-error-color;
 }

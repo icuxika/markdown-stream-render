@@ -28,9 +28,20 @@ The JavaFX renderer uses a modern, CSS-based styling system.
 The library comes with `Light` and `Dark` themes. You can switch themes using the `MarkdownTheme` helper:
 
 ```java
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+
 MarkdownTheme theme = new MarkdownTheme();
-theme.apply(scene); // Applies default Light theme
+theme.apply(scene); // Loads markdown.css + extension styles + default Light theme variables
 theme.setTheme(MarkdownTheme.Theme.DARK); // Switch to Dark theme
+```
+
+If you want to fully customize the theme, load the base markdown styles and then add your own stylesheet:
+
+```java
+import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
+
+MarkdownStyles.applyBase(scene, true);
+scene.getStylesheets().add(getClass().getResource("/your-theme.css").toExternalForm());
 ```
 
 ### CSS Variables Reference

@@ -106,22 +106,6 @@ public class JavaFxRenderer implements MarkdownRenderer, JavaFxNodeRendererConte
         // SOLUTION: Do NOT add stylesheets here. Rely on user/MarkdownTheme to add them
         // to Scene or Parent.
 
-        // Load extension stylesheets (Admonition, Math)
-        // These define structural styles mostly, but also colors.
-        // Ideally these should also be managed by theme manager or added to Scene.
-        // For now, let's keep them but be aware they might need theming support too.
-        java.net.URL admCss = getClass()
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/admonition.css");
-        if (admCss != null) {
-            root.getStylesheets().add(admCss.toExternalForm());
-        }
-
-        java.net.URL mathCss = getClass()
-                .getResource("/com/icuxika/markdown/stream/render/javafx/css/extensions/math.css");
-        if (mathCss != null) {
-            root.getStylesheets().add(mathCss.toExternalForm());
-        }
-
         // Add core renderer
         List<JavaFxNodeRendererFactory> allFactories = new ArrayList<>();
         allFactories.add(context -> new CoreJavaFxNodeRenderer(context, link -> {
@@ -133,7 +117,6 @@ public class JavaFxRenderer implements MarkdownRenderer, JavaFxNodeRendererConte
         // Add default extension renderers
         allFactories.add(context -> new AdmonitionJavaFxRenderer(context));
         allFactories.add(context -> new MathJavaFxRenderer(context));
-        System.out.println("[INFO] JavaFxRenderer: Loaded default extensions (Admonition, Math)");
 
         allFactories.addAll(builder.nodeRendererFactories);
 

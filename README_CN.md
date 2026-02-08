@@ -31,8 +31,10 @@ JavaFX 渲染器采用了现代化的 CSS 样式系统。
 本库自带 `Light` (明亮) 和 `Dark` (暗黑) 两种主题。你可以使用 `MarkdownTheme` 辅助类轻松切换：
 
 ```java
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+
 MarkdownTheme theme = new MarkdownTheme();
-theme.apply(scene); // 应用默认的明亮主题
+theme.apply(scene); // 加载 markdown.css + 扩展样式 + 默认明亮主题变量
 theme.setTheme(MarkdownTheme.Theme.DARK); // 切换到暗黑主题
 ```
 
@@ -53,7 +55,10 @@ theme.setTheme(MarkdownTheme.Theme.DARK); // 切换到暗黑主题
    ```
 2. 在你的应用中加载它：
    ```java
-   scene.getStylesheets().add("path/to/sepia.css");
+   import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
+
+   MarkdownStyles.applyBase(scene, true);
+   scene.getStylesheets().add(getClass().getResource("/sepia.css").toExternalForm());
    ```
 
 ### CSS 变量参考

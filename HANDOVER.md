@@ -19,7 +19,7 @@
 
 | 模块 | 路径 | 职责 |
 | :--- | :--- | :--- |
-| **core** | [core](core) | **核心逻辑**。包含 AST 定义、解析器状态机 (`MarkdownParser`)、流式解析器封装 (`StreamMarkdownParser`) 以及渲染接口 (`IStreamMarkdownRenderer`)。无 UI 依赖。 |
+| **core** | [core](core) | **核心逻辑**。包含 AST 定义、解析器状态机 (`MarkdownParser`)、流式解析器 (`StreamMarkdownParser`) 以及流式渲染接口（`StreamMarkdownRenderer`/`StreamMarkdownTypingRenderer`）。无 UI 依赖。 |
 | **html** | [html](html) | **HTML 实现**。包含 HTML 全量/流式渲染器、CSS 样式资源 (`markdown.css` 及扩展样式)。 |
 | **javafx** | [javafx](javafx) | **JavaFX 实现**。包含 JavaFX 渲染器、CSS 样式表、自定义控件（如数学公式视图）。 |
 | **demo** | [demo](demo) | **演示程序**。包含启动器 (`Launcher`) 和各类流式/非流式 Demo。 |
@@ -38,8 +38,10 @@
         2.  `renderNode(Node)`: 一个叶子节点（如段落、标题、代码块）内容解析完毕，可以渲染。
         3.  `closeBlock(Node)`: 容器块结束。
 
-*   **渲染器接口**: [IStreamMarkdownRenderer](core/src/main/java/com/icuxika/markdown/stream/render/core/renderer/IStreamMarkdownRenderer.java)
+*   **渲染器接口**: [StreamMarkdownRenderer](core/src/main/java/com/icuxika/markdown/stream/render/core/renderer/StreamMarkdownRenderer.java)
     *   实现此接口以适配不同的输出端。
+*   **打字机预览接口（可选）**: [StreamMarkdownTypingRenderer](core/src/main/java/com/icuxika/markdown/stream/render/core/renderer/StreamMarkdownTypingRenderer.java)
+    *   在流式输入尚未形成完整块时，允许渲染“预览节点”。
 
 ### 3.2 JavaFX 渲染实现
 
@@ -49,8 +51,9 @@
     *   `openBlock`: 创建对应的 JavaFX 容器（设置样式类），压入栈顶，并添加到父容器。
     *   `renderNode`: 将内容渲染并添加到**栈顶**容器中。
     *   `closeBlock`: 弹出栈顶容器。
-* **样式**:
-  样式定义在 [markdown.css](javafx/src/main/resources/com/icuxika/markdown/stream/render/javafx/css/markdown.css) 中。
+* **样式与主题**:
+  * JavaFX 的 Markdown 样式与主题变量位于 `javafx` 模块资源目录下。
+  * 推荐在 `Scene` 级别加载样式（通过 `MarkdownTheme.apply(scene)` 或 `MarkdownStyles.applyBase(scene, ...)`），渲染器本身不会自动注入 `Scene` 样式表，以避免主题切换/覆盖顺序不受控。
 
 ### 3.3 HTML 渲染实现 (最新重构)
 

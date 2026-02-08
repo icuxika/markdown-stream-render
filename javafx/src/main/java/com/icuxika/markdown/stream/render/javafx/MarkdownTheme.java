@@ -25,6 +25,7 @@ public class MarkdownTheme {
     private static final String MARKDOWN_CSS = "markdown.css";
 
     private final ObjectProperty<Theme> currentTheme = new SimpleObjectProperty<>(Theme.LIGHT);
+    private boolean includeExtensions = true;
 
     /**
      * Constructor.
@@ -64,11 +65,19 @@ public class MarkdownTheme {
         return currentTheme.get();
     }
 
+    public void setIncludeExtensions(boolean includeExtensions) {
+        this.includeExtensions = includeExtensions;
+    }
+
+    public boolean isIncludeExtensions() {
+        return includeExtensions;
+    }
+
     /**
      * Applies the markdown stylesheets to the given Scene. It binds the scene's stylesheets to the theme property.
      */
     public void apply(Scene scene) {
-        scene.getStylesheets().add(getClass().getResource(CSS_BASE_PATH + MARKDOWN_CSS).toExternalForm());
+        MarkdownStyles.applyBase(scene, includeExtensions);
         updateThemeStyle(scene.getStylesheets(), currentTheme.get());
 
         currentTheme.addListener((obs, oldTheme, newTheme) -> {
@@ -80,7 +89,7 @@ public class MarkdownTheme {
      * Applies the markdown stylesheets to the given Parent (e.g. VBox).
      */
     public void apply(Parent parent) {
-        parent.getStylesheets().add(getClass().getResource(CSS_BASE_PATH + MARKDOWN_CSS).toExternalForm());
+        MarkdownStyles.applyBase(parent, includeExtensions);
         updateThemeStyle(parent.getStylesheets(), currentTheme.get());
 
         currentTheme.addListener((obs, oldTheme, newTheme) -> {
@@ -96,8 +105,6 @@ public class MarkdownTheme {
         }
         // Add new theme stylesheet
         String newUrl = getClass().getResource(CSS_BASE_PATH + theme.getCssFile()).toExternalForm();
-        if (!stylesheets.contains(newUrl)) {
-            stylesheets.add(newUrl);
-        }
+        MarkdownStyles.addIfAbsent(stylesheets, newUrl);
     }
 }
