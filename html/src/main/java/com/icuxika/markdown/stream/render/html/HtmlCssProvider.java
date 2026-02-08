@@ -16,6 +16,15 @@ public class HtmlCssProvider {
     }
 
     /**
+     * Get the default theme CSS (light/dark variables via data-theme).
+     *
+     * @return CSS content
+     */
+    public static String getThemeCss() {
+        return loadCss("css/themes/themes.css");
+    }
+
+    /**
      * Get the Admonition extension CSS.
      *
      * @return CSS content
@@ -40,6 +49,7 @@ public class HtmlCssProvider {
      */
     public static String getAllCss() {
         StringBuilder sb = new StringBuilder();
+        sb.append(getThemeCss()).append("\n");
         sb.append(getMarkdownCss()).append("\n");
         sb.append(getAdmonitionCss()).append("\n");
         sb.append(getMathCss()).append("\n");

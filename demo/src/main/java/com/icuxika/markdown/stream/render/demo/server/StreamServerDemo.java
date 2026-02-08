@@ -74,8 +74,8 @@ public class StreamServerDemo {
             t.sendResponseHeaders(200, 0);
 
             try (OutputStream os = t.getResponseBody()) {
-                // Load Demo CSS
-                String demoCss = loadResource("/css/demo.css");
+                // Load Demo Shell CSS (layout + fonts). Theme variables are provided by html module.
+                String demoCss = loadResource("/css/demo-shell.css");
 
                 // Construct Page Shell
                 String head = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" + "<meta charset='UTF-8'>"
@@ -93,7 +93,7 @@ public class StreamServerDemo {
                         + "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" + "</aside>"
                         +
                         // Main Content
-                        "<main class='main-content'>" + "<div id='content' class='markdown-root'>";
+                        "<main class='main-content'>" + "<div id='content' class='markdown-root' data-theme='light'>";
                 // OPEN, DO NOT CLOSE YET
 
                 // Script (can be sent early or late, but early is fine if we don't close body)
@@ -154,10 +154,18 @@ public class StreamServerDemo {
                         + // close markdown-root
                         "</main>" + "</div>"
                         + // close app-container
-                        "<script>" + "function toggleTheme() {" + "  const html = document.documentElement;"
-                        + "  const current = html.getAttribute('data-theme');"
+                        "<script>" + "function applyTheme(next) {"
+                        + "  const html = document.documentElement;"
+                        + "  html.setAttribute('data-theme', next);"
+                        + "  document.querySelectorAll('.markdown-root').forEach(el => el.setAttribute('data-theme', next));"
+                        + "}"
+                        + "function toggleTheme() {"
+                        + "  const html = document.documentElement;"
+                        + "  const current = html.getAttribute('data-theme') || 'light';"
                         + "  const next = current === 'dark' ? 'light' : 'dark';"
-                        + "  html.setAttribute('data-theme', next);" + "}"
+                        + "  applyTheme(next);"
+                        + "}"
+                        + "applyTheme(document.documentElement.getAttribute('data-theme') || 'light');"
                         +
                         // Auto-scroll logic
                         "const contentDiv = document.getElementById('content');"

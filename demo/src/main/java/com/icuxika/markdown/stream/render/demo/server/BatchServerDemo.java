@@ -81,8 +81,8 @@ public class BatchServerDemo {
             renderer.render(doc);
             String htmlContent = (String) renderer.getResult();
 
-            // Load Demo CSS
-            String demoCss = loadResource("/css/demo.css");
+            // Load Demo Shell CSS (layout + fonts). Theme variables are provided by html module.
+            String demoCss = loadResource("/css/demo-shell.css");
 
             // Wrap in full HTML with Modern Sidebar Layout
             String response = "<!DOCTYPE html><html lang='en' data-theme='light'><head>" + "<meta charset='UTF-8'>"
@@ -98,14 +98,24 @@ public class BatchServerDemo {
                     + "<button class='theme-toggle' onclick='toggleTheme()'>Toggle Theme</button>" + "</aside>"
                     +
                     // Main Content
-                    "<main class='main-content'>" + "<div class='markdown-root'>" + htmlContent + "</div>" + "</main>"
+                    "<main class='main-content'>" + "<div class='markdown-root' data-theme='light'>" + htmlContent
+                    + "</div>" + "</main>"
                     + "</div>"
                     +
                     // Script
-                    "<script>" + "function toggleTheme() {" + "  const html = document.documentElement;"
-                    + "  const current = html.getAttribute('data-theme');"
+                    "<script>" + "function applyTheme(next) {"
+                    + "  const html = document.documentElement;"
+                    + "  html.setAttribute('data-theme', next);"
+                    + "  document.querySelectorAll('.markdown-root').forEach(el => el.setAttribute('data-theme', next));"
+                    + "}"
+                    + "function toggleTheme() {"
+                    + "  const html = document.documentElement;"
+                    + "  const current = html.getAttribute('data-theme') || 'light';"
                     + "  const next = current === 'dark' ? 'light' : 'dark';"
-                    + "  html.setAttribute('data-theme', next);" + "}" + "</script>" + "</body></html>";
+                    + "  applyTheme(next);"
+                    + "}"
+                    + "applyTheme(document.documentElement.getAttribute('data-theme') || 'light');"
+                    + "</script>" + "</body></html>";
 
             byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
             t.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
