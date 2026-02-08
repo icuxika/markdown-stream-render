@@ -28,156 +28,158 @@ import javafx.stage.Stage;
  */
 public class VirtualListDemo extends Application {
 
-    private StreamMarkdownParser parser;
-    private ScheduledExecutorService executor;
-    private ListView<Node> listView;
-    private ObservableList<Node> markdownNodes;
+	private StreamMarkdownParser parser;
+	private ScheduledExecutorService executor;
+	private ListView<Node> listView;
+	private ObservableList<Node> markdownNodes;
 
-    @Override
-    public void start(Stage primaryStage) {
-        // 1. Data Model
-        markdownNodes = FXCollections.observableArrayList();
+	@Override
+	public void start(Stage primaryStage) {
+		// 1. Data Model
+		markdownNodes = FXCollections.observableArrayList();
 
-        // 2. Virtualized ListView
-        listView = new ListView<>(markdownNodes);
-        VBox.setVgrow(listView, Priority.ALWAYS);
+		// 2. Virtualized ListView
+		listView = new ListView<>(markdownNodes);
+		VBox.setVgrow(listView, Priority.ALWAYS);
 
-        // Remove default ListView border/background to blend with markdown styles
-        // Also remove padding that might conflict with markdown-root padding
-        listView.setStyle(
-                "-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-padding: 0;");
+		// Remove default ListView border/background to blend with markdown styles
+		// Also remove padding that might conflict with markdown-root padding
+		listView.setStyle(
+				"-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-padding: 0;");
 
-        // 3. Custom Cell Factory
-        listView.setCellFactory(param -> new MarkdownListCell());
+		// 3. Custom Cell Factory
+		listView.setCellFactory(param -> new MarkdownListCell());
 
-        // 4. Controls
-        Button startBtn = new Button("Start Streaming");
-        startBtn.setOnAction(e -> startStreaming());
+		// 4. Controls
+		Button startBtn = new Button("Start Streaming");
+		startBtn.setOnAction(e -> startStreaming());
 
-        // 5. Layout
-        VBox topBox = new VBox(startBtn);
-        BorderPane root = new BorderPane();
-        root.setTop(topBox);
-        root.setCenter(listView);
+		// 5. Layout
+		VBox topBox = new VBox(startBtn);
+		BorderPane root = new BorderPane();
+		root.setTop(topBox);
+		root.setCenter(listView);
 
-        Scene scene = new Scene(root, 800, 600);
+		Scene scene = new Scene(root, 800, 600);
 
-        // Disable selection visual feedback via CSS
-        // We add a stylesheet to the scene or apply inline styles to cells?
-        // Inline style on ListView works for the container, but Cell styles are in .list-cell
-        // Let's add a custom stylesheet for this demo to override list-cell selection
-        scene.getStylesheets().add("data:text/css,"
-                + ".list-cell:filled:selected, .list-cell:filled:selected:focused { "
-                + "-fx-background-color: transparent; "
-                + "-fx-text-fill: inherit; "
-                + "-fx-border-color: transparent; } "
-                + ".list-cell { -fx-background-color: transparent; -fx-padding: 0px; }");
+		// Disable selection visual feedback via CSS
+		// We add a stylesheet to the scene or apply inline styles to cells?
+		// Inline style on ListView works for the container, but Cell styles are in
+		// .list-cell
+		// Let's add a custom stylesheet for this demo to override list-cell selection
+		scene.getStylesheets().add("data:text/css,"
+				+ ".list-cell:filled:selected, .list-cell:filled:selected:focused { "
+				+ "-fx-background-color: transparent; "
+				+ "-fx-text-fill: inherit; "
+				+ "-fx-border-color: transparent; } "
+				+ ".list-cell { -fx-background-color: transparent; -fx-padding: 0px; }");
 
-        // Apply theme (loads CSS)
-        MarkdownTheme theme = new MarkdownTheme();
-        theme.apply(scene);
+		// Apply theme (loads CSS)
+		MarkdownTheme theme = new MarkdownTheme();
+		theme.apply(scene);
 
-        primaryStage.setTitle("Markdown Virtualization Demo (ListView)");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
+		primaryStage.setTitle("Markdown Virtualization Demo (ListView)");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
 
-    private void initParser() {
-        // Setup Parser
-        VirtualJavaFxStreamRenderer renderer = new VirtualJavaFxStreamRenderer(markdownNodes, () -> {
-            // Request refresh of visible cells
-            Platform.runLater(() -> {
-                listView.refresh();
-                // Auto-scroll to bottom
-                listView.scrollTo(markdownNodes.size() - 1);
-            });
-        });
+	private void initParser() {
+		// Setup Parser
+		VirtualJavaFxStreamRenderer renderer = new VirtualJavaFxStreamRenderer(markdownNodes, () -> {
+			// Request refresh of visible cells
+			Platform.runLater(() -> {
+				listView.refresh();
+				// Auto-scroll to bottom
+				listView.scrollTo(markdownNodes.size() - 1);
+			});
+		});
 
-        StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
-        CoreExtension.addDefaults(builder);
-        parser = builder.build();
-    }
+		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
+		CoreExtension.addDefaults(builder);
+		parser = builder.build();
+	}
 
-    private void startStreaming() {
-        markdownNodes.clear();
-        // Re-initialize parser to clear state
-        initParser();
+	private void startStreaming() {
+		markdownNodes.clear();
+		// Re-initialize parser to clear state
+		initParser();
 
-        String content = loadTemplate();
-        final String finalContent = content;
+		String content = loadTemplate();
+		final String finalContent = content;
 
-        if (executor != null && !executor.isShutdown()) {
-            executor.shutdownNow();
-        }
-        executor = Executors.newSingleThreadScheduledExecutor();
+		if (executor != null && !executor.isShutdown()) {
+			executor.shutdownNow();
+		}
+		executor = Executors.newSingleThreadScheduledExecutor();
 
-        Runnable task = new Runnable() {
-            int index = 0;
-            java.util.Random random = new java.util.Random();
+		Runnable task = new Runnable() {
+			int index = 0;
+			java.util.Random random = new java.util.Random();
 
-            @Override
-            public void run() {
-                if (index < finalContent.length()) {
-                    int remaining = finalContent.length() - index;
-                    int chunkSize = random.nextInt(50) + 10; // 10-60 chars
-                    if (chunkSize > remaining) {
-                        chunkSize = remaining;
-                    }
+			@Override
+			public void run() {
+				if (index < finalContent.length()) {
+					int remaining = finalContent.length() - index;
+					int chunkSize = random.nextInt(50) + 10; // 10-60 chars
+					if (chunkSize > remaining) {
+						chunkSize = remaining;
+					}
 
-                    String chunk = finalContent.substring(index, index + chunkSize);
-                    index += chunkSize;
+					String chunk = finalContent.substring(index, index + chunkSize);
+					index += chunkSize;
 
-                    try {
-                        parser.push(chunk);
-                        // Force refresh periodically to show progress within blocks?
-                        // Since we can't hook into internal parser state easily,
-                        // we rely on renderer.renderNode() which is called on block finalize.
-                        // However, we can force a refresh of the ListView here too?
-                        // No, refreshing ListView won't help if Node content hasn't changed.
-                        // And Node content (Text) is only added on finalize.
-                        // So streaming char-by-char is limited by block boundaries in this architecture.
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+					try {
+						parser.push(chunk);
+						// Force refresh periodically to show progress within blocks?
+						// Since we can't hook into internal parser state easily,
+						// we rely on renderer.renderNode() which is called on block finalize.
+						// However, we can force a refresh of the ListView here too?
+						// No, refreshing ListView won't help if Node content hasn't changed.
+						// And Node content (Text) is only added on finalize.
+						// So streaming char-by-char is limited by block boundaries in this
+						// architecture.
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 
-                    int delay = random.nextInt(20) + 5; // 5-25ms
-                    executor.schedule(this, delay, TimeUnit.MILLISECONDS);
-                } else {
-                    parser.close();
-                    executor.shutdown();
-                }
-            }
-        };
+					int delay = random.nextInt(20) + 5; // 5-25ms
+					executor.schedule(this, delay, TimeUnit.MILLISECONDS);
+				} else {
+					parser.close();
+					executor.shutdown();
+				}
+			}
+		};
 
-        executor.schedule(task, 0, TimeUnit.MILLISECONDS);
-    }
+		executor.schedule(task, 0, TimeUnit.MILLISECONDS);
+	}
 
-    private String loadTemplate() {
-        try (InputStream is = getClass().getResourceAsStream("/comprehensive.md")) {
-            if (is != null) {
-                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "# Error\nCould not load template.";
-    }
+	private String loadTemplate() {
+		try (InputStream is = getClass().getResourceAsStream("/comprehensive.md")) {
+			if (is != null) {
+				return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "# Error\nCould not load template.";
+	}
 
-    @Override
-    public void stop() throws Exception {
-        super.stop();
-        if (executor != null) {
-            executor.shutdownNow();
-        }
-    }
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		if (executor != null) {
+			executor.shutdownNow();
+		}
+	}
 
-    /**
-     * Main.
-     *
-     * @param args
-     *            args
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
+	/**
+	 * Main.
+	 *
+	 * @param args
+	 *            args
+	 */
+	public static void main(String[] args) {
+		launch(args);
+	}
 }

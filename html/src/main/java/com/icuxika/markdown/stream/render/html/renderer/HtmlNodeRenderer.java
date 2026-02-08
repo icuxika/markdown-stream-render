@@ -8,19 +8,20 @@ import java.util.Set;
  */
 public interface HtmlNodeRenderer {
 
-    /**
-     * Get the set of node types that this renderer handles.
-     *
-     * @return the set of node types that this renderer handles
-     */
-    Set<Class<? extends Node>> getNodeTypes();
+	/**
+	 * Get the set of node types that this renderer handles.
+	 *
+	 * @return the set of node types that this renderer handles
+	 */
+	Set<Class<? extends Node>> getNodeTypes();
 
-    /**
-     * Render the specified node.
-     *
-     * @param node
-     *            the node to render, guaranteed to be an instance of one of the types returned by
-     *            {@link #getNodeTypes()}
-     */
-    void render(Node node);
+	/**
+	 * Render the specified node.
+	 *
+	 * @param node
+	 *            the node to render, guaranteed to be an instance of one of the
+	 *            types returned by
+	 *            {@link #getNodeTypes()}
+	 */
+	void render(Node node);
 }

@@ -11,37 +11,37 @@ import java.util.Map;
 import java.util.Set;
 
 public class AdmonitionHtmlRenderer implements HtmlNodeRenderer {
-    private final HtmlNodeRendererContext context;
+	private final HtmlNodeRendererContext context;
 
-    public AdmonitionHtmlRenderer(HtmlNodeRendererContext context) {
-        this.context = context;
-    }
+	public AdmonitionHtmlRenderer(HtmlNodeRendererContext context) {
+		this.context = context;
+	}
 
-    @Override
-    public Set<Class<? extends Node>> getNodeTypes() {
-        return Collections.singleton(AdmonitionBlock.class);
-    }
+	@Override
+	public Set<Class<? extends Node>> getNodeTypes() {
+		return Collections.singleton(AdmonitionBlock.class);
+	}
 
-    @Override
-    public void render(Node node) {
-        AdmonitionBlock admonition = (AdmonitionBlock) node;
-        HtmlWriter html = context.getWriter();
+	@Override
+	public void render(Node node) {
+		AdmonitionBlock admonition = (AdmonitionBlock) node;
+		HtmlWriter html = context.getWriter();
 
-        Map<String, String> attrs = new HashMap<>();
-        attrs.put("class", "markdown-admonition admonition markdown-admonition-" + admonition.getType()
-                + " admonition-" + admonition.getType());
+		Map<String, String> attrs = new HashMap<>();
+		attrs.put("class", "markdown-admonition admonition markdown-admonition-" + admonition.getType()
+				+ " admonition-" + admonition.getType());
 
-        html.tag("div", attrs);
+		html.tag("div", attrs);
 
-        if (admonition.getTitle() != null) {
-            Map<String, String> titleAttrs = new HashMap<>();
-            titleAttrs.put("class", "markdown-admonition-title admonition-title");
-            html.tag("p", titleAttrs);
-            html.text(admonition.getTitle());
-            html.closeTag("p");
-        }
+		if (admonition.getTitle() != null) {
+			Map<String, String> titleAttrs = new HashMap<>();
+			titleAttrs.put("class", "markdown-admonition-title admonition-title");
+			html.tag("p", titleAttrs);
+			html.text(admonition.getTitle());
+			html.closeTag("p");
+		}
 
-        context.renderChildren(node);
-        html.closeTag("div");
-    }
+		context.renderChildren(node);
+		html.closeTag("div");
+	}
 }

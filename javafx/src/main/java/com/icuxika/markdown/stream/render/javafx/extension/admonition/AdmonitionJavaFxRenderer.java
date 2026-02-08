@@ -10,39 +10,39 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 public class AdmonitionJavaFxRenderer implements JavaFxNodeRenderer {
-    private final JavaFxNodeRendererContext context;
+	private final JavaFxNodeRendererContext context;
 
-    public AdmonitionJavaFxRenderer(JavaFxNodeRendererContext context) {
-        this.context = context;
-    }
+	public AdmonitionJavaFxRenderer(JavaFxNodeRendererContext context) {
+		this.context = context;
+	}
 
-    @Override
-    public Set<Class<? extends Node>> getNodeTypes() {
-        return Collections.singleton(AdmonitionBlock.class);
-    }
+	@Override
+	public Set<Class<? extends Node>> getNodeTypes() {
+		return Collections.singleton(AdmonitionBlock.class);
+	}
 
-    @Override
-    public void render(Node node) {
-        AdmonitionBlock admonition = (AdmonitionBlock) node;
+	@Override
+	public void render(Node node) {
+		AdmonitionBlock admonition = (AdmonitionBlock) node;
 
-        VBox box = new VBox();
-        box.getStyleClass().add("markdown-admonition");
-        box.getStyleClass().add("markdown-admonition-" + admonition.getType());
+		VBox box = new VBox();
+		box.getStyleClass().add("markdown-admonition");
+		box.getStyleClass().add("markdown-admonition-" + admonition.getType());
 
-        // CSS file handles base styles (border, padding, background)
-        // Type-specific colors are handled by specific CSS classes
+		// CSS file handles base styles (border, padding, background)
+		// Type-specific colors are handled by specific CSS classes
 
-        if (admonition.getTitle() != null) {
-            Label titleLabel = new Label(admonition.getTitle());
-            titleLabel.getStyleClass().add("markdown-admonition-title");
-            box.getChildren().add(titleLabel);
-        }
+		if (admonition.getTitle() != null) {
+			Label titleLabel = new Label(admonition.getTitle());
+			titleLabel.getStyleClass().add("markdown-admonition-title");
+			box.getChildren().add(titleLabel);
+		}
 
-        context.getCurrentContainer().getChildren().add(box);
+		context.getCurrentContainer().getChildren().add(box);
 
-        // Render children into this box
-        context.pushContainer(box);
-        context.renderChildren(node);
-        context.popContainer();
-    }
+		// Render children into this box
+		context.pushContainer(box);
+		context.renderChildren(node);
+		context.popContainer();
+	}
 }

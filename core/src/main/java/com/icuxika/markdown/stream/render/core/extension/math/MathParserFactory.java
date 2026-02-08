@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.Set;
 
 public class MathParserFactory implements InlineContentParserFactory {
-    @Override
-    public Set<Character> getTriggerCharacters() {
-        return Collections.singleton('$');
-    }
+	@Override
+	public Set<Character> getTriggerCharacters() {
+		return Collections.singleton('$');
+	}
 
-    @Override
-    public InlineContentParser create() {
-        return new MathParser();
-    }
+	@Override
+	public InlineContentParser create() {
+		return new MathParser();
+	}
 }

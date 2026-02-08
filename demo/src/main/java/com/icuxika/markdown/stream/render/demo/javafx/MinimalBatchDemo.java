@@ -13,38 +13,38 @@ import javafx.stage.Stage;
 
 public class MinimalBatchDemo extends Application {
 
-    @Override
-    public void start(Stage stage) {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+	@Override
+	public void start(Stage stage) {
+		JavaFxRenderer renderer = new JavaFxRenderer();
 
-        MarkdownParser.Builder builder = MarkdownParser.builder();
-        CoreExtension.addDefaults(builder);
-        MarkdownParser parser = builder.build();
+		MarkdownParser.Builder builder = MarkdownParser.builder();
+		CoreExtension.addDefaults(builder);
+		MarkdownParser parser = builder.build();
 
-        String markdown = """
-                # Hello
+		String markdown = """
+				# Hello
 
-                This is **batch** rendering.
+				This is **batch** rendering.
 
-                !!! info "Tip"
-                    Inline math: $E=mc^2$
-                """;
+				!!! info "Tip"
+				    Inline math: $E=mc^2$
+				""";
 
-        Document doc = parser.parse(markdown);
-        renderer.render(doc);
+		Document doc = parser.parse(markdown);
+		renderer.render(doc);
 
-        BorderPane root = new BorderPane(new ScrollPane(renderer.getRoot()));
-        Scene scene = new Scene(root, 900, 700);
+		BorderPane root = new BorderPane(new ScrollPane(renderer.getRoot()));
+		Scene scene = new Scene(root, 900, 700);
 
-        MarkdownTheme theme = new MarkdownTheme();
-        theme.apply(scene);
+		MarkdownTheme theme = new MarkdownTheme();
+		theme.apply(scene);
 
-        stage.setTitle("Minimal Batch Demo");
-        stage.setScene(scene);
-        stage.show();
-    }
+		stage.setTitle("Minimal Batch Demo");
+		stage.setScene(scene);
+		stage.show();
+	}
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+	public static void main(String[] args) {
+		launch(args);
+	}
 }

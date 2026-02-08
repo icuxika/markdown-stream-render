@@ -8,19 +8,19 @@ import org.junit.jupiter.api.Test;
 
 public class BaseTest {
 
-    @BeforeAll
-    public static void setup() {
-        try {
-            Platform.startup(() -> {
-            });
-        } catch (IllegalStateException e) {
-            // Toolkit already initialized, ignore
-        }
-    }
+	@BeforeAll
+	public static void setup() {
+		try {
+			Platform.startup(() -> {
+			});
+		} catch (IllegalStateException e) {
+			// Toolkit already initialized, ignore
+		}
+	}
 
-    @Test
-    public void buttonGraphicTest() {
-        Button button = new Button();
-        Assertions.assertNull(button.getGraphic());
-    }
+	@Test
+	public void buttonGraphicTest() {
+		Button button = new Button();
+		Assertions.assertNull(button.getGraphic());
+	}
 }

@@ -7,33 +7,33 @@ import com.icuxika.markdown.stream.render.core.parser.block.ParserState;
 
 public class AdmonitionParser extends AbstractBlockParser {
 
-    private final AdmonitionBlock block;
+	private final AdmonitionBlock block;
 
-    public AdmonitionParser(String type, String title) {
-        this.block = new AdmonitionBlock(type, title);
-    }
+	public AdmonitionParser(String type, String title) {
+		this.block = new AdmonitionBlock(type, title);
+	}
 
-    @Override
-    public Block getBlock() {
-        return block;
-    }
+	@Override
+	public Block getBlock() {
+		return block;
+	}
 
-    @Override
-    public boolean isContainer() {
-        return true;
-    }
+	@Override
+	public boolean isContainer() {
+		return true;
+	}
 
-    @Override
-    public BlockContinue tryContinue(ParserState state) {
-        if (state.isBlank()) {
-            return BlockContinue.atIndex(state.getNextNonSpaceIndex());
-        }
+	@Override
+	public BlockContinue tryContinue(ParserState state) {
+		if (state.isBlank()) {
+			return BlockContinue.atIndex(state.getNextNonSpaceIndex());
+		}
 
-        int indent = state.getIndent();
-        if (indent >= 4) {
-            return BlockContinue.atIndex(state.getIndex() + 4);
-        }
+		int indent = state.getIndent();
+		if (indent >= 4) {
+			return BlockContinue.atIndex(state.getIndex() + 4);
+		}
 
-        return BlockContinue.none();
-    }
+		return BlockContinue.none();
+	}
 }

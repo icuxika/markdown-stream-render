@@ -7,27 +7,27 @@ import com.icuxika.markdown.stream.render.core.ast.Node;
  */
 public class ParsedInline {
 
-    private final Node node;
-    private final int newIndex;
+	private final Node node;
+	private final int newIndex;
 
-    private ParsedInline(Node node, int newIndex) {
-        this.node = node;
-        this.newIndex = newIndex;
-    }
+	private ParsedInline(Node node, int newIndex) {
+		this.node = node;
+		this.newIndex = newIndex;
+	}
 
-    public static ParsedInline none() {
-        return null;
-    }
+	public static ParsedInline none() {
+		return null;
+	}
 
-    public static ParsedInline of(Node node, int newIndex) {
-        return new ParsedInline(node, newIndex);
-    }
+	public static ParsedInline of(Node node, int newIndex) {
+		return new ParsedInline(node, newIndex);
+	}
 
-    public Node getNode() {
-        return node;
-    }
+	public Node getNode() {
+		return node;
+	}
 
-    public int getNewIndex() {
-        return newIndex;
-    }
+	public int getNewIndex() {
+		return newIndex;
+	}
 }

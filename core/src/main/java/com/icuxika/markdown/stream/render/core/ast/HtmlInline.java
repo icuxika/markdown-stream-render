@@ -1,22 +1,22 @@
 package com.icuxika.markdown.stream.render.core.ast;
 
 public class HtmlInline extends Node {
-    private String literal;
+	private String literal;
 
-    public HtmlInline(String literal) {
-        this.literal = literal;
-    }
+	public HtmlInline(String literal) {
+		this.literal = literal;
+	}
 
-    public String getLiteral() {
-        return literal;
-    }
+	public String getLiteral() {
+		return literal;
+	}
 
-    public void setLiteral(String literal) {
-        this.literal = literal;
-    }
+	public void setLiteral(String literal) {
+		this.literal = literal;
+	}
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

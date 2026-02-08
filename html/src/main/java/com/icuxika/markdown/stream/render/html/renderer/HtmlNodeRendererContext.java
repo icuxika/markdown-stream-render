@@ -4,30 +4,31 @@ import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 
 /**
- * Context passed to {@link HtmlNodeRenderer} during rendering. Provides access to the writer and sub-rendering
+ * Context passed to {@link HtmlNodeRenderer} during rendering. Provides access
+ * to the writer and sub-rendering
  * capabilities.
  */
 public interface HtmlNodeRendererContext {
 
-    /**
-     * Get the writer to write HTML to.
-     *
-     * @return the writer to write HTML to
-     */
-    HtmlWriter getWriter();
+	/**
+	 * Get the writer to write HTML to.
+	 *
+	 * @return the writer to write HTML to
+	 */
+	HtmlWriter getWriter();
 
-    /**
-     * Get the options used for rendering.
-     *
-     * @return the options used for rendering
-     */
-    MarkdownParserOptions getOptions();
+	/**
+	 * Get the options used for rendering.
+	 *
+	 * @return the options used for rendering
+	 */
+	MarkdownParserOptions getOptions();
 
-    /**
-     * Render the children of the given node.
-     *
-     * @param parent
-     *            the parent node whose children should be rendered
-     */
-    void renderChildren(Node parent);
+	/**
+	 * Render the children of the given node.
+	 *
+	 * @param parent
+	 *            the parent node whose children should be rendered
+	 */
+	void renderChildren(Node parent);
 }

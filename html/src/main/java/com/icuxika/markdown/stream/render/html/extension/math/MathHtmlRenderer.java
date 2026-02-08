@@ -11,27 +11,27 @@ import java.util.Map;
 import java.util.Set;
 
 public class MathHtmlRenderer implements HtmlNodeRenderer {
-    private final HtmlNodeRendererContext context;
+	private final HtmlNodeRendererContext context;
 
-    public MathHtmlRenderer(HtmlNodeRendererContext context) {
-        this.context = context;
-    }
+	public MathHtmlRenderer(HtmlNodeRendererContext context) {
+		this.context = context;
+	}
 
-    @Override
-    public Set<Class<? extends Node>> getNodeTypes() {
-        return Collections.singleton(MathNode.class);
-    }
+	@Override
+	public Set<Class<? extends Node>> getNodeTypes() {
+		return Collections.singleton(MathNode.class);
+	}
 
-    @Override
-    public void render(Node node) {
-        MathNode math = (MathNode) node;
-        HtmlWriter html = context.getWriter();
+	@Override
+	public void render(Node node) {
+		MathNode math = (MathNode) node;
+		HtmlWriter html = context.getWriter();
 
-        Map<String, String> attrs = new HashMap<>();
-        attrs.put("class", "markdown-math");
+		Map<String, String> attrs = new HashMap<>();
+		attrs.put("class", "markdown-math");
 
-        html.tag("span", attrs);
-        html.text(math.getContent());
-        html.closeTag("span");
-    }
+		html.tag("span", attrs);
+		html.text(math.getContent());
+		html.closeTag("span");
+	}
 }

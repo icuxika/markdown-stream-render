@@ -9,28 +9,28 @@ import java.util.Set;
 import javafx.scene.control.Label;
 
 public class MathJavaFxRenderer implements JavaFxNodeRenderer {
-    private final JavaFxNodeRendererContext context;
+	private final JavaFxNodeRendererContext context;
 
-    public MathJavaFxRenderer(JavaFxNodeRendererContext context) {
-        this.context = context;
-    }
+	public MathJavaFxRenderer(JavaFxNodeRendererContext context) {
+		this.context = context;
+	}
 
-    @Override
-    public Set<Class<? extends Node>> getNodeTypes() {
-        return Collections.singleton(MathNode.class);
-    }
+	@Override
+	public Set<Class<? extends Node>> getNodeTypes() {
+		return Collections.singleton(MathNode.class);
+	}
 
-    @Override
-    public void render(Node node) {
-        MathNode math = (MathNode) node;
+	@Override
+	public void render(Node node) {
+		MathNode math = (MathNode) node;
 
-        Label label = new Label(math.getContent());
-        label.getStyleClass().add("markdown-math");
+		Label label = new Label(math.getContent());
+		label.getStyleClass().add("markdown-math");
 
-        // Base styles moved to CSS
-        // -fx-font-family: "Times New Roman";
-        // -fx-font-style: italic;
+		// Base styles moved to CSS
+		// -fx-font-family: "Times New Roman";
+		// -fx-font-style: italic;
 
-        context.getCurrentContainer().getChildren().add(label);
-    }
+		context.getCurrentContainer().getChildren().add(label);
+	}
 }

@@ -16,38 +16,38 @@ import org.junit.jupiter.api.Test;
 
 public class InlineCustomParserFallbackTest {
 
-    @Test
-    public void customParserReturningNoneMustNotHang() {
-        String input = "We can parse inline math: $E=mc^2 and continue.";
-        List<InlineContentParserFactory> factories = List.of(new MathParserFactory());
+	@Test
+	public void customParserReturningNoneMustNotHang() {
+		String input = "We can parse inline math: $E=mc^2 and continue.";
+		List<InlineContentParserFactory> factories = List.of(new MathParserFactory());
 
-        List<Node> nodes = assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
-            InlineParser parser = new InlineParser(input, Collections.emptyMap(), new MarkdownParserOptions(),
-                    factories);
-            return parser.parse();
-        });
+		List<Node> nodes = assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+			InlineParser parser = new InlineParser(input, Collections.emptyMap(), new MarkdownParserOptions(),
+					factories);
+			return parser.parse();
+		});
 
-        String text = flattenText(nodes);
-        assertTrue(text.contains("$E=mc^2"));
-        assertTrue(text.contains("continue."));
-    }
+		String text = flattenText(nodes);
+		assertTrue(text.contains("$E=mc^2"));
+		assertTrue(text.contains("continue."));
+	}
 
-    private static String flattenText(List<Node> nodes) {
-        StringBuilder sb = new StringBuilder();
-        for (Node n : nodes) {
-            appendText(n, sb);
-        }
-        return sb.toString();
-    }
+	private static String flattenText(List<Node> nodes) {
+		StringBuilder sb = new StringBuilder();
+		for (Node n : nodes) {
+			appendText(n, sb);
+		}
+		return sb.toString();
+	}
 
-    private static void appendText(Node node, StringBuilder sb) {
-        if (node instanceof Text t) {
-            sb.append(t.getLiteral());
-        }
-        Node child = node.getFirstChild();
-        while (child != null) {
-            appendText(child, sb);
-            child = child.getNext();
-        }
-    }
+	private static void appendText(Node node, StringBuilder sb) {
+		if (node instanceof Text t) {
+			sb.append(t.getLiteral());
+		}
+		Node child = node.getFirstChild();
+		while (child != null) {
+			appendText(child, sb);
+			child = child.getNext();
+		}
+	}
 }

@@ -1,24 +1,24 @@
 package com.icuxika.markdown.stream.render.core.ast;
 
 public class Link extends Inline {
-    private String destination;
-    private String title;
+	private String destination;
+	private String title;
 
-    public Link(String destination, String title) {
-        this.destination = destination;
-        this.title = title;
-    }
+	public Link(String destination, String title) {
+		this.destination = destination;
+		this.title = title;
+	}
 
-    public String getDestination() {
-        return destination;
-    }
+	public String getDestination() {
+		return destination;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

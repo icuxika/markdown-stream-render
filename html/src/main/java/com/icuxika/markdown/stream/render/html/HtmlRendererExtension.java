@@ -6,8 +6,8 @@ import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 
 public class HtmlRendererExtension {
 
-    public static void addDefaults(HtmlRenderer.Builder builder) {
-        builder.nodeRendererFactory(AdmonitionHtmlRenderer::new);
-        builder.nodeRendererFactory(MathHtmlRenderer::new);
-    }
+	public static void addDefaults(HtmlRenderer.Builder builder) {
+		builder.nodeRendererFactory(AdmonitionHtmlRenderer::new);
+		builder.nodeRendererFactory(MathHtmlRenderer::new);
+	}
 }
