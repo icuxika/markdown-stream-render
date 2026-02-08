@@ -8,7 +8,7 @@ import com.icuxika.markdown.stream.render.core.ast.ListItem;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.OrderedList;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
-import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
 import java.util.Stack;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -25,12 +25,17 @@ import javafx.scene.layout.VBox;
  * 将接收到的 AST 节点实时转换为 JavaFX 节点并追加到 UI 中。
  * </p>
  */
-public class JavaFxStreamRenderer implements StreamMarkdownRenderer {
+public class JavaFxStreamRenderer implements StreamMarkdownTypingRenderer {
 
     private final VBox root;
     private final JavaFxRenderer internalRenderer;
     private final Stack<Pane> containerStack = new Stack<>();
     private java.util.function.Consumer<String> onLinkClick;
+    private volatile Node latestPreviewNode;
+    private final java.util.concurrent.atomic.AtomicBoolean isPreviewDirty = new java.util.concurrent.atomic.AtomicBoolean(
+            false);
+    private final VBox previewHolder = new VBox();
+    private Pane previewHolderParent;
 
     /**
      * Constructor.
@@ -102,19 +107,44 @@ public class JavaFxStreamRenderer implements StreamMarkdownRenderer {
 
     @Override
     public void renderNode(Node node) {
-        pendingUpdates.offer(() -> renderNodeOnFxThread(node));
+        pendingUpdates.offer(() -> {
+            clearPreviewOnFxThread();
+            latestPreviewNode = null;
+            isPreviewDirty.set(false);
+            renderNodeOnFxThread(node);
+        });
         scheduleUpdate();
     }
 
     @Override
     public void openBlock(Node node) {
-        pendingUpdates.offer(() -> openBlockOnFxThread(node));
+        pendingUpdates.offer(() -> {
+            clearPreviewOnFxThread();
+            openBlockOnFxThread(node);
+        });
         scheduleUpdate();
     }
 
     @Override
     public void closeBlock(Node node) {
-        pendingUpdates.offer(() -> closeBlockOnFxThread(node));
+        pendingUpdates.offer(() -> {
+            clearPreviewOnFxThread();
+            closeBlockOnFxThread(node);
+        });
+        scheduleUpdate();
+    }
+
+    @Override
+    public void renderPreviewNode(Node node) {
+        latestPreviewNode = node;
+        isPreviewDirty.set(true);
+        scheduleUpdate();
+    }
+
+    @Override
+    public void clearPreview() {
+        latestPreviewNode = null;
+        isPreviewDirty.set(true);
         scheduleUpdate();
     }
 
@@ -139,6 +169,15 @@ public class JavaFxStreamRenderer implements StreamMarkdownRenderer {
         while ((task = pendingUpdates.poll()) != null) {
             task.run();
         }
+        if (isPreviewDirty.getAndSet(false)) {
+            Node node = latestPreviewNode;
+            if (node == null) {
+                clearPreviewOnFxThread();
+            } else {
+                renderPreviewNodeOnFxThread(node);
+            }
+        }
+        root.requestLayout();
     }
 
     // TOC Support
@@ -192,6 +231,51 @@ public class JavaFxStreamRenderer implements StreamMarkdownRenderer {
 
         Pane parent = containerStack.peek();
         parent.getChildren().addAll(tempContainer.getChildren());
+    }
+
+    private void renderPreviewNodeOnFxThread(Node node) {
+        if (containerStack.isEmpty()) {
+            containerStack.push(root);
+        }
+
+        Pane parent = containerStack.peek();
+        if (previewHolderParent != parent) {
+            detachPreviewHolder();
+            previewHolderParent = parent;
+            previewHolder.getChildren().clear();
+            parent.getChildren().add(previewHolder);
+        }
+        java.util.List<javafx.scene.Node> nodes = renderToFxNodes(node);
+        previewHolder.getChildren().setAll(nodes);
+        parent.requestLayout();
+    }
+
+    private java.util.List<javafx.scene.Node> renderToFxNodes(Node node) {
+        VBox tempContainer = new VBox();
+        internalRenderer.pushContainer(tempContainer);
+        try {
+            internalRenderer.render(node);
+        } finally {
+            internalRenderer.popContainer();
+        }
+        return java.util.List.copyOf(tempContainer.getChildren());
+    }
+
+    private void clearPreviewOnFxThread() {
+        if (previewHolderParent == null) {
+            previewHolder.getChildren().clear();
+            return;
+        }
+        detachPreviewHolder();
+    }
+
+    private void detachPreviewHolder() {
+        if (previewHolderParent != null) {
+            previewHolder.getChildren().clear();
+            previewHolderParent.getChildren().remove(previewHolder);
+            previewHolderParent.requestLayout();
+            previewHolderParent = null;
+        }
     }
 
     private void openBlockOnFxThread(Node node) {

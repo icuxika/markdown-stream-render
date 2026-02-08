@@ -119,6 +119,11 @@ public class InlineParser implements InlineParserState {
             }
             if (handled)
                 continue;
+            if (parsers != null) {
+                nodes.add(new Text(String.valueOf(c)));
+                index++;
+                continue;
+            }
 
             if (c == '\n') {
                 handleNewLine();
@@ -1127,8 +1132,13 @@ public class InlineParser implements InlineParserState {
         if (!options.isGfm())
             return false;
 
-        String remaining = text.substring(index);
-        Matcher matcher = EXTENDED_AUTOLINK_URI.matcher(remaining);
+        char c = text.charAt(index);
+        if (!(Character.isLetterOrDigit(c) || c == '.' || c == '_' || c == '+' || c == '-')) {
+            return false;
+        }
+
+        Matcher matcher = EXTENDED_AUTOLINK_URI.matcher(text);
+        matcher.region(index, text.length());
 
         if (matcher.lookingAt()) {
             // Check boundary
@@ -1179,7 +1189,8 @@ public class InlineParser implements InlineParserState {
         }
 
         // Email
-        matcher = EXTENDED_AUTOLINK_EMAIL.matcher(remaining);
+        matcher = EXTENDED_AUTOLINK_EMAIL.matcher(text);
+        matcher.region(index, text.length());
         if (matcher.lookingAt()) {
             boolean boundary = false;
             if (index == 0)
@@ -1198,8 +1209,8 @@ public class InlineParser implements InlineParserState {
 
                 // Check what follows
                 int end = matcher.end();
-                if (end < remaining.length()) {
-                    char next = remaining.charAt(end);
+                if (end < text.length()) {
+                    char next = text.charAt(end);
                     if (Character.isLetterOrDigit(next) || next == '-' || next == '_' || next == '+') {
                         return false;
                     }

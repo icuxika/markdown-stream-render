@@ -3,6 +3,7 @@ package com.icuxika.markdown.stream.render.demo;
 import com.icuxika.markdown.stream.render.demo.javafx.AiChatDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.BatchRenderDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.StreamRenderDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo;
 import com.icuxika.markdown.stream.render.demo.server.BatchServerDemo;
 import com.icuxika.markdown.stream.render.demo.server.StreamServerDemo;
@@ -40,6 +41,10 @@ public class Launcher extends Application {
         Button streamDemoBtn = new Button("Streaming Demo (Incremental)");
         streamDemoBtn.setPrefWidth(250);
         streamDemoBtn.setOnAction(e -> launchDemo(new StreamRenderDemo()));
+
+        Button typewriterPreviewBtn = new Button("Typewriter Preview Demo (Char-level)");
+        typewriterPreviewBtn.setPrefWidth(250);
+        typewriterPreviewBtn.setOnAction(e -> launchDemo(new TypewriterPreviewDemo()));
 
         Button batchDemoBtn = new Button("Batch Demo (Full Parse)");
         batchDemoBtn.setPrefWidth(250);
@@ -79,8 +84,8 @@ public class Launcher extends Application {
             }
         }));
 
-        root.getChildren().addAll(title, new Separator(), fxLabel, streamDemoBtn, batchDemoBtn, chatDemoBtn,
-                virtualDemoBtn,
+        root.getChildren().addAll(title, new Separator(), fxLabel, streamDemoBtn, typewriterPreviewBtn, batchDemoBtn,
+                chatDemoBtn, virtualDemoBtn,
                 new Separator(), htmlLabel, htmlStreamBtn, htmlBatchBtn);
 
         Scene scene = new Scene(root, 400, 500);

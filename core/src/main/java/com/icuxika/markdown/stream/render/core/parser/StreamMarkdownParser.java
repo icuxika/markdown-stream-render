@@ -9,6 +9,7 @@ import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,9 @@ public class StreamMarkdownParser {
     private final MarkdownParser.BlockParserState state;
     private final StringBuilder buffer = new StringBuilder();
     private int lineNumber = 0;
+    private static final int PREVIEW_INLINE_PARSE_CHAR_LIMIT = 8192;
+    private static final long PREVIEW_INLINE_PARSE_MIN_INTERVAL_NANOS = 50_000_000L;
+    private long lastPreviewInlineParseAtNanos;
 
     private StreamMarkdownParser(Builder builder) {
         this.options = builder.options;
@@ -62,6 +66,7 @@ public class StreamMarkdownParser {
         // Process full lines
         int start = 0;
         int len = buffer.length();
+        boolean processedAnyLine = false;
         for (int i = 0; i < len; i++) {
             char c = buffer.charAt(i);
             if (c == '\n' || c == '\r') {
@@ -72,7 +77,9 @@ public class StreamMarkdownParser {
                     i++;
                 }
 
+                clearPreviewIfSupported();
                 processLine(line);
+                processedAnyLine = true;
                 start = i + 1;
             }
         }
@@ -81,17 +88,25 @@ public class StreamMarkdownParser {
         if (start > 0) {
             buffer.delete(0, start);
         }
+
+        if (processedAnyLine) {
+            clearPreviewIfSupported();
+        }
+
+        renderPreviewIfSupported();
     }
 
     /**
      * 结束流式输入. 处理缓冲区中剩余的文本，并关闭所有打开的块。
      */
     public void close() {
+        clearPreviewIfSupported();
         if (buffer.length() > 0) {
             processLine(buffer.toString());
             buffer.setLength(0);
         }
         state.finalizeBlock(doc, lineNumber);
+        clearPreviewIfSupported();
     }
 
     private void processLine(String line) {
@@ -100,6 +115,7 @@ public class StreamMarkdownParser {
     }
 
     private void onBlockFinalized(Node node) {
+        clearPreviewIfSupported();
         // Try to extract Link Reference Definitions
         if (node instanceof Paragraph) {
             Paragraph p = (Paragraph) node;
@@ -146,12 +162,14 @@ public class StreamMarkdownParser {
     }
 
     private void onBlockStarted(Node node) {
+        clearPreviewIfSupported();
         if (renderer != null) {
             renderer.openBlock(node);
         }
     }
 
     private void onBlockClosed(Node node) {
+        clearPreviewIfSupported();
         if (renderer != null) {
             renderer.closeBlock(node);
         }
@@ -189,6 +207,120 @@ public class StreamMarkdownParser {
             }
         }
         return sb.toString();
+    }
+
+    private void renderPreviewIfSupported() {
+        if (!(renderer instanceof StreamMarkdownTypingRenderer typingRenderer)) {
+            return;
+        }
+
+        Node preview = buildPreviewNode();
+        if (preview == null) {
+            typingRenderer.clearPreview();
+            return;
+        }
+
+        if (shouldParsePreviewInlines(preview)) {
+            MarkdownParser.processInlineContainerStatic(doc, preview, options, inlineParserFactories);
+            lastPreviewInlineParseAtNanos = System.nanoTime();
+        }
+
+        typingRenderer.renderPreviewNode(preview);
+    }
+
+    private boolean shouldParsePreviewInlines(Node preview) {
+        long now = System.nanoTime();
+        if (now - lastPreviewInlineParseAtNanos < PREVIEW_INLINE_PARSE_MIN_INTERVAL_NANOS) {
+            return false;
+        }
+        if (!(preview instanceof Paragraph || preview instanceof Heading || preview instanceof TableCell)) {
+            return false;
+        }
+        Node first = preview.getFirstChild();
+        if (first instanceof Text text && first.getNext() == null) {
+            String literal = text.getLiteral();
+            return literal == null || literal.length() <= PREVIEW_INLINE_PARSE_CHAR_LIMIT;
+        }
+        int count = 0;
+        Node child = preview.getFirstChild();
+        while (child != null) {
+            if (child instanceof Text t) {
+                String lit = t.getLiteral();
+                if (lit != null) {
+                    count += lit.length();
+                    if (count > PREVIEW_INLINE_PARSE_CHAR_LIMIT) {
+                        return false;
+                    }
+                }
+            }
+            child = child.getNext();
+        }
+        return true;
+    }
+
+    private void clearPreviewIfSupported() {
+        if (renderer instanceof StreamMarkdownTypingRenderer typingRenderer) {
+            typingRenderer.clearPreview();
+        }
+    }
+
+    private Node buildPreviewNode() {
+        Node leaf = state.currentLeaf;
+        String pending = buffer.toString();
+
+        if (leaf == null && pending.isEmpty()) {
+            return null;
+        }
+
+        if (leaf instanceof com.icuxika.markdown.stream.render.core.ast.CodeBlock) {
+            com.icuxika.markdown.stream.render.core.ast.CodeBlock current = (com.icuxika.markdown.stream.render.core.ast.CodeBlock) leaf;
+            com.icuxika.markdown.stream.render.core.ast.CodeBlock preview = new com.icuxika.markdown.stream.render.core.ast.CodeBlock(
+                    "");
+            preview.setStartLine(current.getStartLine());
+            preview.setEndLine(lineNumber);
+            preview.setInfo(current.getInfo());
+            preview.setLiteral(state.currentLeafContent.toString() + pending);
+            return preview;
+        }
+
+        if (leaf instanceof com.icuxika.markdown.stream.render.core.ast.HtmlBlock) {
+            com.icuxika.markdown.stream.render.core.ast.HtmlBlock preview = new com.icuxika.markdown.stream.render.core.ast.HtmlBlock(
+                    state.currentLeafContent.toString() + pending);
+            preview.setStartLine(leaf.getStartLine());
+            preview.setEndLine(lineNumber);
+            return preview;
+        }
+
+        String content;
+        if (leaf instanceof Paragraph) {
+            content = state.currentLeafContent.toString();
+            if (!pending.isEmpty()) {
+                content = content + "\n" + trimLeading(pending);
+            }
+        } else if (leaf instanceof Heading) {
+            content = state.currentLeafContent.toString();
+            if (!pending.isEmpty()) {
+                content = content + "\n" + trimLeading(pending);
+            }
+        } else if (leaf != null) {
+            return null;
+        } else {
+            content = trimLeading(pending);
+        }
+
+        Paragraph p = new Paragraph();
+        p.setStartLine(leaf != null ? leaf.getStartLine() : lineNumber);
+        p.setEndLine(lineNumber);
+        p.appendChild(new Text(content));
+        return p;
+    }
+
+    private String trimLeading(String s) {
+        int i = 0;
+        while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
+            i++;
+        }
+        return s.substring(i);
     }
 
     public static Builder builder() {
