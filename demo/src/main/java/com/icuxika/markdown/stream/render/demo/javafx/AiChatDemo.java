@@ -3,8 +3,10 @@ package com.icuxika.markdown.stream.render.demo.javafx;
 import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.demo.client.DeepSeekClient;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -235,19 +237,15 @@ public class AiChatDemo extends Application {
         StringBuilder assistantResponse = new StringBuilder();
 
         client.streamChat(history, token -> {
-            // Update message content
-            Platform.runLater(() -> {
-                aiBubble.append(token);
-                assistantResponse.append(token);
-                // Scroll is handled by height listener, but we can force it too
-                // scrollToBottom();
-            });
+            aiBubble.append(token);
+            assistantResponse.append(token);
         }, () -> {
-            Platform.runLater(() -> {
-                history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString()));
-            });
+            aiBubble.finish();
+            Platform.runLater(
+                    () -> history.add(new DeepSeekClient.ChatMessage("assistant", assistantResponse.toString())));
         }, error -> Platform.runLater(() -> {
             aiBubble.append("\n\n**Error**: " + error.getMessage());
+            aiBubble.finish();
             scrollToBottom();
         }));
     }
@@ -263,10 +261,13 @@ public class AiChatDemo extends Application {
 
     // --- Inner Classes ---
 
-    private static class MarkdownBubble extends HBox {
+    private class MarkdownBubble extends HBox {
         private final VBox contentBox = new VBox();
         private final VBox bubbleBox;
-        private final JavaFxRenderer renderer;
+        private JavaFxRenderer staticRenderer;
+        private JavaFxStreamRenderer streamRenderer;
+        private StreamMarkdownParser streamParser;
+        private VBox streamRoot;
         private final Circle avatar = new Circle(16);
         private String currentText = "";
 
@@ -277,9 +278,6 @@ public class AiChatDemo extends Application {
 
             contentBox.setStyle("-fx-background-color: transparent;");
             contentBox.setMaxWidth(700);
-
-            this.renderer = new JavaFxRenderer();
-            contentBox.getChildren().add(renderer.getRoot());
 
             bubbleBox = new VBox(contentBox);
             bubbleBox.setPadding(new Insets(10));
@@ -293,30 +291,81 @@ public class AiChatDemo extends Application {
                 this.setAlignment(Pos.CENTER_RIGHT);
                 bubbleBox.getStyleClass().removeAll("bubble-user", "bubble-ai");
                 bubbleBox.getStyleClass().add("bubble-user");
+                ensureStaticRenderer();
                 this.getChildren().add(bubbleBox);
             } else {
                 this.setAlignment(Pos.TOP_LEFT);
                 bubbleBox.getStyleClass().removeAll("bubble-user", "bubble-ai");
                 bubbleBox.getStyleClass().add("bubble-ai");
                 avatar.setFill(Color.web("#6366F1"));
+                ensureStreamRenderer();
                 this.getChildren().addAll(avatar, bubbleBox);
             }
         }
 
         public void resetAndSetText(String text) {
             this.currentText = text != null ? text : "";
-            render();
+            if (streamParser != null) {
+                resetStream();
+                if (!currentText.isEmpty()) {
+                    streamParser.push(currentText);
+                    streamParser.close();
+                }
+            } else {
+                renderStatic();
+            }
         }
 
         public void append(String token) {
             if (token != null) {
-                this.currentText += token;
-                render();
+                if (streamParser != null) {
+                    streamParser.push(token);
+                } else {
+                    this.currentText += token;
+                    renderStatic();
+                }
             }
         }
 
-        private void render() {
-            renderer.clear();
+        public void finish() {
+            if (streamParser != null) {
+                streamParser.close();
+            }
+        }
+
+        private void ensureStaticRenderer() {
+            if (staticRenderer == null) {
+                staticRenderer = new JavaFxRenderer();
+                staticRenderer.setOnLinkClick(url -> AiChatDemo.this.getHostServices().showDocument(url));
+            }
+            streamParser = null;
+            streamRenderer = null;
+            streamRoot = null;
+            contentBox.getChildren().setAll(staticRenderer.getRoot());
+        }
+
+        private void ensureStreamRenderer() {
+            if (streamRoot == null) {
+                streamRoot = new VBox();
+                streamRoot.setStyle("-fx-background-color: transparent;");
+            } else {
+                streamRoot.getChildren().clear();
+            }
+            streamRenderer = new JavaFxStreamRenderer(streamRoot);
+            streamRenderer.setOnLinkClick(url -> AiChatDemo.this.getHostServices().showDocument(url));
+            contentBox.getChildren().setAll(streamRoot);
+            resetStream();
+        }
+
+        private void resetStream() {
+            StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(streamRenderer);
+            CoreExtension.addDefaults(builder);
+            streamParser = builder.build();
+        }
+
+        private void renderStatic() {
+            ensureStaticRenderer();
+            staticRenderer.clear();
             if (currentText.isEmpty()) {
                 return;
             }
@@ -326,7 +375,7 @@ public class AiChatDemo extends Application {
             MarkdownParser parser = builder.build();
             Document doc = parser.parse(currentText);
 
-            renderer.render(doc);
+            staticRenderer.render(doc);
         }
     }
 }
