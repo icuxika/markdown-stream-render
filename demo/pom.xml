@@ -15,6 +15,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.deploy.skip>true</maven.deploy.skip>
+
+        <moduleName>com.icuxika.markdown.stream.render.demo</moduleName>
+        <mainClass>com.icuxika.markdown.stream.render.demo.Launcher</mainClass>
     </properties>
 
     <dependencies>
@@ -39,7 +42,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.3</version>
                 <configuration>
-                    <mainClass>com.icuxika.markdown.stream.render.demo.Launcher</mainClass>
+                    <mainClass>${mainClass}</mainClass>
                 </configuration>
             </plugin>
             <plugin>
@@ -55,7 +58,7 @@
                     <jlinkImageName>build-link</jlinkImageName>
                     <jlinkZipName>sample-zip</jlinkZipName>
                     <mainClass>
-                        com.icuxika.markdown.stream.render.demo/com.icuxika.markdown.stream.render.demo.Launcher
+                        ${moduleName}/${mainClass}
                     </mainClass>
                     <options>
                         <option>--enable-native-access=javafx.graphics</option>
