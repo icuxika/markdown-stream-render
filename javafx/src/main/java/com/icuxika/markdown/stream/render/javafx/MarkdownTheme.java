@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.javafx;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Parent;
@@ -7,23 +10,34 @@ import javafx.scene.Scene;
 
 public class MarkdownTheme {
 
-    public enum Theme {
-        LIGHT("light.css"), DARK("dark.css");
+    public static final class Theme {
+        public static final Theme LIGHT = new Theme("light", MarkdownStyles.lightCssUrl());
+        public static final Theme DARK = new Theme("dark", MarkdownStyles.darkCssUrl());
 
-        private final String cssFile;
+        private final String id;
+        private final String cssUrl;
 
-        Theme(String cssFile) {
-            this.cssFile = cssFile;
+        public Theme(String id, String cssUrl) {
+            if (id == null || id.isBlank()) {
+                throw new IllegalArgumentException("Theme id must not be blank");
+            }
+            if (cssUrl == null || cssUrl.isBlank()) {
+                throw new IllegalArgumentException("Theme cssUrl must not be blank");
+            }
+            this.id = id;
+            this.cssUrl = cssUrl;
         }
 
-        public String getCssFile() {
-            return cssFile;
+        public String getId() {
+            return id;
+        }
+
+        public String getCssUrl() {
+            return cssUrl;
         }
     }
 
-    private static final String CSS_BASE_PATH = "/com/icuxika/markdown/stream/render/javafx/css/";
-    private static final String MARKDOWN_CSS = "markdown.css";
-
+    private final Map<String, Theme> registeredThemes = new LinkedHashMap<>();
     private final ObjectProperty<Theme> currentTheme = new SimpleObjectProperty<>(Theme.LIGHT);
     private boolean includeExtensions = true;
 
@@ -31,10 +45,8 @@ public class MarkdownTheme {
      * Constructor.
      */
     public MarkdownTheme() {
-        currentTheme.addListener((obs, oldTheme, newTheme) -> {
-            // This is a bit tricky because we need to know what to update.
-            // Usually we bind a Scene or Parent to this theme manager.
-        });
+        registerTheme(Theme.LIGHT);
+        registerTheme(Theme.DARK);
     }
 
     /**
@@ -63,6 +75,40 @@ public class MarkdownTheme {
      */
     public Theme getTheme() {
         return currentTheme.get();
+    }
+
+    public Map<String, Theme> getRegisteredThemes() {
+        return Collections.unmodifiableMap(registeredThemes);
+    }
+
+    public Theme getTheme(String id) {
+        return registeredThemes.get(id);
+    }
+
+    public void registerTheme(Theme theme) {
+        registeredThemes.put(theme.getId(), theme);
+    }
+
+    public Theme registerTheme(String id, String cssUrl) {
+        Theme theme = new Theme(id, cssUrl);
+        registerTheme(theme);
+        return theme;
+    }
+
+    public void unregisterTheme(String id) {
+        registeredThemes.remove(id);
+        Theme current = currentTheme.get();
+        if (current != null && id != null && id.equals(current.getId())) {
+            currentTheme.set(Theme.LIGHT);
+        }
+    }
+
+    public void setTheme(String id) {
+        Theme theme = registeredThemes.get(id);
+        if (theme == null) {
+            throw new IllegalArgumentException("Unknown theme id: " + id);
+        }
+        currentTheme.set(theme);
     }
 
     public void setIncludeExtensions(boolean includeExtensions) {
@@ -98,13 +144,11 @@ public class MarkdownTheme {
     }
 
     private void updateThemeStyle(javafx.collections.ObservableList<String> stylesheets, Theme theme) {
-        // Remove old theme stylesheets
-        for (Theme t : Theme.values()) {
-            String url = getClass().getResource(CSS_BASE_PATH + t.getCssFile()).toExternalForm();
-            stylesheets.remove(url);
+        for (Theme t : registeredThemes.values()) {
+            stylesheets.remove(t.getCssUrl());
         }
-        // Add new theme stylesheet
-        String newUrl = getClass().getResource(CSS_BASE_PATH + theme.getCssFile()).toExternalForm();
-        MarkdownStyles.addIfAbsent(stylesheets, newUrl);
+        if (theme != null) {
+            MarkdownStyles.addIfAbsent(stylesheets, theme.getCssUrl());
+        }
     }
 }

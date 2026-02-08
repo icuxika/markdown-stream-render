@@ -26,6 +26,7 @@
 ## JavaFX 样式与主题
 
 JavaFX 渲染器采用了现代化的 CSS 样式系统。
+推荐实践与自定义主题方式见 [javafx_theming.md](docs/javafx_theming.md)。
 
 ### 内置主题
 本库自带 `Light` (明亮) 和 `Dark` (暗黑) 两种主题。你可以使用 `MarkdownTheme` 辅助类轻松切换：
@@ -132,6 +133,7 @@ mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.
 
 核心解析器已通过官方 CommonMark 规范验证。
 CommonMark 用例在 `html` 模块中通过 JSON 规范用例执行。
+GFM 当前仅覆盖扩展章节（基线资源固定为 v0.29.0），范围说明见 [spec_coverage.md](docs/spec_coverage.md)。
 
 | 类别 | 状态 |
 | :--- | :--- |

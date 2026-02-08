@@ -28,13 +28,14 @@ public class AdmonitionHtmlRenderer implements HtmlNodeRenderer {
         HtmlWriter html = context.getWriter();
 
         Map<String, String> attrs = new HashMap<>();
-        attrs.put("class", "admonition admonition-" + admonition.getType());
+        attrs.put("class", "markdown-admonition admonition markdown-admonition-" + admonition.getType()
+                + " admonition-" + admonition.getType());
 
         html.tag("div", attrs);
 
         if (admonition.getTitle() != null) {
             Map<String, String> titleAttrs = new HashMap<>();
-            titleAttrs.put("class", "admonition-title");
+            titleAttrs.put("class", "markdown-admonition-title admonition-title");
             html.tag("p", titleAttrs);
             html.text(admonition.getTitle());
             html.closeTag("p");

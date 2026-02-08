@@ -1,23 +1,46 @@
-.admonition {
-    border-left: 4px solid #448aff;
-    background-color: #f0f4f8;
+.markdown-admonition, .admonition {
+    border-left: 4px solid var(--md-admonition-border-color);
+    background-color: var(--md-admonition-bg-color);
     padding: 10px;
     margin: 10px 0;
     border-radius: 4px;
 }
 
-.admonition-title {
+.markdown-admonition-title, .admonition-title {
     font-weight: bold;
     margin-top: 0;
     margin-bottom: 5px;
-    color: #448aff;
 }
 
-.admonition-warning {
-    border-left-color: #ffb74d;
-    background-color: #fff3e0;
+.markdown-admonition-info, .admonition-info {
+    border-left-color: var(--md-admonition-info-color);
 }
 
+.markdown-admonition-info .markdown-admonition-title,
+.markdown-admonition-info .admonition-title,
+.admonition-info .markdown-admonition-title,
+.admonition-info .admonition-title {
+    color: var(--md-admonition-info-color);
+}
+
+.markdown-admonition-warning, .admonition-warning {
+    border-left-color: var(--md-admonition-warning-color);
+}
+
+.markdown-admonition-warning .markdown-admonition-title,
+.markdown-admonition-warning .admonition-title,
+.admonition-warning .markdown-admonition-title,
 .admonition-warning .admonition-title {
-    color: #f57c00;
+    color: var(--md-admonition-warning-color);
+}
+
+.markdown-admonition-error, .admonition-error {
+    border-left-color: var(--md-admonition-error-color);
+}
+
+.markdown-admonition-error .markdown-admonition-title,
+.markdown-admonition-error .admonition-title,
+.admonition-error .markdown-admonition-title,
+.admonition-error .admonition-title {
+    color: var(--md-admonition-error-color);
 }

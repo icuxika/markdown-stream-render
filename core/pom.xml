@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.icuxika</groupId>
         <artifactId>markdown-stream-render</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>markdown-stream-render-core</artifactId>

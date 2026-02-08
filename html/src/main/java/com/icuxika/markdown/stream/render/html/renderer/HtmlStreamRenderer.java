@@ -62,10 +62,12 @@ public class HtmlStreamRenderer implements StreamMarkdownRenderer {
                 out.append("<li>");
             } else if (node instanceof AdmonitionBlock) {
                 AdmonitionBlock admonition = (AdmonitionBlock) node;
-                out.append("<div class=\"admonition admonition-").append(admonition.getType()).append("\">\n");
+                out.append("<div class=\"markdown-admonition admonition markdown-admonition-")
+                        .append(admonition.getType()).append(" admonition-").append(admonition.getType())
+                        .append("\">\n");
                 if (admonition.getTitle() != null) {
-                    out.append("<p class=\"admonition-title\">").append(escapeXml(admonition.getTitle()))
-                            .append("</p>\n");
+                    out.append("<p class=\"markdown-admonition-title admonition-title\">")
+                            .append(escapeXml(admonition.getTitle())).append("</p>\n");
                 }
             }
             if (out instanceof java.io.Flushable) {

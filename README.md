@@ -23,6 +23,7 @@ A high-performance, **CommonMark-compliant**, streaming Markdown parser and rend
 ## JavaFX Styling & Theming
 
 The JavaFX renderer uses a modern, CSS-based styling system.
+See [javafx_theming.md](docs/javafx_theming.md) for recommended style loading and custom theme patterns.
 
 ### Built-in Themes
 The library comes with `Light` and `Dark` themes. You can switch themes using the `MarkdownTheme` helper:
@@ -102,7 +103,8 @@ The project follows a modular, event-driven architecture to support streaming:
 The core parser has been verified against the official CommonMark specification.
 
 *   **CommonMark**: 652/652 (v0.31.2) via `html` module tests.
-*   **GFM**: A subset of extension examples are covered (resource pinned to v0.29.0).
+*   **GFM**: Extension sections only (resource pinned to v0.29.0).
+See [spec_coverage.md](docs/spec_coverage.md) for scope details.
 
 To generate a local CommonMark report file (optional):
 ```bash

@@ -52,7 +52,6 @@ public class HtmlCssProvider {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
-            e.printStackTrace();
             return "/* Error loading CSS: " + path + " */";
         }
         return "/* CSS file not found: " + path + " */";

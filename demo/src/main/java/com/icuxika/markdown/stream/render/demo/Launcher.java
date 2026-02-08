@@ -2,6 +2,8 @@ package com.icuxika.markdown.stream.render.demo;
 
 import com.icuxika.markdown.stream.render.demo.javafx.AiChatDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.BatchRenderDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.MinimalBatchDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.MinimalStreamDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.StreamRenderDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo;
 import com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo;
@@ -37,6 +39,14 @@ public class Launcher extends Application {
         // JavaFX Demos
         Label fxLabel = new Label("JavaFX Renderer");
         fxLabel.setStyle("-fx-font-weight: bold;");
+
+        Button minimalBatchBtn = new Button("Minimal Batch Demo");
+        minimalBatchBtn.setPrefWidth(250);
+        minimalBatchBtn.setOnAction(e -> launchDemo(new MinimalBatchDemo()));
+
+        Button minimalStreamBtn = new Button("Minimal Stream Demo");
+        minimalStreamBtn.setPrefWidth(250);
+        minimalStreamBtn.setOnAction(e -> launchDemo(new MinimalStreamDemo()));
 
         Button streamDemoBtn = new Button("Streaming Demo (Incremental)");
         streamDemoBtn.setPrefWidth(250);
@@ -84,11 +94,11 @@ public class Launcher extends Application {
             }
         }));
 
-        root.getChildren().addAll(title, new Separator(), fxLabel, streamDemoBtn, typewriterPreviewBtn, batchDemoBtn,
-                chatDemoBtn, virtualDemoBtn,
+        root.getChildren().addAll(title, new Separator(), fxLabel, minimalBatchBtn, minimalStreamBtn, streamDemoBtn,
+                typewriterPreviewBtn, batchDemoBtn, chatDemoBtn, virtualDemoBtn,
                 new Separator(), htmlLabel, htmlStreamBtn, htmlBatchBtn);
 
-        Scene scene = new Scene(root, 400, 500);
+        Scene scene = new Scene(root, 400, 560);
         primaryStage.setTitle("Demo Launcher");
         primaryStage.setScene(scene);
         primaryStage.show();

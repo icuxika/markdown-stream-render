@@ -1,7 +1,7 @@
 .markdown-math {
     font-family: "Times New Roman", Times, serif;
     font-style: italic;
-    background-color: rgba(175, 184, 193, 0.2);
+    background-color: var(--md-inline-math-bg-color);
     padding: 0.2em 0.4em;
     border-radius: 3px;
 }

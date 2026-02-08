@@ -4,7 +4,7 @@
 
     <groupId>com.icuxika</groupId>
     <artifactId>markdown-stream-render</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>markdown-stream-render</name>
@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>com.icuxika</groupId>
                 <artifactId>markdown-stream-render-core</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.icuxika</groupId>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>com.icuxika</groupId>
                 <artifactId>markdown-stream-render-javafx</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -158,6 +158,30 @@
                             <goal>apply</goal>
                         </goals>
                         <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.7.3</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

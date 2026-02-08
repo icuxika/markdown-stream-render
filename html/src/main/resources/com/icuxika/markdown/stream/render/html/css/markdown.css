@@ -5,6 +5,25 @@
  */
 
 .markdown-root {
+    --md-fg-color: #24292f;
+    --md-bg-color: #ffffff;
+    --md-sub-text-color: #6a737d;
+    --md-link-color: #0969da;
+    --md-code-bg-color: #f6f8fa;
+    --md-code-fg-color: #24292f;
+    --md-border-color: #d0d7de;
+    --md-quote-bg-color: #f6f8fa;
+    --md-table-header-bg: #f6f8fa;
+    --md-table-row-odd-bg: #ffffff;
+
+    --md-admonition-bg-color: #f0f4f8;
+    --md-admonition-border-color: var(--md-border-color);
+    --md-admonition-info-color: #448aff;
+    --md-admonition-warning-color: #ffc107;
+    --md-admonition-error-color: #f44336;
+
+    --md-inline-math-bg-color: rgba(175, 184, 193, 0.2);
+
     font-family: var(--md-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
     line-height: 1.6;
     color: var(--md-fg-color);
@@ -119,4 +138,3 @@
 .markdown-root a:hover {
     text-decoration: underline;
 }
-
