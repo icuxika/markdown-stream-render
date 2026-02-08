@@ -7,23 +7,20 @@ A high-performance, **CommonMark-compliant**, streaming Markdown parser and rend
 ![Status](https://img.shields.io/badge/CommonMark%20Spec-100%25%20Passing-brightgreen)
 ![Java](https://img.shields.io/badge/Java-25%2B-blue)
 
-## 🌟 Key Features
+## Key Features
 
-*   **100% CommonMark Compliance**: Passes all **672** tests from the CommonMark Spec (v0.29.0).
+*   **100% CommonMark Compliance**: Passes all **652** tests from the CommonMark Spec (v0.31.2).
 *   **Streaming Architecture**: Designed for incremental processing. Capable of rendering content as it is being typed or received over the network, without waiting for the full document.
 *   **Multi-Target Rendering**:
     *   **HTML**: Generates standard, compliant HTML.
     *   **JavaFX**: Renders directly to a JavaFX Scene Graph (`VBox`, `TextFlow`, `GridPane`) for rich desktop applications.
 *   **Zero Dependencies (Core)**: The core module has no external dependencies, making it lightweight and easy to embed.
 *   **Advanced Features**:
-    *   **GitHub Flavored Markdown (GFM)**: Supports **Tables**, **Task Lists**, Strikethrough, and Extended Autolinks.
+    *   **Partial GitHub Flavored Markdown (GFM)**: Supports a subset of extensions (e.g., tables/task lists/strikethrough/extended autolinks) without targeting full GFM conformance.
     *   **Rich JavaFX Styling**: Includes enhanced styling for Tables (zebra striping, borders), Blockquotes, and Code Blocks.
-    *   **Syntax Highlighting**: Built-in lightweight syntax highlighting for **Java** and **JSON** code blocks in JavaFX.
-    *   **Extensions**: Includes support for **Admonitions** (Info/Warning/Error blocks) and **Math** (inline equations).
-    *   **Image Caching**: JavaFX renderer includes smart caching to prevent flickering during streaming updates.
-    *   **High Performance**: Optimized for speed with zero-allocation line processing and true streaming architecture.
+    *   **Extensions**: Includes support for **Admonitions** and **Math** (inline equations).
 
-## 🎨 JavaFX Styling & Theming
+## JavaFX Styling & Theming
 
 The JavaFX renderer uses a modern, CSS-based styling system.
 
@@ -45,18 +42,17 @@ theme.setTheme(MarkdownTheme.Theme.DARK); // Switch to Dark theme
 | `-md-code-bg-color` | Background for inline code/blocks | `#f6f8fa` |
 | `-md-border-color` | Border color for tables/blocks | `#d0d7de` |
 
-## 📂 Project Structure
+## Project Structure
 
-*   **`core`**: The heart of the project. Contains the `MarkdownParser`, AST nodes, and `HtmlRenderer`.
-*   **`javafx`**: Contains the `JavaFxRenderer` for rendering Markdown to JavaFX nodes.
+*   **`core`**: Parser + AST + renderer interfaces (framework-agnostic).
+*   **`html`**: HTML renderer + spec-driven conformance tests.
+*   **`javafx`**: JavaFX renderer + themes/CSS resources.
 *   **`benchmark`**: JMH benchmarks for performance testing.
 *   **`demo`**: Example applications demonstrating usage.
-    *   `JavaFxBatchDemo`: A simple JavaFX Markdown editor with "Render" button.
-    *   `JavaFxStreamDemo`: Demonstrates streaming rendering with "Typewriter" and "LLM Token" simulation modes.
-    *   `HtmlBatchServerDemo`: Serves a static HTML rendering of a template file.
-    *   `HtmlStreamServerDemo`: A local HTTP server demonstrating streaming HTML rendering via Server-Sent Events (SSE).
+    *   `Launcher`: Demo launcher for JavaFX and server demos.
+    *   `TypewriterPreviewDemo`: Char-level streaming preview demo.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 *   Java 25 (or latest JDK with Preview features)
@@ -69,25 +65,17 @@ mvn clean install
 
 ### Run Demos
 
-**1. Streaming Fx Demo (LLM Simulation)**
-Simulates an AI/LLM token stream or typewriter effect in a desktop window to visualize streaming rendering capabilities.
+**1. Demo Launcher**
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.JavaFxStreamDemo"
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.Launcher"
 ```
 
-**2. Batch Fx Demo (Editor)**
-A basic editor where you can type Markdown and see the result instantly.
+**2. Typewriter Preview Demo**
 ```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.JavaFxBatchDemo"
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
 ```
 
-**3. Streaming HTML Demo (Server-Sent Events)**
-Starts a local web server. Open your browser to see Markdown rendered and pushed in real-time.
-```bash
-mvn -pl demo exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.HtmlStreamServerDemo"
-```
-
-## 📐 Architecture & Design
+## Architecture & Design
 
 The project follows a modular, event-driven architecture to support streaming:
 
@@ -98,13 +86,14 @@ The project follows a modular, event-driven architecture to support streaming:
 3.  **AST (Abstract Syntax Tree)**: Builds a lightweight tree of `Node` objects (`Block` and `Inline`).
 4.  **Renderer**: Traverses the AST (Visitor Pattern) to generate output.
 
-## 📊 Spec Compliance Report
+## Spec Compliance
 
 The core parser has been verified against the official CommonMark specification.
 
-| Category | Status |
-| :--- | :--- |
-| Block Structure | ✅ 100% |
-| Inline Structure | ✅ 100% |
-| HTML Rendering | ✅ 100% |
-| **Total (672/672)** | **✅ PASS** |
+*   **CommonMark**: 652/652 (v0.31.2) via `html` module tests.
+*   **GFM**: A subset of extension examples are covered (resource pinned to v0.29.0).
+
+To generate a local CommonMark report file (optional):
+```bash
+mvn -pl html test -DgenerateSpecReport=true
+```

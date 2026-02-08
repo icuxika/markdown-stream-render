@@ -46,7 +46,7 @@ graph TD
     * `StreamMarkdownParser`: 流式解析器，支持增量输入，边解析边触发渲染事件。
     * `BlockParser` / `InlineParser`: 负责具体的块级和行内元素解析，支持插件扩展。
 * **Extensions (扩展)**: 内置了常用的扩展语法支持，如 `Admonition` (警告块) 和 `Math` (数学公式) 的 AST 节点定义及解析逻辑。
-* **Renderer Interfaces**: 定义了 `IMarkdownRenderer` 和 `IStreamMarkdownRenderer` 接口，供上层模块实现。
+* **Renderer Interfaces**: 定义了 `MarkdownRenderer` 与 `StreamMarkdownRenderer`（以及打字机预览用的 `StreamMarkdownTypingRenderer`）等接口，供上层模块实现。
 
 ### 2.2 HTML 模块 (`markdown-stream-render-html`)
 
@@ -65,7 +65,7 @@ graph TD
 * **Renderers**:
     * `JavaFxRenderer`: 将 AST 转换为 `VBox` 等 JavaFX 容器。
 * **Styling**: 使用 JavaFX CSS 机制，提供 Light/Dark 主题。
-* **Extensions**: 实现了 `Admonition` (使用 VBox/Label) 和 `Math` (使用 JavaFX WebView 或 TextFlow) 的渲染逻辑。
+* **Extensions**: 实现了 `Admonition`（VBox/Label）和 `Math`（Label）等扩展节点的渲染逻辑。
 
 ## 3. 关键设计模式
 

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.TestFactory;
 /**
  * GFM 规范兼容性测试 (GFM Spec Conformance Tests)
  * <p>
- * 该类负责运行 GFM Spec (v0.29.0) 中的测试用例。
+ * 该类负责运行 GFM Spec (v0.29.0) 中标记为扩展章节（section 以 "(extension)" 结尾）的测试用例。
  * </p>
  */
 public class GfmSpecTest {

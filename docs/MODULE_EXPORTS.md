@@ -1,10 +1,10 @@
-# 模块化导出 API 规范 (Java 9+ Modules)
+# 模块化导出 API 规范 (JPMS)
 
-如果本项目采用 Java 模块系统 (JPMS) 进行模块化改造，建议采用以下导出策略，以明确区分公共 API 和内部实现。
+本项目已采用 Java 模块系统 (JPMS)。本文档用于说明各模块对外导出的 API 边界与资源开放策略。
 
 ## 1. 模块定义
 
-### 1.1 `com.icuxika.markdown.core` (对应 `core` 模块)
+### 1.1 `com.icuxika.markdown.stream.render.core` (对应 `core` 模块)
 
 该模块是基础，被其他所有模块依赖。
 
@@ -23,11 +23,11 @@
 
 * 通常不需要，除非有依赖反射的序列化库。
 
-### 1.2 `com.icuxika.markdown.html` (对应 `html` 模块)
+### 1.2 `com.icuxika.markdown.stream.render.html` (对应 `html` 模块)
 
 **requires (依赖):**
 
-* `com.icuxika.markdown.core`
+* `com.icuxika.markdown.stream.render.core`
 
 **exports (导出):**
 
@@ -36,13 +36,14 @@
 * `com.icuxika.markdown.stream.render.html.extension.admonition`: (可选) 如果允许用户继承/修改默认渲染逻辑。
 * `com.icuxika.markdown.stream.render.html.extension.math`: (可选) 同上。
 
-### 1.3 `com.icuxika.markdown.javafx` (对应 `javafx` 模块)
+### 1.3 `com.icuxika.markdown.stream.render.javafx` (对应 `javafx` 模块)
 
 **requires (依赖):**
 
-* `com.icuxika.markdown.core`
+* `com.icuxika.markdown.stream.render.core`
+* `javafx.base`
 * `javafx.controls`
-* `javafx.web` (如果用于 Math 渲染)
+* `javafx.graphics`
 
 **exports (导出):**
 
@@ -58,7 +59,7 @@
 ### Core
 
 ```java
-module com.icuxika.markdown.core {
+module com.icuxika.markdown.stream.render.core {
     exports com.icuxika.markdown.stream.render.core;
     exports com.icuxika.markdown.stream.render.core.ast;
     exports com.icuxika.markdown.stream.render.core.parser;
@@ -73,8 +74,8 @@ module com.icuxika.markdown.core {
 ### HTML
 
 ```java
-module com.icuxika.markdown.html {
-    requires com.icuxika.markdown.core;
+module com.icuxika.markdown.stream.render.html {
+    requires com.icuxika.markdown.stream.render.core;
 
     exports com.icuxika.markdown.stream.render.html;
     exports com.icuxika.markdown.stream.render.html.renderer;
@@ -85,10 +86,11 @@ module com.icuxika.markdown.html {
 ### JavaFX
 
 ```java
-module com.icuxika.markdown.javafx {
-    requires com.icuxika.markdown.core;
+module com.icuxika.markdown.stream.render.javafx {
+    requires transitive com.icuxika.markdown.stream.render.core;
+    requires javafx.base;
     requires javafx.controls;
-    requires javafx.web;
+    requires javafx.graphics;
 
     exports com.icuxika.markdown.stream.render.javafx;
     exports com.icuxika.markdown.stream.render.javafx.renderer;

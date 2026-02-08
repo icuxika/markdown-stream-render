@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -110,6 +111,7 @@ public class CommonMarkSpecTest {
      */
     @Test
     public void generateSpecReport() throws IOException {
+        Assumptions.assumeTrue(Boolean.getBoolean("generateSpecReport"));
         List<SpecExample> examples = loadExamples();
         examples.sort(Comparator.comparingInt(e -> e.example));
 
@@ -152,11 +154,11 @@ public class CommonMarkSpecTest {
             results.add(result);
         }
 
-        // 写入报告
-        File reportFile = new File("../SPEC_REPORT.md");
-        if (!reportFile.getParentFile().exists()) {
-            reportFile = new File("SPEC_REPORT.md");
+        File reportDir = new File("target/spec-reports");
+        if (!reportDir.exists()) {
+            reportDir.mkdirs();
         }
+        File reportFile = new File(reportDir, "SPEC_REPORT.md");
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(reportFile))) {
             writer.println("# CommonMark Spec Test Report");

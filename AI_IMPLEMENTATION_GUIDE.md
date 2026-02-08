@@ -9,20 +9,22 @@ Create a high-performance, extensible Markdown rendering engine in Java designed
 This project strictly follows a **Spec-Driven Development** approach. The correctness of the parser is defined solely by its ability to pass the official specification tests.
 
 *   **Test Suites Location**: `html/src/test/resources/`
-    *   `commonmark-spec-*.json`: The core CommonMark specification tests.
-    *   `gfm-spec-*.json`: GitHub Flavored Markdown extension tests.
+    *   `commonmark-spec-0.31.2.json`: The CommonMark specification test suite (pinned).
+    *   `gfm-spec-0.29.0.json`: A pinned GFM spec JSON used for extension coverage (not full GFM conformance).
 *   **Success Criteria**: The parser implementation is considered complete ONLY when it passes the test cases defined in these spec files.
 *   **Workflow**: 
     1.  Create a test harness in the `html` module that reads the JSON spec files.
     2.  For each test case (markdown input -> expected html), run the parser and compare the output.
     3.  Iterate on the `core` parser logic until all tests pass.
+*   **Optional Reports**: Spec reports are generated on-demand (disabled by default) to avoid committing stale snapshots.
 
 ## 2. Technical Architecture
 The project is organized into a multi-module Maven project:
 
-1.  **`core`**: The brain. Contains AST definitions, parsing logic, and generic renderer interfaces. **Must remain framework-agnostic** (no JavaFX/Swing dependencies).
-2.  **`javafx`**: The presentation layer. Implements the renderer interfaces using JavaFX components.
-3.  **`demo`**: Runnable applications to showcase capabilities (e.g., Chat UI, File Viewer).
+1.  **`core`**: AST + parsing logic + renderer interfaces. **Must remain framework-agnostic**.
+2.  **`html`**: HTML renderer and spec-driven conformance tests.
+3.  **`javafx`**: JavaFX renderer and themes/CSS resources.
+4.  **`demo`**: Runnable applications showcasing capabilities.
 
 ---
 

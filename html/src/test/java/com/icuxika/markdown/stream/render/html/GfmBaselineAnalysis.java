@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -18,6 +19,7 @@ public class GfmBaselineAnalysis {
 
     @Test
     public void runAnalysis() throws IOException {
+        Assumptions.assumeTrue(Boolean.getBoolean("generateGfmAnalysis"));
         InputStream specStream = getClass().getResourceAsStream("/spec-0.29.0.gfm.13.txt");
         if (specStream == null) {
             throw new RuntimeException("Could not find spec-0.29.0.gfm.13.txt");
@@ -93,8 +95,12 @@ public class GfmBaselineAnalysis {
         });
         System.out.println("==================================================");
 
-        // Write detailed report to file
-        try (PrintWriter writer = new PrintWriter(new FileWriter("GFM_ANALYSIS.md"))) {
+        java.io.File reportDir = new java.io.File("target/spec-reports");
+        if (!reportDir.exists()) {
+            reportDir.mkdirs();
+        }
+        java.io.File reportFile = new java.io.File(reportDir, "GFM_ANALYSIS.md");
+        try (PrintWriter writer = new PrintWriter(new FileWriter(reportFile))) {
             writer.println("# GFM Baseline Analysis");
             writer.println();
             writer.println("**Total**: " + examples.size() + " | **Passed**: " + totalPassed + " | **Failed**: "
@@ -112,6 +118,7 @@ public class GfmBaselineAnalysis {
                 writer.println(String.format("| %s | %d | %d | %.2f%% |", section, total, pass, rate));
             });
         }
+        System.out.println("Report generated at " + reportFile.getAbsolutePath());
     }
 
     private boolean isKeySection(String section) {

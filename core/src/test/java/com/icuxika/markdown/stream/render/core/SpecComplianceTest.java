@@ -27,7 +27,7 @@ class SpecComplianceTest {
     @TestFactory
     Stream<DynamicTest> testGfmCompliance() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        InputStream is = getClass().getResourceAsStream("/gfm-spec.json");
+        InputStream is = getClass().getResourceAsStream("/gfm-spec-0.29.0.json");
         List<SpecTestCase> tests = mapper.readValue(is, new TypeReference<List<SpecTestCase>>() {
         });
 
