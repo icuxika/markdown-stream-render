@@ -148,16 +148,16 @@
                         </eclipse>
                         <removeUnusedImports />
                         <importOrder>
-                            <!-- Use default import order -->
+                            <order>\#,</order>
                         </importOrder>
                     </java>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>apply</goal>
+                            <goal>check</goal>
                         </goals>
-                        <phase>compile</phase>
+                        <phase>validate</phase>
                     </execution>
                 </executions>
             </plugin>

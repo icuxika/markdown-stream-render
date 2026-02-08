@@ -32,6 +32,7 @@ import javafx.stage.Stage;
 
 public class TypewriterPreviewDemo extends Application {
 
+    private final Random random = new Random();
     private final TextArea sourceArea = new TextArea();
     private final VBox outputBox = new VBox(10);
     private final Label statusLabel = new Label();
@@ -163,7 +164,6 @@ public class TypewriterPreviewDemo extends Application {
         stopButton.setDisable(false);
         resetButton.setDisable(true);
 
-        Random random = new Random();
         lastProgressNanos = System.nanoTime();
         lastProgressIndex = index;
 
@@ -204,11 +204,12 @@ public class TypewriterPreviewDemo extends Application {
                         chunkSize = remaining;
                     }
 
-                    String chunk = content.substring(index, index + chunkSize);
-                    index += chunkSize;
+                    int nextIndex = index + chunkSize;
+                    String chunk = content.substring(index, nextIndex);
+                    index = nextIndex;
+                    pushChunk(chunk);
                     lastProgressNanos = System.nanoTime();
                     lastProgressIndex = index;
-                    pushChunk(chunk);
 
                     long baseDelay = Math.max(1, delayMsSetting);
                     long delay = baseDelay;
@@ -321,7 +322,7 @@ public class TypewriterPreviewDemo extends Application {
             if (is != null) {
                 base = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
-        } catch (Exception ignored) {
+        } catch (Exception expected) {
         }
 
         if (base == null || base.isBlank()) {

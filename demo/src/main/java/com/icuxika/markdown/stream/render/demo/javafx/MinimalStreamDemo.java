@@ -22,7 +22,6 @@ public class MinimalStreamDemo extends Application {
         JavaFxStreamRenderer renderer = new JavaFxStreamRenderer(output);
         StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
         CoreExtension.addDefaults(builder);
-        StreamMarkdownParser parser = builder.build();
 
         BorderPane root = new BorderPane(new ScrollPane(output));
         Scene scene = new Scene(root, 900, 700);
@@ -43,6 +42,7 @@ public class MinimalStreamDemo extends Application {
                     Tokens arrive incrementally.
                 """;
 
+        final StreamMarkdownParser parser = builder.build();
         Timeline timeline = new Timeline();
         timeline.setCycleCount(Timeline.INDEFINITE);
 

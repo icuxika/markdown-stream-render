@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 
 public class MarkdownTheme {
 
+    /**
+     * A markdown theme definition identified by an id and backed by a stylesheet URL.
+     */
     public static final class Theme {
         public static final Theme LIGHT = new Theme("light", MarkdownStyles.lightCssUrl());
         public static final Theme DARK = new Theme("dark", MarkdownStyles.darkCssUrl());
@@ -17,6 +20,14 @@ public class MarkdownTheme {
         private final String id;
         private final String cssUrl;
 
+        /**
+         * Creates a theme.
+         *
+         * @param id
+         *            theme id (non-blank)
+         * @param cssUrl
+         *            theme stylesheet URL (non-blank)
+         */
         public Theme(String id, String cssUrl) {
             if (id == null || id.isBlank()) {
                 throw new IllegalArgumentException("Theme id must not be blank");
@@ -28,10 +39,20 @@ public class MarkdownTheme {
             this.cssUrl = cssUrl;
         }
 
+        /**
+         * Returns the theme id.
+         *
+         * @return theme id
+         */
         public String getId() {
             return id;
         }
 
+        /**
+         * Returns the stylesheet URL.
+         *
+         * @return stylesheet URL
+         */
         public String getCssUrl() {
             return cssUrl;
         }
@@ -69,40 +90,11 @@ public class MarkdownTheme {
     }
 
     /**
-     * Get the current theme.
+     * Sets the current theme by id.
      *
-     * @return current theme
+     * @param id
+     *            theme id
      */
-    public Theme getTheme() {
-        return currentTheme.get();
-    }
-
-    public Map<String, Theme> getRegisteredThemes() {
-        return Collections.unmodifiableMap(registeredThemes);
-    }
-
-    public Theme getTheme(String id) {
-        return registeredThemes.get(id);
-    }
-
-    public void registerTheme(Theme theme) {
-        registeredThemes.put(theme.getId(), theme);
-    }
-
-    public Theme registerTheme(String id, String cssUrl) {
-        Theme theme = new Theme(id, cssUrl);
-        registerTheme(theme);
-        return theme;
-    }
-
-    public void unregisterTheme(String id) {
-        registeredThemes.remove(id);
-        Theme current = currentTheme.get();
-        if (current != null && id != null && id.equals(current.getId())) {
-            currentTheme.set(Theme.LIGHT);
-        }
-    }
-
     public void setTheme(String id) {
         Theme theme = registeredThemes.get(id);
         if (theme == null) {
@@ -111,10 +103,89 @@ public class MarkdownTheme {
         currentTheme.set(theme);
     }
 
+    /**
+     * Get the current theme.
+     *
+     * @return current theme
+     */
+    public Theme getTheme() {
+        return currentTheme.get();
+    }
+
+    /**
+     * Returns a registered theme by id.
+     *
+     * @param id
+     *            theme id
+     * @return theme, or null if not registered
+     */
+    public Theme getTheme(String id) {
+        return registeredThemes.get(id);
+    }
+
+    /**
+     * Returns an unmodifiable view of all registered themes.
+     *
+     * @return registered themes
+     */
+    public Map<String, Theme> getRegisteredThemes() {
+        return Collections.unmodifiableMap(registeredThemes);
+    }
+
+    /**
+     * Registers a theme.
+     *
+     * @param theme
+     *            theme
+     */
+    public void registerTheme(Theme theme) {
+        registeredThemes.put(theme.getId(), theme);
+    }
+
+    /**
+     * Registers a theme and returns it.
+     *
+     * @param id
+     *            theme id
+     * @param cssUrl
+     *            theme stylesheet URL
+     * @return created theme
+     */
+    public Theme registerTheme(String id, String cssUrl) {
+        Theme theme = new Theme(id, cssUrl);
+        registerTheme(theme);
+        return theme;
+    }
+
+    /**
+     * Unregisters a theme by id. If it is the current theme, falls back to {@link Theme#LIGHT}.
+     *
+     * @param id
+     *            theme id
+     */
+    public void unregisterTheme(String id) {
+        registeredThemes.remove(id);
+        Theme current = currentTheme.get();
+        if (current != null && id != null && id.equals(current.getId())) {
+            currentTheme.set(Theme.LIGHT);
+        }
+    }
+
+    /**
+     * Sets whether extension stylesheets are applied together with base stylesheets.
+     *
+     * @param includeExtensions
+     *            whether to include extension stylesheets
+     */
     public void setIncludeExtensions(boolean includeExtensions) {
         this.includeExtensions = includeExtensions;
     }
 
+    /**
+     * Returns whether extension stylesheets are applied together with base stylesheets.
+     *
+     * @return whether to include extension stylesheets
+     */
     public boolean isIncludeExtensions() {
         return includeExtensions;
     }
