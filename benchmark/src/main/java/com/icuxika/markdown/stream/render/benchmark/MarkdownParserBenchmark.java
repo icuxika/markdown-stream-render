@@ -1,9 +1,21 @@
 package com.icuxika.markdown.stream.render.benchmark;
 
+import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
+import com.icuxika.markdown.stream.render.core.ast.BulletList;
 import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.ListItem;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.OrderedList;
+import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javafx.application.Platform;
+import javafx.scene.layout.VBox;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -29,32 +41,27 @@ public class MarkdownParserBenchmark {
 
 	private String markdownInput;
 	private MarkdownParser parser;
-	private HtmlRenderer htmlRenderer;
 	private Document preParsedDoc;
+
+	// JavaFX initialization control
+	private static final AtomicBoolean jfxInitialized = new AtomicBoolean(false);
 
 	/**
 	 * Setup benchmark data.
 	 */
 	@Setup
 	public void setup() {
-		parser = new MarkdownParser();
-		// Create a fresh renderer for each iteration? No, renderer is usually stateless
-		// or reset.
-		// HtmlRenderer accumulates result in StringBuilder. It is NOT stateless.
-		// So we need to create it inside the benchmark or reset it.
-		// HtmlRenderer implementation shows: private final StringBuilder sb = new
-		// StringBuilder();
-		// It does NOT have a reset method.
-		// So we should create it inside the benchmark method or use a fresh one.
-		// Creating it might add overhead.
-		// But for "render", we want to measure rendering.
+		// Initialize JavaFX Platform if not already started
+		if (!jfxInitialized.getAndSet(true)) {
+			try {
+				Platform.startup(() -> {
+				});
+			} catch (IllegalStateException e) {
+				// Platform already started, ignore
+			}
+		}
 
-		// Let's check HtmlRenderer again. It seems designed for single use or we need
-		// to clear sb.
-		// It has no clear method.
-		// So we will instantiate it in the benchmark method for correctness,
-		// OR we assume the overhead of instantiation is negligible compared to
-		// rendering.
+		parser = new MarkdownParser();
 
 		switch (size) {
 			case "SMALL":
@@ -65,7 +72,9 @@ public class MarkdownParserBenchmark {
 				for (int i = 0; i < 100; i++) {
 					sb.append("## Section ").append(i).append("\n");
 					sb.append("This is paragraph ").append(i).append(" with **bold** and *italic* text.\n");
-					sb.append("- List item 1\n- List item 2\n\n");
+					sb.append("- List item 1\n- List item 2\n");
+					sb.append("| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |\n");
+					sb.append("- [ ] Task item 1\n- [x] Task item 2\n\n");
 				}
 				markdownInput = sb.toString();
 				break;
@@ -74,7 +83,9 @@ public class MarkdownParserBenchmark {
 				for (int i = 0; i < 1000; i++) {
 					sb2.append("## Section ").append(i).append("\n");
 					sb2.append("This is paragraph ").append(i).append(" with **bold** and *italic* text.\n");
-					sb2.append("- List item 1\n- List item 2\n\n");
+					sb2.append("- List item 1\n- List item 2\n");
+					sb2.append("| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |\n");
+					sb2.append("- [ ] Task item 1\n- [x] Task item 2\n\n");
 					sb2.append("```java\nSystem.out.println(\"Code block\");\n```\n\n");
 				}
 				markdownInput = sb2.toString();
@@ -122,5 +133,76 @@ public class MarkdownParserBenchmark {
 		HtmlRenderer renderer = HtmlRenderer.builder().build();
 		doc.accept(renderer);
 		return (String) renderer.getResult();
+	}
+
+	/**
+	 * Benchmark JavaFX rendering only (from pre-parsed AST).
+	 * 
+	 * Note: This measures the time to create the scene graph nodes. It does not
+	 * measure the actual rendering to the screen (layout/pulse), which happens on
+	 * the JavaFX Application Thread. However, node creation is a significant part
+	 * of the cost.
+	 */
+	@Benchmark
+	public Object renderJavaFxOnly() {
+		// JavaFxRenderer creates its own root VBox
+		JavaFxRenderer renderer = new JavaFxRenderer();
+		preParsedDoc.accept(renderer);
+		return renderer.getResult();
+	}
+
+	/**
+	 * Benchmark parsing and JavaFX rendering.
+	 */
+	@Benchmark
+	public Object parseAndRenderJavaFx() {
+		Document doc = parser.parse(markdownInput);
+		JavaFxRenderer renderer = new JavaFxRenderer();
+		doc.accept(renderer);
+		return renderer.getResult();
+	}
+
+	/**
+	 * Benchmark JavaFX Stream Rendering.
+	 * 
+	 * This measures the time to queue all rendering tasks AND execute them on the
+	 * JavaFX thread. It simulates a stream parser by traversing the AST and calling
+	 * the stream renderer's methods.
+	 */
+	@Benchmark
+	public Object renderJavaFxStream() throws InterruptedException {
+		VBox root = new VBox();
+		JavaFxStreamRenderer renderer = new JavaFxStreamRenderer(root);
+
+		// Use latch to wait for FX thread completion
+		CountDownLatch latch = new CountDownLatch(1);
+
+		// Simulate stream events
+		simulateStream(preParsedDoc, renderer);
+
+		// Schedule a task at the end of the queue to signal completion
+		Platform.runLater(latch::countDown);
+
+		// Wait for rendering to complete
+		latch.await();
+
+		return root;
+	}
+
+	private void simulateStream(Node node, JavaFxStreamRenderer renderer) {
+		// Container blocks: open -> children -> close
+		if (node instanceof Document || node instanceof BlockQuote || node instanceof BulletList
+				|| node instanceof OrderedList || node instanceof ListItem || node instanceof AdmonitionBlock) {
+			renderer.openBlock(node);
+			Node child = node.getFirstChild();
+			while (child != null) {
+				simulateStream(child, renderer);
+				child = child.getNext();
+			}
+			renderer.closeBlock(node);
+		} else {
+			// Leaf blocks: just render
+			renderer.renderNode(node);
+		}
 	}
 }

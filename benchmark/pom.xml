@@ -25,6 +25,10 @@
             <groupId>com.icuxika</groupId>
             <artifactId>markdown-stream-render-html</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.icuxika</groupId>
+            <artifactId>markdown-stream-render-javafx</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
