@@ -20,6 +20,8 @@ import com.icuxika.markdown.stream.render.core.ast.TableHead;
 import com.icuxika.markdown.stream.render.core.ast.TableRow;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
+import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlockParserFactory;
+import com.icuxika.markdown.stream.render.core.extension.math.MathParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockContinue;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParser;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
@@ -79,6 +81,12 @@ public class MarkdownParser {
 		private List<BlockParserFactory> blockParserFactories = new ArrayList<>();
 		private List<InlineContentParserFactory> inlineParserFactories = new ArrayList<>();
 
+		public Builder() {
+			// Load default extensions (System Plugins)
+			this.blockParserFactories.add(new AdmonitionBlockParserFactory());
+			this.inlineParserFactories.add(new MathParserFactory());
+		}
+
 		public Builder options(MarkdownParserOptions options) {
 			this.options = options;
 			return this;
@@ -104,6 +112,16 @@ public class MarkdownParser {
 		public Builder inlineParserFactory(InlineContentParserFactory factory) {
 			this.inlineParserFactories.add(factory);
 			return this;
+		}
+
+		/**
+		 * 注册扩展插件。
+		 *
+		 * @param extensions
+		 *            扩展列表
+		 */
+		public Builder extensions(Extension... extensions) {
+			return extensions(java.util.Arrays.asList(extensions));
 		}
 
 		/**

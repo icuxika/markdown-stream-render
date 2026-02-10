@@ -19,7 +19,6 @@ public class StreamMarkdownParserEventTest {
 	public void streamingMustKeepOpenCloseBalancedForNestedContainers() {
 		RecordingTypingRenderer renderer = new RecordingTypingRenderer();
 		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
-		CoreExtension.addDefaults(builder);
 		StreamMarkdownParser parser = builder.build();
 
 		assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
@@ -46,7 +45,6 @@ public class StreamMarkdownParserEventTest {
 	public void typingPreviewMustBeClearedBeforeFinalNodeIsRendered() {
 		RecordingTypingRenderer renderer = new RecordingTypingRenderer();
 		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
-		CoreExtension.addDefaults(builder);
 		StreamMarkdownParser parser = builder.build();
 
 		parser.push("Hello");

@@ -74,9 +74,8 @@
     * `html` 模块现在包含自己的 CSS 资源（`markdown.css`, `admonition.css`, `math.css`），不再依赖外部提供样式。
 
 2. **扩展解析器注册机制**:
-    * 新增了 [CoreExtension](core/src/main/java/com/icuxika/markdown/stream/render/core/CoreExtension.java) 工具类。
-    * **关键点**: 在创建 `MarkdownParser` 或 `StreamMarkdownParser` 时，**必须** 调用
-      `CoreExtension.addDefaults(builder)`。否则，Admonition 和 Math 语法将被识别为普通文本，导致渲染样式失效。
+    * **默认加载**: `MarkdownParser` 和 `StreamMarkdownParser` 现在默认会自动加载 Admonition 和 Math 扩展，无需手动配置。
+    * **自定义扩展**: 如需加载其他扩展，请使用 Builder 的 `.extensions()` 方法。
     * Demo 代码已更新以遵循此规范。
 
 3. **文档更新**:

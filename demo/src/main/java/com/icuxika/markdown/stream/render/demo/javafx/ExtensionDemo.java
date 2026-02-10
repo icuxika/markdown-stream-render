@@ -1,11 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.Extension;
 import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.Visitor;
-import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionExtension;
-import com.icuxika.markdown.stream.render.core.extension.math.MathExtension;
 import com.icuxika.markdown.stream.render.core.parser.InlineParser;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.ParserExtension;
@@ -15,22 +12,16 @@ import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockStart;
 import com.icuxika.markdown.stream.render.core.parser.block.MatchedBlockParser;
 import com.icuxika.markdown.stream.render.core.parser.block.ParserState;
-import com.icuxika.markdown.stream.render.html.extension.admonition.AdmonitionHtmlExtension;
-import com.icuxika.markdown.stream.render.html.extension.math.MathHtmlExtension;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlNodeRenderer;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlNodeRendererContext;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlRendererExtension;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlWriter;
-import com.icuxika.markdown.stream.render.javafx.extension.admonition.AdmonitionJavaFxExtension;
-import com.icuxika.markdown.stream.render.javafx.extension.math.MathJavaFxExtension;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRendererExtension;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,23 +68,16 @@ public class ExtensionDemo extends Application {
 	}
 
 	private void render(String markdown, VBox outputBox) {
-		// Register default extensions AND our custom GreetingExtension
-		List<Extension> extensions = Arrays.asList(
-				AdmonitionExtension.create(),
-				MathExtension.create(),
-				AdmonitionHtmlExtension.create(),
-				MathHtmlExtension.create(),
-				AdmonitionJavaFxExtension.create(),
-				MathJavaFxExtension.create(),
-				new GreetingExtension() // <--- Custom Extension
-		);
+		// Use the new simplified API
+		// Default extensions (Admonition, Math) are loaded automatically.
+		GreetingExtension greetingExtension = new GreetingExtension();
 
 		MarkdownParser parser = MarkdownParser.builder()
-				.extensions(extensions)
+				.extensions(greetingExtension)
 				.build();
 
 		JavaFxRenderer renderer = JavaFxRenderer.builder()
-				.extensions(extensions)
+				.extensions(greetingExtension)
 				.build();
 
 		try {

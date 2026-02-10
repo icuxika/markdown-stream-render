@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
@@ -391,7 +390,6 @@ public class VirtualStreamRenderDemo extends Application {
 		// Easier to add listener ONCE in start().
 
 		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(streamRenderer);
-		CoreExtension.addDefaults(builder);
 		parser = builder.build();
 	}
 

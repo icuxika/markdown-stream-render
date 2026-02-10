@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
@@ -21,7 +20,6 @@ public class MinimalStreamDemo extends Application {
 		VBox output = new VBox();
 		JavaFxStreamRenderer renderer = new JavaFxStreamRenderer(output);
 		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
-		CoreExtension.addDefaults(builder);
 
 		BorderPane root = new BorderPane(new ScrollPane(output));
 		Scene scene = new Scene(root, 900, 700);

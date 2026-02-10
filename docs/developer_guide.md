@@ -57,15 +57,14 @@
 ```java
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 
 // 1. 创建解析器构建器
 MarkdownParser.Builder builder = MarkdownParser.builder();
 
-// 2. (可选) 注册核心扩展（如 Admonition, Math）
-CoreExtension.addDefaults(builder);
+// 2. (可选) 注册自定义扩展
+// builder.extensions(new MyExtension());
 
-// 3. 构建解析器
+// 3. 构建解析器 (默认已包含 Admonition 和 Math 支持)
 MarkdownParser parser = builder.build();
 
 // 4. 解析 Markdown 文本
@@ -139,7 +138,6 @@ parser.close();
 
 ```java
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import javafx.scene.layout.VBox;
 
 // 1. 创建渲染器
@@ -147,9 +145,8 @@ JavaFxRenderer renderer = new JavaFxRenderer();
 // (JavaFxRenderer 默认已内置了 Admonition 和 Math 的渲染支持)
 
 // 2. 解析并渲染
-// 注意：parser 需要注册 CoreExtension 以识别扩展语法
+// 注意：parser 默认已支持扩展语法
 MarkdownParser.Builder builder = MarkdownParser.builder();
-CoreExtension.addDefaults(builder);
 MarkdownParser parser = builder.build();
 
 parser.parse(markdown, renderer);

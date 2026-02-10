@@ -16,9 +16,9 @@ A high-performance, **CommonMark-compliant**, streaming Markdown parser and rend
     *   **JavaFX**: Renders directly to a JavaFX Scene Graph. Includes a **High-Performance Hybrid Renderer** (`VirtualJavaFxStreamRenderer`) that combines virtualization with real-time streaming for infinite-length documents.
 *   **Zero Dependencies (Core)**: The core module has no external dependencies, making it lightweight and easy to embed.
 *   **Advanced Features**:
-    *   **Partial GitHub Flavored Markdown (GFM)**: Supports a subset of extensions (e.g., tables/task lists/strikethrough/extended autolinks) without targeting full GFM conformance.
+    *   **Built-in GFM Support**: GitHub Flavored Markdown features (Tables, Task Lists, Strikethrough, Autolinks) are integrated directly into the core parser for maximum performance (toggleable via options).
     *   **Rich JavaFX Styling**: Includes enhanced styling for Tables (zebra striping, borders), Blockquotes, and Code Blocks.
-    *   **Extensions**: Includes support for **Admonitions** and **Math** (inline equations).
+    *   **Extensions**: Includes separate extension modules for **Admonitions** and **Math** (inline equations).
 
 ## JavaFX Styling & Theming
 

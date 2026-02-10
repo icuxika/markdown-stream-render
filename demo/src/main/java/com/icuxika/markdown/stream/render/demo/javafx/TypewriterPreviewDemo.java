@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
@@ -150,7 +149,6 @@ public class TypewriterPreviewDemo extends Application {
 		renderer.setOnLinkClick(url -> getHostServices().showDocument(url));
 
 		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
-		CoreExtension.addDefaults(builder);
 		parser = builder.build();
 
 		updateStatus();

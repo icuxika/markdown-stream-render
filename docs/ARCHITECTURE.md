@@ -44,8 +44,9 @@ graph TD
 * **Parser (解析器)**:
     * `MarkdownParser`: 全量解析器，将 Markdown 字符串转换为 AST。
     * `StreamMarkdownParser`: 流式解析器，支持增量输入，边解析边触发渲染事件。
-    * `BlockParser` / `InlineParser`: 负责具体的块级和行内元素解析，支持插件扩展。
-* **Extensions (扩展)**: 内置了常用的扩展语法支持，如 `Admonition` (警告块) 和 `Math` (数学公式) 的 AST 节点定义及解析逻辑。
+    * **内置 GFM**: 表格、任务列表、删除线等 GFM 特性直接集成在解析器逻辑中（出于性能考虑），而非通过扩展接口加载。
+    * `BlockParser` / `InlineParser`: 负责具体的块级和行内元素解析，支持插件扩展（用于非标准特性）。
+* **Extensions (扩展)**: 这里的“扩展”特指 **非 GFM 的额外功能**，如 `Admonition` (警告块) 和 `Math` (数学公式)。它们默认会被解析器加载。
 * **Renderer Interfaces**: 定义了 `MarkdownRenderer` 与 `StreamMarkdownRenderer`（以及打字机预览用的 `StreamMarkdownTypingRenderer`）等接口，供上层模块实现。
 
 ### 2.2 HTML 模块 (`markdown-stream-render-html`)

@@ -10,7 +10,7 @@
 
 **exports (导出):**
 
-* `com.icuxika.markdown.stream.render.core`: 包含 `CoreExtension` 等工具类。
+* `com.icuxika.markdown.stream.render.core`: 核心包。
 * `com.icuxika.markdown.stream.render.core.ast`: **核心 API**。所有 AST 节点类必须导出，供使用者操作文档结构。
 * `com.icuxika.markdown.stream.render.core.parser`: **核心 API**。包含 `MarkdownParser`, `StreamMarkdownParser` 等入口类。
 * `com.icuxika.markdown.stream.render.core.parser.block`: 供扩展开发者实现自定义块解析器。

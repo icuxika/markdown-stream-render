@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
@@ -18,7 +17,6 @@ public class MinimalBatchDemo extends Application {
 		JavaFxRenderer renderer = new JavaFxRenderer();
 
 		MarkdownParser.Builder builder = MarkdownParser.builder();
-		CoreExtension.addDefaults(builder);
 		MarkdownParser parser = builder.build();
 
 		String markdown = """

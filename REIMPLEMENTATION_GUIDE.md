@@ -1,109 +1,113 @@
-# 项目重构指南：Markdown Stream Render
+# Reimplementation Guide (复现指南)
 
-## 1. 项目愿景与目标
+这份文档旨在指导 AI 助手或开发者从零开始复现 `markdown-stream-render` 项目。它浓缩了本项目的核心架构决策、关键算法难点以及性能优化方案。
 
-本项目 `markdown-stream-render` 旨在构建一个高性能、模块化、支持流式处理的 Markdown 渲染引擎。其核心差异化特性在于支持类似 ChatGPT 的“打字机”效果，能够随着网络数据包的到达实时渲染 Markdown 内容，而不是等待完整文档下载完毕。
+---
 
-**关键约束：**
-*   **流式优先**：必须支持 `push(String chunk)` 模式的增量输入。
-*   **跨平台输出**：核心逻辑与渲染实现分离，目前支持 JavaFX (Desktop) 和 HTML (Web/Server)。
-*   **高性能**：特别是在 JavaFX 桌面端，需要处理长文档的渲染性能（虚拟化）。
-*   **零依赖核心**：`core` 模块不应依赖任何特定的 UI 库或重型第三方 Markdown 库（如 flexmark/commonmark），以保持轻量和可控。
+## 1. 核心设计哲学 (Core Philosophy)
 
-## 2. 核心架构设计
+在开始写第一行代码前，必须明确以下原则：
 
-项目采用标准的多模块 Maven 结构：
+1.  **流式优先 (Streaming First)**: 
+    *   **不要**设计成 `String -> AST` 的全量转换。
+    *   **必须**设计成 `char/chunk -> Event -> Partial AST` 的增量处理。解析器必须是状态机的，能够随时暂停和恢复。
+2.  **规范驱动 (Spec Driven)**:
+    *   Markdown 不是随意的文本格式，必须严格遵循 **CommonMark Spec**。
+    *   **起手式**：先导入 `spec.json` 测试集，而不是先写代码。
+3.  **零依赖 (Zero Dependency)**:
+    *   核心模块 (`core`) 严禁引入任何第三方库（如 guava, apache-commons），确保其极致轻量和可移植性。
 
+---
+
+## 2. 核心解析器架构 (The Parser)
+
+### 2.1 分层解析 (Two-Phase Parsing)
+CommonMark 要求解析分为两个阶段，复现时必须严格遵守：
+
+1.  **块级解析 (Block Parsing)**:
+    *   逐行扫描。
+    *   维护一个 `BlockParserState` 栈（当前打开的块）。
+    *   **难点**: 处理 "Lazy Continuation"（懒惰延续）。即：一个段落可以在引用块 (`>`) 中跨行延续，而无需每行都加 `>`。
+2.  **内联解析 (Inline Parsing)**:
+    *   只有当一个块彻底关闭（Closed）后，才对其文本内容进行内联解析。
+    *   **难点**: 强调符号 (`*`, `_`) 的解析是极其复杂的，不要试图用正则解决，必须实现 **"Delimiter Stack" (分隔符栈)** 算法。
+
+### 2.2 流式事件机制 (Streaming Events)
+解析器不应直接返回 AST，而应通过回调接口发射事件：
+*   `openBlock(Node)`
+*   `renderNode(Node)` (用于增量更新文本)
+*   `closeBlock(Node)`
+
+---
+
+## 3. JavaFX 渲染器架构 (The Renderer)
+
+这是本项目最精华的部分，解决了“无限长流式文档”的性能问题。
+
+### 3.1 错误的路径 (The Wrong Way)
+*   ❌ **全量刷新**: 每次有新字符，清空 VBox 重绘。 -> **O(N^2) 性能灾难**。
+*   ❌ **单纯追加**: 把所有节点塞进一个 VBox。 -> **内存泄漏，布局计算卡顿**。
+
+### 3.2 正确的路径：混合渲染 (Hybrid Rendering)
+必须实现 **"Virtualization + Active Stream"** 混合模式：
+
+1.  **历史区 (History)**:
+    *   使用 `ListView<Node>`。
+    *   利用 JavaFX 的 `VirtualFlow` 机制，只渲染屏幕可见的 Item。
+    *   **关键**: Item 存储的是轻量级 AST 数据，而非 UI 组件。
+2.  **活跃区 (Active Stream)**:
+    *   使用一个独立的 `VBox` (`activeContainer`)。
+    *   当前正在生成的块（Open 状态）渲染在这里。
+    *   **平滑性**: 字符追加直接操作这个 VBox 内的 TextFlow，无需触发 ListView 的刷新。
+3.  **生命周期流转**:
+    *   `Open`: 在 `activeContainer` 创建 UI。
+    *   `Append`: 更新 `activeContainer` 中的 UI。
+    *   `Close`: 将 AST 移入 `ListView` 数据源，**同时从 `activeContainer` 移除 UI**。
+
+### 3.3 并发与防抖 (Concurrency)
+*   **单线程模型**: 解析器在后台线程，UI 在 FX 线程。
+*   **任务队列**: 必须实现一个 `uiTaskQueue`，将后台事件串行化后提交给 `Platform.runLater`。
+*   **时间分片 (Time Slicing)**: 在 `runLater` 中处理队列时，必须加时间锁（如 8ms），超时则让出 CPU 到下一帧。**这是防止 UI 卡死的关键。**
+
+---
+
+## 4. 关键算法避坑 (Gotchas)
+
+1.  **制表符 (Tabs)**:
+    *   Markdown 规范要求 Tab 展开为 4 个空格，但不是简单的替换，而是基于 **列位置 (Column Index)** 的对齐。必须实现 `Virtual Column` 计算。
+2.  **HTML 实体**:
+    *   必须支持 `&copy;`, `&#123;`, `&#x1F600;` 的解码。
+3.  **链接引用定义 (Link Reference Definitions)**:
+    *   必须在文档末尾或任意位置扫描 `[id]: url`，并支持不区分大小写的 Unicode 匹配（Case Folding）。
+
+---
+
+## 5. 推荐开发顺序 (Roadmap)
+
+1.  **Day 1**: 搭建 AST 基础类结构 (`Node`, `Block`, `Inline`)。
+2.  **Day 2**: 实现 `BlockParser`，跑通简单的段落和标题测试。
+3.  **Day 3**: 实现 `InlineParser`，重点攻克强调符号 (`Emphasis`) 算法。
+4.  **Day 4**: 实现 `HtmlRenderer`，并通过 `spec.json` 验证核心正确性。
+5.  **Day 5**: 实现 `JavaFxStreamRenderer` (基础版)。
+6.  **Day 6**: 重构为 `VirtualJavaFxStreamRenderer` (混合高性能版)。
+
+---
+
+## 6. 核心代码片段参考
+
+**混合渲染器的任务调度：**
+```java
+private void processUiTasks() {
+    long startTime = System.nanoTime();
+    long maxDuration = 8_000_000; // 8ms budget
+
+    while ((task = uiTaskQueue.poll()) != null) {
+        task.run();
+        if (System.nanoTime() - startTime > maxDuration) {
+            // Yield to next frame
+            Platform.runLater(this::processUiTasks);
+            break;
+        }
+    }
+}
 ```
-markdown-stream-render
-├── core          # 核心解析器、AST 定义、渲染接口 (无 UI 依赖)
-├── html          # HTML 渲染实现
-├── javafx        # JavaFX 渲染实现 (UI 组件)
-├── benchmark     # JMH 性能测试
-└── demo          # 演示程序 (包含 Client/Server/UI Demo)
-```
-
-### 2.1 核心解析器 (Core Module)
-
-解析器采用两阶段解析策略，参考 CommonMark 规范设计：
-
-1.  **Block Parsing (阶段一)**：
-    *   输入：字符流/行流。
-    *   输出：Block AST (Document -> Section -> Paragraph/List/BlockQuote)。
-    *   关键类：`MarkdownParser` (非流式入口), `StreamMarkdownParser` (流式入口), `BlockParserState`。
-    *   **流式处理难点**：Markdown 的某些块结构（如列表、引用）是上下文相关的。`StreamMarkdownParser` 通过维护一个 `buffer` 处理未完成的行，并在换行符处触发 `processLine`。
-
-2.  **Inline Parsing (阶段二)**：
-    *   输入：Block 节点的文本内容。
-    *   输出：Inline AST (Text, Strong, Emphasis, Link, Code)。
-    *   时机：在 Block 闭合（Finalized）时触发。这意味着流式渲染的最小粒度通常是“行”或“块”，而不是字符。
-
-### 2.2 AST (抽象语法树)
-
-AST 节点设计应遵循 Visitor 模式，以便于不同的渲染器实现。
-
-*   `Node` (基类): `parent`, `firstChild`, `next`, `sourceSpan`.
-*   `Visitor` (接口): 定义 `visit(Paragraph)`, `visit(Heading)` 等方法。
-*   `MarkdownRenderer` (接口): 继承自 `Visitor`，用于非流式渲染。
-*   `StreamMarkdownRenderer` (接口): 定义流式事件回调 (`openBlock`, `renderNode`, `closeBlock`)。
-
-## 3. 关键实现细节
-
-### 3.1 流式解析器 (StreamMarkdownParser)
-
-这是本项目的核心。如果要重写，必须理解其工作流：
-
-1.  **Buffer Management**: 接收 `push(String)`，拼接到内部 `StringBuilder`。
-2.  **Line Splitting**: 扫描 `\n`，提取完整行进行处理。剩余未闭合的字符留在 Buffer 中。
-3.  **State Machine**: `BlockParserState` 维护当前打开的块栈（Block Stack）。每行输入都会尝试匹配当前打开的块，或者开启新块，或者关闭旧块。
-4.  **Event Firing**:
-    *   `onBlockStarted`: 当新块创建时触发（如 `<ul>` 开始）。
-    *   `onBlockFinalized`: 当块确认结束时触发（如段落结束）。此时触发 Inline 解析，并调用 `renderer.renderNode(node)`。
-    *   `onBlockClosed`: 块完全脱离上下文。
-
-**注意**：流式渲染的一个妥协是，Inline 元素（如加粗、链接）通常只有在当前块结束（换行）后才能解析。
-
-### 3.2 JavaFX 渲染器
-
-*   **传统渲染 (`JavaFxStreamRenderer`)**: 直接将 Node 转换为 JavaFX 组件（`TextFlow`, `VBox`）添加到界面。适合短对话。
-*   **虚拟化渲染 (`VirtualJavaFxStreamRenderer`)**:
-    *   **痛点**: 长对话会导致场景图节点过多，内存爆炸，渲染卡顿。
-    *   **方案**: 使用 `ListView<Node>`。Renderer 不直接操作 UI 树，而是维护一个 `ObservableList<Node>`。
-    *   **核心**: `MarkdownListCell` 负责渲染单个 AST Block。利用 JavaFX 的 `VirtualFlow` 机制只渲染可见区域。
-
-### 3.3 HTML 渲染器
-
-相对简单，基于 `Appendable`（如 `StringBuilder` 或 `Writer`）。
-*   `HtmlStreamRenderer`: 在 `openBlock` 时写入 `<tag>`，在 `renderNode` 时写入内容和闭合标签（或在 `closeBlock` 时闭合，取决于实现策略）。目前实现主要在 `renderNode` 处理内容。
-
-## 4. 扩展机制
-
-如果要让 AI 实现扩展功能（如数学公式、Admonition），需要告诉它：
-
-1.  **Block Extension**: 实现 `BlockParserFactory` 和 `BlockParser`。
-2.  **Inline Extension**: 实现 `InlineContentParserFactory` 和 `InlineContentParser`。
-3.  **注册**: 在 `MarkdownParser.Builder` 中注册 Factory。
-4.  **渲染支持**: 在 `JavaFxRenderer` / `HtmlRenderer` 中注册对应的 `NodeRenderer`。
-
-## 5. 工程规范与陷阱
-
-### 5.1 编码规范
-*   **Checkstyle**: 项目配置了严格的 Google Checks。
-    *   **常见坑**: Missing Javadoc, WhitespaceAround (if/else 必须有大括号), Import Order (避免 `.*` 导入)。
-    *   **解决方法**: 使用 `@SuppressWarnings` 处理遗留代码，新代码必须合规。
-
-### 5.2 常见陷阱
-1.  **Unicode 处理**: Markdown 解析涉及很多字符判断，不要简单地用 `char` 遍历，要注意 Surrogate Pairs（虽然本项目目前主要处理 BMP 内字符，但应有此意识）。
-2.  **线程安全**: JavaFX UI 更新必须在 JavaFX Application Thread (`Platform.runLater`)。`StreamMarkdownParser` 可以在后台线程运行，但回调 Renderer 时需注意线程切换。
-3.  **HTML 安全**: 如果实现 HTML 渲染，必须考虑 XSS 攻击（本项目作为 Demo 可能未严格处理，但生产环境必须处理）。
-4.  **Tab 展开**: Markdown 规范要求 Tab 展开为 4 个空格，这影响缩进计算。
-
-## 6. 任务清单 (对于新 AI)
-
-如果你是接手的 AI，请按以下顺序执行：
-
-1.  **阅读 `StreamMarkdownParser.java`**: 理解 buffer 和 line processing 逻辑。
-2.  **运行 `StreamingOutputTest`**: 理解事件触发顺序。
-3.  **运行 `AiChatDemo`**: 体验最终效果。
-4.  **遵循 Checkstyle**: 在编写代码前检查 `config/checkstyle/checkstyle.xml`。
-5.  **优先实现 Core**: 确保解析逻辑独立于 UI。

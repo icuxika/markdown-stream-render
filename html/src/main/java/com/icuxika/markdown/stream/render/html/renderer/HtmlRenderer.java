@@ -125,6 +125,16 @@ public class HtmlRenderer implements MarkdownRenderer, HtmlNodeRendererContext {
 		 * @param extensions
 		 *            扩展列表
 		 */
+		public Builder extensions(Extension... extensions) {
+			return extensions(java.util.Arrays.asList(extensions));
+		}
+
+		/**
+		 * 注册扩展插件。
+		 *
+		 * @param extensions
+		 *            扩展列表
+		 */
 		public Builder extensions(Iterable<? extends Extension> extensions) {
 			for (Extension extension : extensions) {
 				if (extension instanceof HtmlRendererExtension) {

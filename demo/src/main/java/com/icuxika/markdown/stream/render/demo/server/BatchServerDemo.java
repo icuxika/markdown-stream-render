@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.server;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
 import com.icuxika.markdown.stream.render.html.HtmlRendererExtension;
@@ -68,7 +67,6 @@ public class BatchServerDemo {
 
 			// Render
 			MarkdownParser.Builder parserBuilder = MarkdownParser.builder();
-			CoreExtension.addDefaults(parserBuilder);
 			MarkdownParser parser = parserBuilder.build();
 			com.icuxika.markdown.stream.render.core.ast.Document doc = parser.parse(markdown);
 

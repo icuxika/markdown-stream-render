@@ -1,11 +1,14 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
+import com.icuxika.markdown.stream.render.core.Extension;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.ast.Heading;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.Paragraph;
 import com.icuxika.markdown.stream.render.core.ast.TableCell;
 import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlockParserFactory;
+import com.icuxika.markdown.stream.render.core.extension.math.MathParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
@@ -333,6 +336,12 @@ public class StreamMarkdownParser {
 		private List<InlineContentParserFactory> inlineParserFactories = new ArrayList<>();
 		private StreamMarkdownRenderer renderer;
 
+		public Builder() {
+			// Load default extensions (System Plugins)
+			this.blockParserFactories.add(new AdmonitionBlockParserFactory());
+			this.inlineParserFactories.add(new MathParserFactory());
+		}
+
 		public Builder options(MarkdownParserOptions options) {
 			this.options = options;
 			return this;
@@ -351,6 +360,75 @@ public class StreamMarkdownParser {
 		public Builder renderer(StreamMarkdownRenderer renderer) {
 			this.renderer = renderer;
 			return this;
+		}
+
+		/**
+		 * 注册扩展插件。
+		 *
+		 * @param extensions
+		 *            扩展列表
+		 */
+		public Builder extensions(Extension... extensions) {
+			return extensions(java.util.Arrays.asList(extensions));
+		}
+
+		/**
+		 * 注册扩展插件。
+		 *
+		 * @param extensions
+		 *            扩展列表
+		 */
+		public Builder extensions(Iterable<? extends Extension> extensions) {
+			for (Extension extension : extensions) {
+				if (extension instanceof ParserExtension) {
+					((ParserExtension) extension).extend(toMarkdownParserBuilder());
+				}
+			}
+			return this;
+		}
+
+		// Helper to bridge StreamMarkdownParser.Builder and MarkdownParser.Builder
+		// interfaces
+		// Since ParserExtension expects MarkdownParser.Builder.
+		// We need to implement a facade or just manually map?
+		// ParserExtension.extend(MarkdownParser.Builder)
+		// MarkdownParser.Builder has blockParserFactory(), inlineParserFactory().
+		// StreamMarkdownParser.Builder has same methods.
+		// But types are different.
+		// We can create a temporary MarkdownParser.Builder, let extension configure it,
+		// and then copy factories back.
+		private MarkdownParser.Builder toMarkdownParserBuilder() {
+			MarkdownParser.Builder mpb = new MarkdownParser.Builder();
+			// Clear defaults from mpb to avoid double adding when we copy back?
+			// No, mpb has defaults. We have defaults.
+			// If extension adds something, it adds to mpb.
+			// We want to capture WHAT extension added.
+
+			// Better approach: Let StreamMarkdownParser.Builder pass 'this' if it matched
+			// interface?
+			// But it doesn't match.
+
+			// So we proxy.
+			return new MarkdownParser.Builder() {
+				@Override
+				public MarkdownParser.Builder blockParserFactory(BlockParserFactory factory) {
+					Builder.this.blockParserFactory(factory);
+					return this;
+				}
+
+				@Override
+				public MarkdownParser.Builder inlineParserFactory(InlineContentParserFactory factory) {
+					Builder.this.inlineParserFactory(factory);
+					return this;
+				}
+
+				// Ignore options() for now or map it?
+				@Override
+				public MarkdownParser.Builder options(MarkdownParserOptions options) {
+					Builder.this.options(options);
+					return this;
+				}
+			};
 		}
 
 		public StreamMarkdownParser build() {

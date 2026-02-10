@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.server;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
 import com.icuxika.markdown.stream.render.html.renderer.HtmlStreamRenderer;
@@ -117,7 +116,6 @@ public class StreamServerDemo {
 				StringBuilder buffer = new StringBuilder();
 				HtmlStreamRenderer renderer = new HtmlStreamRenderer(buffer);
 				StreamMarkdownParser.Builder parserBuilder = StreamMarkdownParser.builder().renderer(renderer);
-				CoreExtension.addDefaults(parserBuilder);
 				StreamMarkdownParser parser = parserBuilder.build();
 
 				while (index < finalContent.length()) {

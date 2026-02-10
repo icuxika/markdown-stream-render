@@ -1,6 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
@@ -352,7 +351,6 @@ public class AiChatDemo extends Application {
 
 		private void resetStream() {
 			StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(streamRenderer);
-			CoreExtension.addDefaults(builder);
 			streamParser = builder.build();
 		}
 
@@ -364,7 +362,6 @@ public class AiChatDemo extends Application {
 			}
 
 			MarkdownParser.Builder builder = MarkdownParser.builder();
-			CoreExtension.addDefaults(builder);
 			MarkdownParser parser = builder.build();
 			Document doc = parser.parse(currentText);
 
