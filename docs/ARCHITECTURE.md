@@ -72,3 +72,34 @@ graph TD
 * **Visitor 模式**: 渲染器通过实现 `Visitor` 接口（或在内部使用 Visitor）来遍历 AST 节点并执行渲染逻辑。
 * **Factory 模式**: 解析器和渲染器通过 Factory 接口（`BlockParserFactory`, `NodeRendererFactory`）来创建实例，支持插件化扩展。
 * **Builder 模式**: `MarkdownParser` 和 `HtmlRenderer` 使用 Builder 模式进行复杂的配置构建。
+
+## 4. 混合渲染架构 (Hybrid Rendering Architecture)
+
+为了解决流式 Markdown 在无限长文档场景下的性能瓶颈，JavaFX 模块引入了 `VirtualJavaFxStreamRenderer`，采用 **ListView 虚拟化 + Active VBox 直出** 的混合模式。
+
+### 4.1 核心问题
+传统的流式渲染面临两难选择：
+1.  **全量重绘**: 每次有新字符，重绘整个文档 -> O(N^2) 性能，文档越长越卡。
+2.  **追加模式**: 只在底部 `VBox` 追加新节点 -> 节点数无限增长，导致 JavaFX 布局计算卡顿和 OOM。
+
+### 4.2 解决方案
+混合架构将渲染分为两部分：
+*   **历史区 (History)**: 使用 `ListView` + `ObservableList<Node>`。
+    *   **虚拟化**: 仅渲染屏幕可见的 Item。
+    *   **数据化**: 存储的是轻量级 AST `Node` 对象，而非重型 UI 节点。
+*   **活跃区 (Active Stream)**: 使用独立的 `VBox` 容器。
+    *   **实时性**: 正在生成的 Block（如一个正在打字的段落）直接在这个 VBox 中进行增量渲染。
+    *   **平滑性**: 避免了 ListView 刷新带来的闪烁。
+
+### 4.3 生命周期
+1.  **Open Block**: 当新的顶级 Block 开始时，在活跃区 `VBox` 中创建一个新的渲染上下文。
+2.  **Streaming**: 内容实时追加到活跃区的 UI 组件中。
+3.  **Close Block**: 当 Block 结束时：
+    *   将该 Block 的 AST 节点移入历史列表 (`historyItems`)。
+    *   **立即销毁** 活跃区中对应的 UI 组件。
+    *   `ListView` 接管该节点的渲染（当其可见时）。
+
+### 4.4 性能保障
+*   **任务队列串行化**: 所有来自 Parser 线程的事件（Open/Render/Close）被封装为 `Runnable` 存入 `uiTaskQueue`，由 JavaFX 线程统一消费，杜绝多线程竞态。
+*   **时间分片 (Time Slicing)**: 消费队列时限制每帧最大执行时间（如 8ms），防止高速流（如 1000 tok/s）阻塞 UI 线程，确保界面始终响应用户操作。
+

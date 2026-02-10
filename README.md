@@ -13,7 +13,7 @@ A high-performance, **CommonMark-compliant**, streaming Markdown parser and rend
 *   **Streaming Architecture**: Designed for incremental processing. Capable of rendering content as it is being typed or received over the network, without waiting for the full document.
 *   **Multi-Target Rendering**:
     *   **HTML**: Generates standard, compliant HTML.
-    *   **JavaFX**: Renders directly to a JavaFX Scene Graph (`VBox`, `TextFlow`, `GridPane`) for rich desktop applications.
+    *   **JavaFX**: Renders directly to a JavaFX Scene Graph. Includes a **High-Performance Hybrid Renderer** (`VirtualJavaFxStreamRenderer`) that combines virtualization with real-time streaming for infinite-length documents.
 *   **Zero Dependencies (Core)**: The core module has no external dependencies, making it lightweight and easy to embed.
 *   **Advanced Features**:
     *   **Partial GitHub Flavored Markdown (GFM)**: Supports a subset of extensions (e.g., tables/task lists/strikethrough/extended autolinks) without targeting full GFM conformance.
@@ -77,12 +77,20 @@ mvn clean install
 
 ### Run Demos
 
-**1. Demo Launcher**
+**1. Virtualized Streaming Demo (Recommended)**
+The flagship demo showcasing the high-performance hybrid renderer with simulated LLM streaming.
 ```bash
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.Launcher"
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
 ```
 
-**2. Typewriter Preview Demo**
+**2. Virtualized List Stress Test**
+Tests the renderer against massive documents (4000+ lines) to verify memory efficiency and scroll performance.
+```bash
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
+```
+
+**3. Typewriter Preview Demo**
+Simple char-level streaming preview.
 ```bash
 mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
 ```
@@ -110,3 +118,15 @@ To generate a local CommonMark report file (optional):
 ```bash
 mvn -pl html test -DgenerateSpecReport=true
 ```
+
+## Future Roadmap
+
+The core functionality of `markdown-stream-render` is now stable and feature-complete for most streaming scenarios. Future development will focus on:
+
+*   **Plugin System**: Formalizing the API for custom block and inline parsers to allow users to add syntax like Mermaid diagrams or Footnotes without forking.
+*   **Performance Optimization**: Further tuning of the `VirtualJavaFxStreamRenderer` for mobile devices or constrained environments.
+*   **More Output Targets**: Investigating support for Swing or Terminal (ANSI) output.
+*   **GFM Completeness**: Gradually adding support for missing GFM features (like raw HTML tag filtering in core).
+
+**Note**: No major API-breaking changes are planned for the 1.x series.
+

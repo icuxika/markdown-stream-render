@@ -13,7 +13,7 @@
 *   **流式架构**: 专为增量处理设计。能够在打字或网络传输过程中实时渲染内容，无需等待文档完全加载。
 *   **多端渲染**:
     *   **HTML**: 生成符合标准、规范的 HTML。
-    *   **JavaFX**: 直接渲染为 JavaFX 场景图 (`VBox`, `TextFlow`, `GridPane`)，适用于富桌面应用。
+    *   **JavaFX**: 直接渲染为 JavaFX 场景图。内置 **高性能混合渲染器** (`VirtualJavaFxStreamRenderer`)，结合了虚拟化列表与实时流式渲染，完美支持无限长文档。
 *   **零依赖 (Core)**: 核心模块没有任何外部依赖，轻量且易于嵌入。
 *   **高级功能**:
     *   **部分 GFM 扩展**: 支持部分扩展语法（如表格/任务列表/删除线/扩展自动链接），不以完整 GFM 规范兼容为目标。
@@ -94,17 +94,25 @@ mvn clean install
 
 ### 运行演示 (Demos)
 
-**1. Demo 启动器**
+**1. 虚拟化流式演示 (推荐)**
+核心演示，展示了用于 AI 对话场景的高性能混合渲染器（模拟 LLM 流式输出）。
 ```bash
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.Launcher"
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
 ```
 
-**2. 打字机预览演示 (Typewriter Preview Demo)**
+**2. 虚拟化列表压力测试**
+针对超大文档（4000+ 行）的压力测试，验证内存效率和滚动流畅度。
+```bash
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
+```
+
+**3. 打字机预览演示 (Typewriter Preview Demo)**
+简单的逐字符流式预览。
 ```bash
 mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
 ```
 
-**3. AI 流式对话演示 (Streaming AI Chat Demo)**
+**4. AI 流式对话演示 (Streaming AI Chat Demo)**
 与 DeepSeek API 交互的聊天界面。需要设置 API Key。
 ```bash
 # 请先设置环境变量
@@ -146,3 +154,15 @@ GFM 当前仅覆盖扩展章节（基线资源固定为 v0.29.0），范围说�
 ```bash
 mvn -pl html test -DgenerateSpecReport=true
 ```
+
+## 📅 未来路线图 (Roadmap)
+
+`markdown-stream-render` 的核心功能现已稳定，能够满足大多数流式场景的需求。未来的开发重点将集中在：
+
+*   **插件系统**: 正式化自定义块和内联解析器的 API，允许用户无需 Fork 项目即可添加如 Mermaid 图表、脚注等新语法支持。
+*   **性能优化**: 针对移动设备或资源受限环境，进一步微调 `VirtualJavaFxStreamRenderer` 的性能表现。
+*   **更多输出目标**: 调研对 Swing 或 终端 (ANSI) 输出的支持。
+*   **GFM 完整性**: 逐步补充缺失的 GFM 特性（如核心层的原始 HTML 标签过滤）。
+
+**注意**: 1.x 系列目前没有重大的 API 破坏性变更计划。
+

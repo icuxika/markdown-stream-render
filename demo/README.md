@@ -1,0 +1,43 @@
+# Markdown Stream Render Demos
+
+This module contains example applications demonstrating how to use the `markdown-stream-render` library.
+
+## Available Demos
+
+### 1. VirtualStreamRenderDemo (Flagship)
+**Class:** `com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo`
+
+Demonstrates the **Hybrid Virtualization Architecture** for AI chat scenarios.
+- **Features**:
+    - Simulates an LLM stream (Token-by-token or Chunk-by-chunk).
+    - Uses `VirtualJavaFxStreamRenderer` for high performance.
+    - Shows "Active Stream" (typing effect) vs "History" (virtualized list) transition.
+    - Supports Fast/Slow stream simulation.
+
+### 2. VirtualListDemo (Stress Test)
+**Class:** `com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo`
+
+A stress test application for the renderer.
+- **Content**: Loads a massive Markdown document (`huge_stress_test.md`, ~4000 lines).
+- **Purpose**: Verifies that the renderer does not leak memory or lag when handling very large documents.
+- **Key Metric**: Scroll smoothness (FPS) and memory stability after rendering thousands of blocks.
+
+### 3. TypewriterPreviewDemo
+**Class:** `com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo`
+
+A simple dual-pane previewer.
+- Left pane: Raw Markdown text input.
+- Right pane: Real-time rendered preview.
+- Demonstrates basic incremental parsing.
+
+## Running Demos via Maven
+
+You can run any demo using the `exec:java` goal from the project root:
+
+```bash
+# Run VirtualStreamRenderDemo
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
+
+# Run VirtualListDemo
+mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
+```

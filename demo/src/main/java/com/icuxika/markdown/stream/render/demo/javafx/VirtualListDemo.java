@@ -6,8 +6,6 @@ import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.MarkdownListCell;
 import com.icuxika.markdown.stream.render.javafx.renderer.VirtualJavaFxStreamRenderer;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +15,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -25,6 +24,10 @@ import javafx.stage.Stage;
 
 /**
  * Virtual List Demo.
+ * <p>
+ * Demonstrates high-performance rendering of large Markdown documents using
+ * JavaFX ListView virtualization.
+ * </p>
  */
 public class VirtualListDemo extends Application {
 
@@ -32,41 +35,62 @@ public class VirtualListDemo extends Application {
 	private ScheduledExecutorService executor;
 	private ListView<Node> listView;
 	private ObservableList<Node> markdownNodes;
+	private Label statusLabel;
+	private VBox activeStreamBox;
+
+	private VirtualJavaFxStreamRenderer streamRenderer;
 
 	@Override
 	public void start(Stage primaryStage) {
 		// 1. Data Model
 		markdownNodes = FXCollections.observableArrayList();
 
-		// 2. Virtualized ListView
+		// 2. Layout & Containers
+		javafx.scene.layout.StackPane stackContent = new javafx.scene.layout.StackPane();
+		stackContent.setStyle("-fx-background-color: transparent;");
+
+		// ListView (History)
 		listView = new ListView<>(markdownNodes);
 		VBox.setVgrow(listView, Priority.ALWAYS);
-
-		// Remove default ListView border/background to blend with markdown styles
-		// Also remove padding that might conflict with markdown-root padding
 		listView.setStyle(
 				"-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-padding: 0;");
+		// Add bottom padding to ListView to avoid content being hidden by
+		// activeStreamBox
+		listView.setPadding(new javafx.geometry.Insets(0, 0, 200, 0));
 
 		// 3. Custom Cell Factory
 		listView.setCellFactory(param -> new MarkdownListCell());
 
+		// Active Stream Box (Overlay at bottom)
+		activeStreamBox = new VBox();
+		activeStreamBox.setStyle(
+				"-fx-background-color: rgba(255, 255, 255, 0.8); -fx-padding: 10px; -fx-background-radius: 5px;");
+		activeStreamBox.setFillWidth(true);
+		activeStreamBox.setMaxHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
+
+		// Align ActiveBox to bottom
+		javafx.scene.layout.StackPane.setAlignment(activeStreamBox, javafx.geometry.Pos.BOTTOM_CENTER);
+		javafx.scene.layout.StackPane.setMargin(activeStreamBox, new javafx.geometry.Insets(0, 0, 10, 0));
+
+		stackContent.getChildren().addAll(listView, activeStreamBox);
+
 		// 4. Controls
-		Button startBtn = new Button("Start Streaming");
-		startBtn.setOnAction(e -> startStreaming());
+		Button startBtn = new Button("Start Stress Test (1000 Sections)");
+		startBtn.setOnAction(e -> startStressTest());
+
+		statusLabel = new Label("Ready");
 
 		// 5. Layout
-		VBox topBox = new VBox(startBtn);
+		VBox topBox = new VBox(10, startBtn, statusLabel);
+		topBox.setStyle("-fx-padding: 10; -fx-background-color: #f0f0f0;");
+
 		BorderPane root = new BorderPane();
 		root.setTop(topBox);
-		root.setCenter(listView);
+		root.setCenter(stackContent);
 
-		Scene scene = new Scene(root, 800, 600);
+		Scene scene = new Scene(root, 1000, 800);
 
 		// Disable selection visual feedback via CSS
-		// We add a stylesheet to the scene or apply inline styles to cells?
-		// Inline style on ListView works for the container, but Cell styles are in
-		// .list-cell
-		// Let's add a custom stylesheet for this demo to override list-cell selection
 		scene.getStylesheets().add("data:text/css,"
 				+ ".list-cell:filled:selected, .list-cell:filled:selected:focused { "
 				+ "-fx-background-color: transparent; "
@@ -85,84 +109,94 @@ public class VirtualListDemo extends Application {
 
 	private void initParser() {
 		// Setup Parser
-		VirtualJavaFxStreamRenderer renderer = new VirtualJavaFxStreamRenderer(markdownNodes, () -> {
+		streamRenderer = new VirtualJavaFxStreamRenderer(markdownNodes, activeStreamBox, () -> {
 			// Request refresh of visible cells
+			// Note: We don't need to auto-scroll in stress test usually, but for demo it's
+			// nice.
+			// However, auto-scrolling can impact performance measurement.
 			Platform.runLater(() -> {
-				listView.refresh();
-				// Auto-scroll to bottom
-				listView.scrollTo(markdownNodes.size() - 1);
+				// listView.refresh();
+				// Optional: Auto-scroll
+				if (!markdownNodes.isEmpty()) {
+					listView.scrollTo(markdownNodes.size() - 1);
+				}
 			});
 		});
 
-		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(renderer);
+		StreamMarkdownParser.Builder builder = StreamMarkdownParser.builder().renderer(streamRenderer);
 		CoreExtension.addDefaults(builder);
 		parser = builder.build();
 	}
 
-	private void startStreaming() {
+	private void startStressTest() {
 		markdownNodes.clear();
-		// Re-initialize parser to clear state
 		initParser();
 
-		String content = loadTemplate();
+		statusLabel.setText("Generating content...");
+
+		// Load content from file instead of generating synthetic data
+		String content = "";
+		try (java.io.InputStream is = getClass().getResourceAsStream("/huge_stress_test.md")) {
+			if (is != null) {
+				content = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+			} else {
+				// Fallback to comprehensive.md if huge one not found
+				try (java.io.InputStream is2 = getClass().getResourceAsStream("/comprehensive.md")) {
+					if (is2 != null) {
+						content = new String(is2.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+					} else {
+						content = "# Error\n\nNo template found.";
+					}
+				}
+			}
+		} catch (Exception e) {
+			content = "# Error\n\n" + e.getMessage();
+		}
 		final String finalContent = content;
+
+		statusLabel.setText("Streaming content...");
 
 		if (executor != null && !executor.isShutdown()) {
 			executor.shutdownNow();
 		}
 		executor = Executors.newSingleThreadScheduledExecutor();
 
+		// Simulate very fast network stream
 		Runnable task = new Runnable() {
 			int index = 0;
-			java.util.Random random = new java.util.Random();
+			final int CHUNK_SIZE = 1024; // 1KB chunks
 
 			@Override
 			public void run() {
-				if (index < finalContent.length()) {
-					int remaining = finalContent.length() - index;
-					int chunkSize = random.nextInt(50) + 10; // 10-60 chars
-					if (chunkSize > remaining) {
-						chunkSize = remaining;
-					}
+				try {
+					if (index < finalContent.length()) {
+						int end = Math.min(index + CHUNK_SIZE, finalContent.length());
+						String chunk = finalContent.substring(index, end);
+						index = end;
 
-					String chunk = finalContent.substring(index, index + chunkSize);
-					index += chunkSize;
-
-					try {
 						parser.push(chunk);
-						// Force refresh periodically to show progress within blocks?
-						// Since we can't hook into internal parser state easily,
-						// we rely on renderer.renderNode() which is called on block finalize.
-						// However, we can force a refresh of the ListView here too?
-						// No, refreshing ListView won't help if Node content hasn't changed.
-						// And Node content (Text) is only added on finalize.
-						// So streaming char-by-char is limited by block boundaries in this
-						// architecture.
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 
-					int delay = random.nextInt(20) + 5; // 5-25ms
-					executor.schedule(this, delay, TimeUnit.MILLISECONDS);
-				} else {
-					parser.close();
-					executor.shutdown();
+						Platform.runLater(
+								() -> statusLabel
+										.setText("Processed: " + index + " / " + finalContent.length() + " chars"));
+
+						// Very short delay to simulate network but keep it fast
+						executor.schedule(this, 1, TimeUnit.MILLISECONDS);
+					} else {
+						parser.close();
+						if (streamRenderer != null) {
+							streamRenderer.finish();
+						}
+						Platform.runLater(() -> statusLabel.setText("Done! Items: " + markdownNodes.size()));
+						executor.shutdown();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		};
 
 		executor.schedule(task, 0, TimeUnit.MILLISECONDS);
-	}
-
-	private String loadTemplate() {
-		try (InputStream is = getClass().getResourceAsStream("/comprehensive.md")) {
-			if (is != null) {
-				return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "# Error\nCould not load template.";
 	}
 
 	@Override
@@ -173,12 +207,6 @@ public class VirtualListDemo extends Application {
 		}
 	}
 
-	/**
-	 * Main.
-	 *
-	 * @param args
-	 *            args
-	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
