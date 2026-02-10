@@ -1,9 +1,12 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
+import com.icuxika.markdown.stream.render.core.Extension;
+import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
 import com.icuxika.markdown.stream.render.core.ast.BulletList;
 import com.icuxika.markdown.stream.render.core.ast.Code;
 import com.icuxika.markdown.stream.render.core.ast.CodeBlock;
+import com.icuxika.markdown.stream.render.core.ast.CustomNode;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.ast.Emphasis;
 import com.icuxika.markdown.stream.render.core.ast.HardBreak;
@@ -155,6 +158,21 @@ public class JavaFxRenderer implements MarkdownRenderer, JavaFxNodeRendererConte
 		 */
 		public Builder nodeRendererFactory(JavaFxNodeRendererFactory factory) {
 			this.nodeRendererFactories.add(factory);
+			return this;
+		}
+
+		/**
+		 * 注册扩展插件。
+		 *
+		 * @param extensions
+		 *            扩展列表
+		 */
+		public Builder extensions(Iterable<? extends Extension> extensions) {
+			for (Extension extension : extensions) {
+				if (extension instanceof JavaFxRendererExtension) {
+					((JavaFxRendererExtension) extension).extend(this);
+				}
+			}
 			return this;
 		}
 
@@ -378,6 +396,15 @@ public class JavaFxRenderer implements MarkdownRenderer, JavaFxNodeRendererConte
 
 	@Override
 	public void visit(Strikethrough node) {
+		render(node);
+	}
+
+	@Override
+	public void visit(CustomNode node) {
+		render(node);
+	}
+
+	public void visit(Block node) {
 		render(node);
 	}
 }

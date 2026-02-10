@@ -50,4 +50,6 @@ public interface Visitor {
 	void visit(TableCell tableCell);
 
 	void visit(Strikethrough strikethrough);
+
+	void visit(CustomNode customNode);
 }

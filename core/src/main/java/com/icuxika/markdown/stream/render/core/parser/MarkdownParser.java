@@ -1,5 +1,6 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
+import com.icuxika.markdown.stream.render.core.Extension;
 import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
 import com.icuxika.markdown.stream.render.core.ast.BulletList;
@@ -102,6 +103,21 @@ public class MarkdownParser {
 		 */
 		public Builder inlineParserFactory(InlineContentParserFactory factory) {
 			this.inlineParserFactories.add(factory);
+			return this;
+		}
+
+		/**
+		 * 注册扩展插件。
+		 *
+		 * @param extensions
+		 *            扩展列表
+		 */
+		public Builder extensions(Iterable<? extends Extension> extensions) {
+			for (Extension extension : extensions) {
+				if (extension instanceof ParserExtension) {
+					((ParserExtension) extension).extend(this);
+				}
+			}
 			return this;
 		}
 

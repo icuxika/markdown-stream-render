@@ -158,6 +158,11 @@ public class StreamingOutputTest {
 				visitChildren(strikethrough);
 			}
 
+			@Override
+			public void visit(CustomNode customNode) {
+				visitChildren(customNode);
+			}
+
 			private void visitChildren(Node parent) {
 				Node child = parent.getFirstChild();
 				while (child != null) {

@@ -1,9 +1,9 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import com.icuxika.markdown.stream.render.core.CoreExtension;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javafx.application.Application;
@@ -175,12 +175,23 @@ public class BatchRenderDemo extends Application {
 	}
 
 	private void render(String markdown, ScrollPane outputScroll) {
-		MarkdownParser.Builder parserBuilder = MarkdownParser.builder();
-		CoreExtension.addDefaults(parserBuilder);
-		MarkdownParser parser = parserBuilder.build();
+		// Use the new extension mechanism
+		List<com.icuxika.markdown.stream.render.core.Extension> extensions = java.util.Arrays.asList(
+				com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionExtension.create(),
+				com.icuxika.markdown.stream.render.core.extension.math.MathExtension.create(),
+				com.icuxika.markdown.stream.render.html.extension.admonition.AdmonitionHtmlExtension.create(),
+				com.icuxika.markdown.stream.render.html.extension.math.MathHtmlExtension.create(),
+				com.icuxika.markdown.stream.render.javafx.extension.admonition.AdmonitionJavaFxExtension.create(),
+				com.icuxika.markdown.stream.render.javafx.extension.math.MathJavaFxExtension.create());
 
-		// JavaFxRenderer loads default extensions automatically in its constructor
-		JavaFxRenderer renderer = new JavaFxRenderer();
+		MarkdownParser parser = MarkdownParser.builder()
+				.extensions(extensions)
+				.build();
+
+		JavaFxRenderer renderer = JavaFxRenderer.builder()
+				.extensions(extensions)
+				.build();
+
 		this.renderer = renderer;
 
 		try {
