@@ -7,7 +7,9 @@ module com.icuxika.markdown.stream.render.demo {
 
 	requires javafx.controls;
 	requires javafx.graphics;
+	requires javafx.swing;
 	requires jfx.incubator.richtext;
+	requires jlatexmath;
 
 	requires java.datatransfer;
 	requires java.net.http;

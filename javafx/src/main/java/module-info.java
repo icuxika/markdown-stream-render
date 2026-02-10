@@ -3,6 +3,9 @@ module com.icuxika.markdown.stream.render.javafx {
 	requires javafx.base;
 	requires javafx.controls;
 	requires javafx.graphics;
+	requires javafx.swing;
+	requires java.desktop;
+	requires jlatexmath;
 
 	exports com.icuxika.markdown.stream.render.javafx;
 	exports com.icuxika.markdown.stream.render.javafx.renderer;
