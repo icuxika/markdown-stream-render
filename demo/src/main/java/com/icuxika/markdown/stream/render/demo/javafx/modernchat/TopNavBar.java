@@ -18,6 +18,7 @@ public class TopNavBar extends HBox {
 	private final ToggleGroup modelToggleGroup = new ToggleGroup();
 	private Button themeToggleButton;
 	private Consumer<Void> onThemeToggle;
+	private Runnable onPromptLibraryClick;
 
 	public TopNavBar() {
 		initializeUI();
@@ -85,6 +86,14 @@ public class TopNavBar extends HBox {
 		HBox section = new HBox(12);
 		section.setAlignment(Pos.CENTER_RIGHT);
 
+		Button promptLibraryButton = new Button("📚");
+		promptLibraryButton.getStyleClass().add("theme-toggle-button");
+		promptLibraryButton.setOnAction(e -> {
+			if (onPromptLibraryClick != null) {
+				onPromptLibraryClick.run();
+			}
+		});
+
 		themeToggleButton = new Button("🌙");
 		themeToggleButton.getStyleClass().add("theme-toggle-button");
 		themeToggleButton.setOnAction(e -> {
@@ -96,7 +105,7 @@ public class TopNavBar extends HBox {
 		Button shareButton = createActionButton("Share");
 		Button menuButton = createActionButton("⋮");
 
-		section.getChildren().addAll(themeToggleButton, shareButton, menuButton);
+		section.getChildren().addAll(promptLibraryButton, themeToggleButton, shareButton, menuButton);
 		return section;
 	}
 
@@ -119,5 +128,9 @@ public class TopNavBar extends HBox {
 
 	public void setOnThemeToggle(Consumer<Void> callback) {
 		this.onThemeToggle = callback;
+	}
+
+	public void setOnPromptLibraryClick(Runnable callback) {
+		this.onPromptLibraryClick = callback;
 	}
 }

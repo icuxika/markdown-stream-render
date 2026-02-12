@@ -4,6 +4,7 @@ import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class ModernAiChatDemo extends Application {
@@ -15,6 +16,9 @@ public class ModernAiChatDemo extends Application {
 
 	private SidebarPane sidebarPane;
 	private MainContentPane mainContentPane;
+	private StackPane overlayContainer;
+	private SettingsPane settingsPane;
+	private PromptLibraryPane promptLibraryPane;
 	private Scene scene;
 	private boolean isDarkMode = false;
 
@@ -33,7 +37,11 @@ public class ModernAiChatDemo extends Application {
 		root.setLeft(sidebarPane);
 		root.setCenter(mainContentPane);
 
-		scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		overlayContainer = new StackPane();
+		overlayContainer.getStyleClass().add("overlay-container");
+		overlayContainer.getChildren().add(root);
+
+		scene = new Scene(overlayContainer, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		MarkdownStyles.applyBase(scene, true);
 		scene.getStylesheets().add(getClass().getResource("/css/modern-chat.css").toExternalForm());
 
@@ -45,6 +53,8 @@ public class ModernAiChatDemo extends Application {
 
 		sidebarPane.setOnNewChat(() -> mainContentPane.clearChat());
 		sidebarPane.setOnChatSelected(index -> mainContentPane.loadChatHistory(index));
+		sidebarPane.setOnSettingsClick(this::showSettings);
+		mainContentPane.setOnPromptLibraryClick(this::showPromptLibrary);
 	}
 
 	private void toggleTheme() {
@@ -55,5 +65,57 @@ public class ModernAiChatDemo extends Application {
 			scene.getRoot().getStyleClass().remove("dark-theme");
 		}
 		mainContentPane.updateThemeIcon(isDarkMode);
+	}
+
+	private void showSettings() {
+		if (settingsPane == null) {
+			settingsPane = new SettingsPane();
+			settingsPane.setOnThemeChange(this::setTheme);
+			settingsPane.setOnClose(this::hideOverlay);
+		}
+
+		showOverlay(settingsPane);
+	}
+
+	private void showPromptLibrary() {
+		if (promptLibraryPane == null) {
+			promptLibraryPane = new PromptLibraryPane();
+			promptLibraryPane.setOnClose(this::hideOverlay);
+			promptLibraryPane.setOnPromptSelected(prompt -> {
+				mainContentPane.setPromptText(prompt.title + "\n\n" + prompt.description);
+				hideOverlay();
+			});
+		}
+
+		showOverlay(promptLibraryPane);
+	}
+
+	private void showOverlay(javafx.scene.Node overlay) {
+		if (overlayContainer.getChildren().size() > 1) {
+			overlayContainer.getChildren().remove(1);
+		}
+
+		StackPane overlayWrapper = new StackPane();
+		overlayWrapper.getStyleClass().add("overlay-wrapper");
+		overlayWrapper.setOnMouseClicked(e -> {
+			if (e.getTarget() == overlayWrapper) {
+				hideOverlay();
+			}
+		});
+
+		overlayWrapper.getChildren().add(overlay);
+		overlayContainer.getChildren().add(overlayWrapper);
+	}
+
+	private void hideOverlay() {
+		if (overlayContainer.getChildren().size() > 1) {
+			overlayContainer.getChildren().remove(overlayContainer.getChildren().size() - 1);
+		}
+	}
+
+	private void setTheme(boolean dark) {
+		if (dark != isDarkMode) {
+			toggleTheme();
+		}
 	}
 }

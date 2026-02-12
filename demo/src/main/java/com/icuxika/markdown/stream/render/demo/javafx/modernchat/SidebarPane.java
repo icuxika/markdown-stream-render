@@ -25,6 +25,7 @@ public class SidebarPane extends VBox {
 
 	private Runnable onNewChat;
 	private Consumer<Integer> onChatSelected;
+	private Runnable onSettingsClick;
 
 	public SidebarPane() {
 		initializeUI();
@@ -137,6 +138,11 @@ public class SidebarPane extends VBox {
 		text.getStyleClass().add("sidebar-item-text");
 
 		item.getChildren().addAll(icon, text);
+		item.setOnMouseClicked(e -> {
+			if (onSettingsClick != null) {
+				onSettingsClick.run();
+			}
+		});
 		return item;
 	}
 
@@ -196,6 +202,10 @@ public class SidebarPane extends VBox {
 
 	public void setOnChatSelected(Consumer<Integer> callback) {
 		this.onChatSelected = callback;
+	}
+
+	public void setOnSettingsClick(Runnable callback) {
+		this.onSettingsClick = callback;
 	}
 
 	private static class ChatItem extends HBox {

@@ -538,3 +538,432 @@
 .toggle-button {
     -fx-cursor: hand;
 }
+
+/* ========================================
+   Overlay Container
+   ======================================== */
+.overlay-container {
+    -fx-background-color: transparent;
+}
+
+.overlay-wrapper {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   Settings Pane
+   ======================================== */
+.settings-pane {
+    -fx-background-color: -sidebar-bg;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-pref-width: 700px;
+    -fx-pref-height: 600px;
+    -fx-max-width: 700px;
+    -fx-max-height: 600px;
+}
+
+.settings-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.settings-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.settings-close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 18px;
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.settings-close-button:hover {
+    -fx-background-color: -hover-bg;
+}
+
+.settings-nav-panel {
+    -fx-background-color: -step-card-bg;
+    -fx-pref-width: 180px;
+    -fx-min-width: 180px;
+}
+
+.settings-nav {
+    -fx-padding: 8px;
+}
+
+.settings-nav-item {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+    -fx-padding: 12px 16px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.settings-nav-item:hover {
+    -fx-background-color: -hover-bg;
+}
+
+.settings-nav-item-selected {
+    -fx-background-color: -primary-selected;
+    -fx-text-fill: white;
+}
+
+.settings-content {
+    -fx-padding: 0;
+}
+
+.settings-section {
+    -fx-padding: 24px;
+}
+
+.settings-section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 0 0 16px 0;
+}
+
+.settings-row {
+    -fx-padding: 12px 0;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.settings-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+}
+
+.settings-value-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -text-secondary;
+    -fx-min-width: 40px;
+}
+
+.settings-combo {
+    -fx-background-color: -input-bg;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8px 12px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+}
+
+.settings-slider {
+    -fx-background-color: transparent;
+}
+
+.settings-slider .track {
+    -fx-background-color: -hover-bg;
+    -fx-background-radius: 4px;
+}
+
+.settings-slider .thumb {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 8px;
+}
+
+.settings-checkbox {
+    -fx-text-fill: -text-primary;
+}
+
+.settings-checkbox .box {
+    -fx-background-color: -input-bg;
+    -fx-background-radius: 4px;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1px;
+}
+
+.settings-checkbox:selected .box {
+    -fx-background-color: -primary-color;
+    -fx-border-color: -primary-color;
+}
+
+.settings-style-button {
+    -fx-background-color: -input-bg;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+
+.settings-style-button-selected {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-border-color: -primary-color;
+}
+
+.settings-danger-button {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 16px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.settings-danger-button:hover {
+    -fx-background-color: #DC2626;
+}
+
+.shortcut-key {
+    -fx-font-size: 12px;
+    -fx-font-family: "SF Mono", Monaco, monospace;
+    -fx-text-fill: -text-secondary;
+    -fx-background-color: -input-bg;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 8px;
+}
+
+.model-card {
+    -fx-background-color: -step-card-bg;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: -card-border-color;
+    -fx-border-width: 1px;
+}
+
+.model-icon {
+    -fx-font-size: 24px;
+}
+
+.model-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+}
+
+.model-status-connected {
+    -fx-font-size: 12px;
+    -fx-text-fill: #10B981;
+}
+
+.model-status-disconnected {
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-muted;
+}
+
+.model-default-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: white;
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 8px;
+}
+
+.model-config-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -primary-color;
+    -fx-font-size: 13px;
+    -fx-padding: 6px 12px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: -primary-color;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+
+.model-config-button:hover {
+    -fx-background-color: -primary-light;
+}
+
+.about-content {
+    -fx-padding: 16px 0;
+}
+
+.about-app-name {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.about-version {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+}
+
+.about-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+    -fx-line-spacing: 4px;
+}
+
+/* ========================================
+   Prompt Library Pane
+   ======================================== */
+.prompt-library-pane {
+    -fx-background-color: -sidebar-bg;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-pref-width: 900px;
+    -fx-pref-height: 650px;
+    -fx-max-width: 900px;
+    -fx-max-height: 650px;
+}
+
+.prompt-library-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.prompt-library-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.prompt-search-field {
+    -fx-background-color: -input-bg;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8px 16px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-prompt-text-fill: -text-muted;
+}
+
+.new-prompt-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.new-prompt-button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.prompt-library-nav {
+    -fx-background-color: -step-card-bg;
+    -fx-pref-width: 200px;
+    -fx-min-width: 200px;
+}
+
+.prompt-category-list {
+    -fx-padding: 8px;
+}
+
+.prompt-category-item {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.prompt-category-item:hover {
+    -fx-background-color: -hover-bg;
+}
+
+.prompt-category-item-selected {
+    -fx-background-color: -primary-selected;
+}
+
+.prompt-category-name {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+}
+
+.prompt-category-item-selected .prompt-category-name {
+    -fx-text-fill: white;
+}
+
+.prompt-category-count {
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-muted;
+    -fx-background-color: -hover-bg;
+    -fx-background-radius: 10px;
+    -fx-padding: 2px 8px;
+}
+
+.prompt-grid {
+    -fx-padding: 24px;
+}
+
+.prompt-card {
+    -fx-background-color: -step-card-bg;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: -card-border-color;
+    -fx-border-width: 1px;
+    -fx-cursor: default;
+}
+
+.prompt-card:hover {
+    -fx-background-color: derive(-step-card-bg, 5%);
+}
+
+.prompt-category-tag {
+    -fx-font-size: 11px;
+    -fx-font-weight: 500;
+    -fx-text-fill: white;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 8px;
+}
+
+.prompt-favorite-icon {
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.prompt-card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+}
+
+.prompt-card-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: -text-secondary;
+    -fx-line-spacing: 2px;
+}
+
+.use-prompt-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 6px 12px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.use-prompt-button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.prompt-menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 16px;
+    -fx-padding: 4px 8px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.prompt-menu-button:hover {
+    -fx-background-color: -hover-bg;
+}

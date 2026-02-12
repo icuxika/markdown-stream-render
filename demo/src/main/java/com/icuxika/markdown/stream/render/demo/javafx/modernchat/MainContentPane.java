@@ -176,6 +176,14 @@ public class MainContentPane extends BorderPane {
 		topNavBar.updateThemeIcon(isDarkMode);
 	}
 
+	public void setOnPromptLibraryClick(Runnable callback) {
+		topNavBar.setOnPromptLibraryClick(callback);
+	}
+
+	public void setPromptText(String text) {
+		inputArea.setText(text);
+	}
+
 	private static class ChatHistory {
 		private final String title;
 		private final List<Message> messages = new ArrayList<>();

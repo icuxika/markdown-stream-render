@@ -129,4 +129,10 @@ public class InputArea extends VBox {
 	public void focusInput() {
 		textArea.requestFocus();
 	}
+
+	public void setText(String text) {
+		textArea.setText(text);
+		textArea.requestFocus();
+		textArea.positionCaret(text.length());
+	}
 }
