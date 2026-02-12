@@ -1,0 +1,972 @@
+/*
+ * ChirpChat - Twitter Style Chat Application
+ * Supports Light and Dark themes
+ */
+
+/* ========================================
+   Root Variables - Light Theme (Default)
+   ======================================== */
+.root-container {
+    -fx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+    
+    -bg-primary: #FFFFFF;
+    -bg-secondary: #F7F9F9;
+    -bg-tertiary: #EFF3F4;
+    -bg-hover: #E7E9EA;
+    
+    -text-primary: #0F1419;
+    -text-secondary: #536471;
+    -text-muted: #71767B;
+    -text-link: #1D9BF0;
+    
+    -primary-color: #1DA1F2;
+    -primary-hover: #1A8CD8;
+    -primary-light: #E8F5FE;
+    
+    -border-color: #EFF3F4;
+    -border-strong: #CFD9DE;
+    
+    -success-color: #00BA7C;
+    -danger-color: #F4212E;
+    -warning-color: #FFD400;
+    
+    -avatar-size-sm: 32px;
+    -avatar-size-md: 48px;
+    -avatar-size-lg: 64px;
+    
+    -radius-sm: 4px;
+    -radius-md: 8px;
+    -radius-lg: 16px;
+    -radius-xl: 24px;
+    -radius-full: 9999px;
+}
+
+/* ========================================
+   Dark Theme Variables
+   ======================================== */
+.root-container.dark-theme {
+    -bg-primary: #000000;
+    -bg-secondary: #16181C;
+    -bg-tertiary: #202327;
+    -bg-hover: #1D1F23;
+    
+    -text-primary: #E7E9EA;
+    -text-secondary: #8B98A5;
+    -text-muted: #71767B;
+    -text-link: #1D9BF0;
+    
+    -primary-color: #1D9BF0;
+    -primary-hover: #1A8CD8;
+    -primary-light: #1D3A4D;
+    
+    -border-color: #2F3336;
+    -border-strong: #38444D;
+}
+
+/* ========================================
+   Auth Window Styles
+   ======================================== */
+.auth-container {
+    -fx-background-color: -bg-primary;
+}
+
+.auth-brand-section {
+    -fx-background-color: -primary-color;
+}
+
+.auth-brand-logo {
+    -fx-font-size: 48px;
+    -fx-text-fill: white;
+}
+
+.auth-brand-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.auth-brand-subtitle {
+    -fx-font-size: 18px;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+}
+
+.auth-form-section {
+    -fx-background-color: -bg-primary;
+    -fx-padding: 60px;
+}
+
+.auth-app-name {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -primary-color;
+}
+
+.auth-welcome-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 16px 0 32px 0;
+}
+
+.auth-input {
+    -fx-background-color: -bg-primary;
+    -fx-background-radius: -radius-xl;
+    -fx-border-radius: -radius-xl;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1px;
+    -fx-padding: 16px 20px;
+    -fx-font-size: 15px;
+    -fx-text-fill: -text-primary;
+    -fx-prompt-text-fill: -text-muted;
+    -fx-pref-height: 56px;
+}
+
+.auth-input:focused {
+    -fx-border-color: -primary-color;
+    -fx-border-width: 2px;
+}
+
+.auth-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 12px 24px;
+    -fx-pref-height: 48px;
+    -fx-cursor: hand;
+}
+
+.auth-button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.auth-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.auth-outline-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1px;
+    -fx-padding: 12px 24px;
+    -fx-pref-height: 48px;
+    -fx-cursor: hand;
+}
+
+.auth-outline-button:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.auth-link {
+    -fx-text-fill: -text-link;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.auth-link:hover {
+    -fx-underline: true;
+}
+
+.auth-divider {
+    -fx-background-color: -border-color;
+    -fx-pref-height: 1px;
+}
+
+.auth-divider-text {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 13px;
+    -fx-background-color: -bg-primary;
+    -fx-padding: 0 16px;
+}
+
+.auth-feature-item {
+    -fx-padding: 8px 0;
+}
+
+.auth-feature-icon {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}
+
+.auth-feature-text {
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+}
+
+/* ========================================
+   Main Window Styles
+   ======================================== */
+.main-container {
+    -fx-background-color: -bg-primary;
+}
+
+/* Left Sidebar */
+.left-sidebar {
+    -fx-background-color: -bg-primary;
+    -fx-padding: 0 12px;
+    -fx-pref-width: 260px;
+    -fx-min-width: 260px;
+    -fx-border-color: transparent -border-color transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.app-logo {
+    -fx-font-size: 28px;
+    -fx-padding: 8px;
+    -fx-cursor: hand;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 12px 16px;
+    -fx-spacing: 16px;
+    -fx-cursor: hand;
+}
+
+.nav-item:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.nav-item-active {
+    -fx-background-color: -primary-light;
+    -fx-text-fill: -primary-color;
+}
+
+.nav-icon {
+    -fx-font-size: 20px;
+    -fx-text-fill: -text-primary;
+}
+
+.nav-text {
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.nav-badge {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 2px 8px;
+    -fx-min-width: 20px;
+}
+
+.post-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 14px 32px;
+    -fx-pref-width: 230px;
+    -fx-cursor: hand;
+}
+
+.post-button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.user-card {
+    -fx-background-color: transparent;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 12px;
+    -fx-spacing: 12px;
+    -fx-cursor: hand;
+}
+
+.user-card:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.user-avatar {
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+}
+
+.user-avatar-sm { -fx-pref-size: 32px; -fx-min-size: 32px; -fx-max-size: 32px; }
+.user-avatar-md { -fx-pref-size: 48px; -fx-min-size: 48px; -fx-max-size: 48px; }
+.user-avatar-lg { -fx-pref-size: 64px; -fx-min-size: 64px; -fx-max-size: 64px; }
+
+.user-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.user-handle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+/* Center Content */
+.center-content {
+    -fx-background-color: -bg-primary;
+    -fx-border-color: transparent -border-color transparent -border-color;
+    -fx-border-width: 0 1px 1px 1px;
+}
+
+.content-header {
+    -fx-background-color: -bg-primary;
+    -fx-padding: 0 16px;
+    -fx-pref-height: 53px;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.content-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-primary;
+}
+
+/* Post Composer */
+.post-composer {
+    -fx-padding: 16px;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-spacing: 12px;
+}
+
+.composer-input {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 19px;
+    -fx-prompt-text-fill: -text-muted;
+    -fx-wrap-text: true;
+    -fx-pref-row-count: 3;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.composer-input:focused {
+    -fx-border-color: transparent;
+}
+
+.composer-toolbar {
+    -fx-spacing: 8px;
+    -fx-padding: 8px 0 0 0;
+}
+
+.composer-icon {
+    -fx-background-color: transparent;
+    -fx-text-fill: -primary-color;
+    -fx-font-size: 18px;
+    -fx-padding: 8px;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-cursor: hand;
+}
+
+.composer-icon:hover {
+    -fx-background-color: -primary-light;
+}
+
+.chirp-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 10px 16px;
+    -fx-cursor: hand;
+}
+
+.chirp-button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.chirp-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+/* Post Card */
+.post-card {
+    -fx-padding: 16px;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-spacing: 12px;
+    -fx-cursor: hand;
+}
+
+.post-card:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.post-header {
+    -fx-spacing: 4px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.post-author-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.post-author-handle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.post-time {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.post-content {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-line-spacing: 4px;
+    -fx-wrap-text: true;
+}
+
+.post-image {
+    -fx-background-radius: -radius-lg;
+    -fx-border-radius: -radius-lg;
+}
+
+.post-actions {
+    -fx-spacing: 4px;
+    -fx-padding: 8px 0 0 0;
+    -fx-max-width: 425px;
+}
+
+.action-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 12px;
+    -fx-spacing: 4px;
+    -fx-padding: 8px;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: -primary-light;
+    -fx-text-fill: -primary-color;
+}
+
+.action-button:hover .action-icon {
+    -fx-text-fill: -primary-color;
+}
+
+.action-icon {
+    -fx-font-size: 16px;
+}
+
+.action-count {
+    -fx-font-size: 13px;
+}
+
+.action-liked {
+    -fx-text-fill: -danger-color;
+}
+
+.action-liked .action-icon {
+    -fx-text-fill: -danger-color;
+}
+
+.action-retweeted {
+    -fx-text-fill: -success-color;
+}
+
+.action-retweeted .action-icon {
+    -fx-text-fill: -success-color;
+}
+
+/* Right Sidebar */
+.right-sidebar {
+    -fx-background-color: -bg-primary;
+    -fx-padding: 0 24px;
+    -fx-pref-width: 350px;
+    -fx-min-width: 350px;
+}
+
+.search-box {
+    -fx-background-color: -bg-tertiary;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 12px 20px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-prompt-text-fill: -text-muted;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.search-box:focused {
+    -fx-background-color: -bg-primary;
+    -fx-border-color: -primary-color;
+    -fx-border-width: 1px;
+}
+
+.sidebar-card {
+    -fx-background-color: -bg-tertiary;
+    -fx-background-radius: -radius-lg;
+    -fx-border-radius: -radius-lg;
+    -fx-padding: 12px 16px;
+    -fx-spacing: 12px;
+}
+
+.sidebar-card-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-primary;
+}
+
+.trend-item {
+    -fx-padding: 12px 0;
+    -fx-cursor: hand;
+}
+
+.trend-item:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.trend-category {
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-muted;
+}
+
+.trend-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.trend-count {
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-muted;
+}
+
+.follow-suggestion {
+    -fx-padding: 12px 0;
+    -fx-spacing: 12px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.follow-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.dark-theme .follow-button {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+
+.root-container:not(.dark-theme) .follow-button {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+.follow-button:hover {
+    -fx-opacity: 0.9;
+}
+
+/* ========================================
+   Messages Styles
+   ======================================== */
+.messages-container {
+    -fx-background-color: -bg-primary;
+}
+
+.conversation-list {
+    -fx-background-color: -bg-primary;
+    -fx-pref-width: 350px;
+    -fx-min-width: 350px;
+    -fx-border-color: transparent -border-color transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.conversation-header {
+    -fx-padding: 16px;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.conversation-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-primary;
+}
+
+.conversation-item {
+    -fx-padding: 12px 16px;
+    -fx-spacing: 12px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.conversation-item:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.conversation-item-active {
+    -fx-background-color: -primary-light;
+}
+
+.conversation-preview-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.conversation-preview-handle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.conversation-preview-message {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.conversation-time {
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-muted;
+}
+
+.unread-dot {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-pref-size: 8px;
+    -fx-min-size: 8px;
+    -fx-max-size: 8px;
+}
+
+/* Chat Area */
+.chat-area {
+    -fx-background-color: -bg-primary;
+}
+
+.chat-header {
+    -fx-padding: 16px;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-spacing: 12px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.chat-messages {
+    -fx-padding: 16px;
+    -fx-spacing: 8px;
+}
+
+.message-bubble {
+    -fx-padding: 12px 16px;
+    -fx-background-radius: -radius-lg;
+    -fx-border-radius: -radius-lg;
+    -fx-max-width: 400px;
+}
+
+.message-received {
+    -fx-background-color: -bg-tertiary;
+}
+
+.message-sent {
+    -fx-background-color: -primary-color;
+}
+
+.message-sent .message-text {
+    -fx-text-fill: white;
+}
+
+.message-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-wrap-text: true;
+}
+
+.message-time {
+    -fx-font-size: 11px;
+    -fx-text-fill: -text-muted;
+}
+
+.message-input-area {
+    -fx-padding: 16px;
+    -fx-border-color: -border-color transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+    -fx-spacing: 12px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.message-input {
+    -fx-background-color: -bg-tertiary;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-padding: 12px 16px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-prompt-text-fill: -text-muted;
+    -fx-border-color: transparent;
+}
+
+.send-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 10px;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-cursor: hand;
+}
+
+.send-button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+/* ========================================
+   Profile Styles
+   ======================================== */
+.profile-cover {
+    -fx-background-color: -bg-tertiary;
+    -fx-pref-height: 200px;
+    -fx-background-radius: 0;
+}
+
+.profile-avatar-container {
+    -fx-padding: 0 16px;
+    -fx-translate-y: -32px;
+}
+
+.profile-avatar-lg {
+    -fx-pref-size: 112px;
+    -fx-min-size: 112px;
+    -fx-max-size: 112px;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-border-color: -bg-primary;
+    -fx-border-width: 4px;
+}
+
+.profile-info {
+    -fx-padding: 0 16px 16px 16px;
+    -fx-spacing: 8px;
+}
+
+.profile-name {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-primary;
+}
+
+.profile-handle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.profile-bio {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-wrap-text: true;
+}
+
+.profile-meta {
+    -fx-spacing: 12px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.profile-stats {
+    -fx-spacing: 16px;
+    -fx-padding: 8px 0;
+}
+
+.profile-stat-item {
+    -fx-spacing: 4px;
+}
+
+.profile-stat-count {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.profile-stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-muted;
+}
+
+.profile-tabs {
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.profile-tab {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 16px 16px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 0 0 0 0;
+}
+
+.profile-tab:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.profile-tab-active {
+    -fx-text-fill: -text-primary;
+    -fx-border-color: transparent transparent -primary-color transparent;
+    -fx-border-width: 0 0 4px 0;
+}
+
+.edit-profile-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.edit-profile-button:hover {
+    -fx-background-color: -bg-hover;
+}
+
+/* ========================================
+   Notifications Styles
+   ======================================== */
+.notification-item {
+    -fx-padding: 12px 16px;
+    -fx-spacing: 12px;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-cursor: hand;
+}
+
+.notification-item:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.notification-unread {
+    -fx-background-color: -primary-light;
+}
+
+.notification-icon {
+    -fx-font-size: 20px;
+}
+
+.notification-icon-like {
+    -fx-text-fill: -danger-color;
+}
+
+.notification-icon-retweet {
+    -fx-text-fill: -success-color;
+}
+
+.notification-icon-follow {
+    -fx-text-fill: -primary-color;
+}
+
+.notification-icon-mention {
+    -fx-text-fill: -primary-color;
+}
+
+.notification-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+}
+
+/* ========================================
+   Common Components
+   ======================================== */
+.tab-bar {
+    -fx-spacing: 0;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.tab-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 16px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.tab-button:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.tab-button-active {
+    -fx-text-fill: -text-primary;
+    -fx-border-color: transparent transparent -primary-color transparent;
+    -fx-border-width: 0 0 4px 0;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-secondary;
+    -fx-padding: 8px;
+    -fx-background-radius: -radius-full;
+    -fx-border-radius: -radius-full;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: -bg-hover;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -border-strong;
+    -fx-background-radius: -radius-full;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+/* ========================================
+   Button Cursor Fix
+   ======================================== */
+.button {
+    -fx-cursor: hand;
+}

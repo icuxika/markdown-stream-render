@@ -18,4 +18,5 @@ module com.icuxika.markdown.stream.render.demo {
 	exports com.icuxika.markdown.stream.render.demo to javafx.graphics;
 	exports com.icuxika.markdown.stream.render.demo.javafx to javafx.graphics;
 	exports com.icuxika.markdown.stream.render.demo.javafx.modernchat to javafx.graphics;
+	exports com.icuxika.markdown.stream.render.demo.javafx.chirpchat to javafx.graphics;
 }

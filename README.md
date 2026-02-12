@@ -83,19 +83,25 @@ A modern SaaS-style AI chat interface with streaming Markdown rendering.
 mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.modernchat.ModernAiChatDemo"
 ```
 
-**2. Virtualized Streaming Demo (Recommended)**
+**2. ChirpChat - Twitter Style Chat App**
+A Twitter-style social chat application with login, feed, messages, and notifications.
+```bash
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp"
+```
+
+**3. Virtualized Streaming Demo (Recommended)**
 The flagship demo showcasing the high-performance hybrid renderer with simulated LLM streaming.
 ```bash
 mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
 ```
 
-**3. Virtualized List Stress Test**
+**4. Virtualized List Stress Test**
 Tests the renderer against massive documents (4000+ lines) to verify memory efficiency and scroll performance.
 ```bash
 mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
 ```
 
-**4. Typewriter Preview Demo**
+**5. Typewriter Preview Demo**
 Simple char-level streaming preview.
 ```bash
 mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
