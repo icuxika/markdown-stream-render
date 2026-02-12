@@ -77,22 +77,28 @@ mvn clean install
 
 ### Run Demos
 
-**1. Virtualized Streaming Demo (Recommended)**
+**1. Modern AI Chat Demo**
+A modern SaaS-style AI chat interface with streaming Markdown rendering.
+```bash
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.modernchat.ModernAiChatDemo"
+```
+
+**2. Virtualized Streaming Demo (Recommended)**
 The flagship demo showcasing the high-performance hybrid renderer with simulated LLM streaming.
 ```bash
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
 ```
 
-**2. Virtualized List Stress Test**
+**3. Virtualized List Stress Test**
 Tests the renderer against massive documents (4000+ lines) to verify memory efficiency and scroll performance.
 ```bash
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
 ```
 
-**3. Typewriter Preview Demo**
+**4. Typewriter Preview Demo**
 Simple char-level streaming preview.
 ```bash
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
 ```
 
 ## Architecture & Design

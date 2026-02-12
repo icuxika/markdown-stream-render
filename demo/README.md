@@ -4,7 +4,17 @@ This module contains example applications demonstrating how to use the `markdown
 
 ## Available Demos
 
-### 1. VirtualStreamRenderDemo (Flagship)
+### 1. ModernAiChatDemo (Modern UI)
+**Class:** `com.icuxika.markdown.stream.render.demo.javafx.modernchat.ModernAiChatDemo`
+
+A modern SaaS-style AI chat interface demonstrating the library's capabilities.
+- **Features**:
+    - Modern UI with sidebar, top navigation, and chat area.
+    - Real-time streaming Markdown rendering.
+    - Step cards and message components.
+    - CSS-based styling with Light/Dark theme support.
+
+### 2. VirtualStreamRenderDemo (Flagship)
 **Class:** `com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo`
 
 Demonstrates the **Hybrid Virtualization Architecture** for AI chat scenarios.
@@ -14,7 +24,7 @@ Demonstrates the **Hybrid Virtualization Architecture** for AI chat scenarios.
     - Shows "Active Stream" (typing effect) vs "History" (virtualized list) transition.
     - Supports Fast/Slow stream simulation.
 
-### 2. VirtualListDemo (Stress Test)
+### 3. VirtualListDemo (Stress Test)
 **Class:** `com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo`
 
 A stress test application for the renderer.
@@ -22,7 +32,7 @@ A stress test application for the renderer.
 - **Purpose**: Verifies that the renderer does not leak memory or lag when handling very large documents.
 - **Key Metric**: Scroll smoothness (FPS) and memory stability after rendering thousands of blocks.
 
-### 3. TypewriterPreviewDemo
+### 4. TypewriterPreviewDemo
 **Class:** `com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo`
 
 A simple dual-pane previewer.
@@ -35,9 +45,15 @@ A simple dual-pane previewer.
 You can run any demo using the `exec:java` goal from the project root:
 
 ```bash
+# Run ModernAiChatDemo
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.modernchat.ModernAiChatDemo"
+
 # Run VirtualStreamRenderDemo
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualStreamRenderDemo"
 
 # Run VirtualListDemo
-mvn -pl demo -am exec:java "-Dexec.mainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo"
+
+# Run TypewriterPreviewDemo
+mvn -pl demo exec:java "-DmainClass=com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo"
 ```
