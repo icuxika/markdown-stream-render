@@ -6,5 +6,4 @@ package com.icuxika.markdown.stream.render.core;
  * This interface is used to identify all extensions.
  * </p>
  */
-public interface Extension {
-}
+public interface Extension {}

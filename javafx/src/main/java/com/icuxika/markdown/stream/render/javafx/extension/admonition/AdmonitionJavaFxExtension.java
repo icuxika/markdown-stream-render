@@ -8,15 +8,14 @@ import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRendererExtensio
  */
 public class AdmonitionJavaFxExtension implements JavaFxRendererExtension {
 
-	private AdmonitionJavaFxExtension() {
-	}
+  private AdmonitionJavaFxExtension() {}
 
-	public static AdmonitionJavaFxExtension create() {
-		return new AdmonitionJavaFxExtension();
-	}
+  public static AdmonitionJavaFxExtension create() {
+    return new AdmonitionJavaFxExtension();
+  }
 
-	@Override
-	public void extend(JavaFxRenderer.Builder builder) {
-		builder.nodeRendererFactory(AdmonitionJavaFxRenderer::new);
-	}
+  @Override
+  public void extend(JavaFxRenderer.Builder builder) {
+    builder.nodeRendererFactory(AdmonitionJavaFxRenderer::new);
+  }
 }

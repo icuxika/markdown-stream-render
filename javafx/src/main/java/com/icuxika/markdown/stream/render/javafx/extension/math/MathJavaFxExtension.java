@@ -8,15 +8,14 @@ import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRendererExtensio
  */
 public class MathJavaFxExtension implements JavaFxRendererExtension {
 
-	private MathJavaFxExtension() {
-	}
+  private MathJavaFxExtension() {}
 
-	public static MathJavaFxExtension create() {
-		return new MathJavaFxExtension();
-	}
+  public static MathJavaFxExtension create() {
+    return new MathJavaFxExtension();
+  }
 
-	@Override
-	public void extend(JavaFxRenderer.Builder builder) {
-		builder.nodeRendererFactory(MathJavaFxRenderer::new);
-	}
+  @Override
+  public void extend(JavaFxRenderer.Builder builder) {
+    builder.nodeRendererFactory(MathJavaFxRenderer::new);
+  }
 }

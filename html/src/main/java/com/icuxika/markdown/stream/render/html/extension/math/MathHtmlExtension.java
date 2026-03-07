@@ -8,15 +8,14 @@ import com.icuxika.markdown.stream.render.html.renderer.HtmlRendererExtension;
  */
 public class MathHtmlExtension implements HtmlRendererExtension {
 
-	private MathHtmlExtension() {
-	}
+  private MathHtmlExtension() {}
 
-	public static MathHtmlExtension create() {
-		return new MathHtmlExtension();
-	}
+  public static MathHtmlExtension create() {
+    return new MathHtmlExtension();
+  }
 
-	@Override
-	public void extend(HtmlRenderer.Builder builder) {
-		builder.nodeRendererFactory(MathHtmlRenderer::new);
-	}
+  @Override
+  public void extend(HtmlRenderer.Builder builder) {
+    builder.nodeRendererFactory(MathHtmlRenderer::new);
+  }
 }

@@ -8,15 +8,14 @@ import com.icuxika.markdown.stream.render.core.parser.ParserExtension;
  */
 public class MathExtension implements ParserExtension {
 
-	private MathExtension() {
-	}
+  private MathExtension() {}
 
-	public static MathExtension create() {
-		return new MathExtension();
-	}
+  public static MathExtension create() {
+    return new MathExtension();
+  }
 
-	@Override
-	public void extend(MarkdownParser.Builder builder) {
-		builder.inlineParserFactory(new MathParserFactory());
-	}
+  @Override
+  public void extend(MarkdownParser.Builder builder) {
+    builder.inlineParserFactory(new MathParserFactory());
+  }
 }

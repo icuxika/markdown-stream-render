@@ -1,18 +1,18 @@
 module com.icuxika.markdown.stream.render.javafx {
-	requires transitive com.icuxika.markdown.stream.render.core;
-	requires javafx.base;
-	requires javafx.controls;
-	requires javafx.graphics;
-	requires javafx.swing;
-	requires java.desktop;
-	requires jlatexmath;
+  requires transitive com.icuxika.markdown.stream.render.core;
+  requires javafx.base;
+  requires javafx.controls;
+  requires javafx.graphics;
+  requires javafx.swing;
+  requires java.desktop;
+  requires jlatexmath;
 
-	exports com.icuxika.markdown.stream.render.javafx;
-	exports com.icuxika.markdown.stream.render.javafx.renderer;
-	exports com.icuxika.markdown.stream.render.javafx.extension.admonition;
-	exports com.icuxika.markdown.stream.render.javafx.extension.math;
+  exports com.icuxika.markdown.stream.render.javafx;
+  exports com.icuxika.markdown.stream.render.javafx.renderer;
+  exports com.icuxika.markdown.stream.render.javafx.extension.admonition;
+  exports com.icuxika.markdown.stream.render.javafx.extension.math;
 
-	// Open CSS resources to other modules (e.g. demo)
-	opens com.icuxika.markdown.stream.render.javafx.css;
-	opens com.icuxika.markdown.stream.render.javafx.css.extensions;
+  // Open CSS resources to other modules (e.g. demo)
+  opens com.icuxika.markdown.stream.render.javafx.css;
+  opens com.icuxika.markdown.stream.render.javafx.css.extensions;
 }

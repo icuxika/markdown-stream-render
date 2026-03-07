@@ -8,15 +8,14 @@ import com.icuxika.markdown.stream.render.html.renderer.HtmlRendererExtension;
  */
 public class AdmonitionHtmlExtension implements HtmlRendererExtension {
 
-	private AdmonitionHtmlExtension() {
-	}
+  private AdmonitionHtmlExtension() {}
 
-	public static AdmonitionHtmlExtension create() {
-		return new AdmonitionHtmlExtension();
-	}
+  public static AdmonitionHtmlExtension create() {
+    return new AdmonitionHtmlExtension();
+  }
 
-	@Override
-	public void extend(HtmlRenderer.Builder builder) {
-		builder.nodeRendererFactory(AdmonitionHtmlRenderer::new);
-	}
+  @Override
+  public void extend(HtmlRenderer.Builder builder) {
+    builder.nodeRendererFactory(AdmonitionHtmlRenderer::new);
+  }
 }

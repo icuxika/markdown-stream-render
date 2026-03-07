@@ -8,11 +8,11 @@ import com.icuxika.markdown.stream.render.core.ast.Visitor;
  * traversing AST nodes.
  */
 public interface MarkdownRenderer extends Visitor {
-	/**
-	 * Get the rendering result.
-	 *
-	 * @return rendered object (type depends on implementation, e.g. String or
-	 *         javafx.scene.Node)
-	 */
-	Object getResult();
+  /**
+   * Get the rendering result.
+   *
+   * @return rendered object (type depends on implementation, e.g. String or
+   *         javafx.scene.Node)
+   */
+  Object getResult();
 }
