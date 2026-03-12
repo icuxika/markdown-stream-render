@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Random;
@@ -25,10 +28,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 
 public class TypewriterPreviewDemo extends Application {
 

@@ -1,13 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.server;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
 import com.icuxika.markdown.stream.render.html.HtmlRendererExtension;
@@ -15,6 +7,13 @@ import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 public class BatchServerDemo {
 

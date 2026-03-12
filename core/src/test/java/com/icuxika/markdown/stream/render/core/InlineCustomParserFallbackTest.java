@@ -1,10 +1,7 @@
 package com.icuxika.markdown.stream.render.core;
 
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.Text;
@@ -12,9 +9,10 @@ import com.icuxika.markdown.stream.render.core.extension.math.MathParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.InlineParser;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
-
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class InlineCustomParserFallbackTest {
 

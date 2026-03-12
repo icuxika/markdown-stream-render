@@ -1,5 +1,12 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.demo.client.DeepSeekClient;
+import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -19,14 +26,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.demo.client.DeepSeekClient;
-import com.icuxika.markdown.stream.render.javafx.MarkdownStyles;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 
 /**
  * AI Chat Demo using JavaFX Renderer.

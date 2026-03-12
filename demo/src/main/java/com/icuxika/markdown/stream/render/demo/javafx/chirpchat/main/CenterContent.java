@@ -1,12 +1,11 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.main;
 
-import javafx.scene.layout.StackPane;
-
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.messages.MessagesPane;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.notifications.NotificationsPane;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.profile.ProfilePane;
+import javafx.scene.layout.StackPane;
 
 public class CenterContent extends StackPane {
 

@@ -1,9 +1,7 @@
 package com.icuxika.markdown.stream.render.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.icuxika.markdown.stream.render.core.ast.HardBreak;
 import com.icuxika.markdown.stream.render.core.ast.Node;
@@ -11,9 +9,9 @@ import com.icuxika.markdown.stream.render.core.ast.SoftBreak;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
 import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class TypewriterIncrementalParsingTest {
 

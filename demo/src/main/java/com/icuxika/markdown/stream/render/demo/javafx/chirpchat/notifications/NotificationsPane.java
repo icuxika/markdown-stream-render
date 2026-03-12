@@ -1,5 +1,6 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.notifications;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,8 +11,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
 
 public class NotificationsPane extends VBox {
 

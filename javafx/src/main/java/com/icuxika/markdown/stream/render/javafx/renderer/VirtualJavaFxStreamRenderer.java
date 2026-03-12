@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -7,10 +10,6 @@ import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
 
 /**
  * Hybrid Virtual JavaFX Stream Renderer.

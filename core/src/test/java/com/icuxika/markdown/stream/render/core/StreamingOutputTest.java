@@ -1,16 +1,14 @@
 package com.icuxika.markdown.stream.render.core;
 
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.icuxika.markdown.stream.render.core.ast.*;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 /**
  * 流式输出测试类 (Streaming Output Tests) 验证解析器是否按照正确的 AST 遍历顺序触发 Visitor 方法。

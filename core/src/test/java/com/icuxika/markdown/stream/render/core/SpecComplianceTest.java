@@ -1,19 +1,17 @@
 package com.icuxika.markdown.stream.render.core;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.TestFactory;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
 class SpecComplianceTest {
 

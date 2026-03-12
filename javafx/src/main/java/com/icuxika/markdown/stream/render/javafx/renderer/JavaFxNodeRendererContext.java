@@ -1,9 +1,8 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.core.ast.Node;
 
 public interface JavaFxNodeRendererContext {
 

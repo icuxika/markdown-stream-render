@@ -111,6 +111,7 @@ public class SettingsPane extends BorderPane {
       case 3 -> showKeyboardShortcuts();
       case 4 -> showDataPrivacySettings();
       case 5 -> showAboutSettings();
+      default -> {}
     }
   }
 

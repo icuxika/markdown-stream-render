@@ -1,5 +1,7 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.profile;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,9 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 
 public class ProfilePane extends VBox {
 

@@ -1,15 +1,14 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 
 public class MinimalBatchDemo extends Application {
 

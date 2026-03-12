@@ -1,18 +1,5 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
 import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.Visitor;
@@ -34,6 +21,18 @@ import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRendererExtension;
+import java.util.Collections;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * Demo for adding a custom extension (Greeting Block).

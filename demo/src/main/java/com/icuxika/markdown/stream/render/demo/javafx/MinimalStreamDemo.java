@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -9,10 +12,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 
 public class MinimalStreamDemo extends Application {
 

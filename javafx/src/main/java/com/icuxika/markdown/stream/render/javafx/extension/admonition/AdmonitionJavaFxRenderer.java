@@ -1,14 +1,13 @@
 package com.icuxika.markdown.stream.render.javafx.extension.admonition;
 
-import java.util.Collections;
-import java.util.Set;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-
 import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
 import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
+import java.util.Collections;
+import java.util.Set;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 public class AdmonitionJavaFxRenderer implements JavaFxNodeRenderer {
   private final JavaFxNodeRendererContext context;

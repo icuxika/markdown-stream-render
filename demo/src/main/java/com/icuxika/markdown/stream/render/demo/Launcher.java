@@ -1,5 +1,14 @@
 package com.icuxika.markdown.stream.render.demo;
 
+import com.icuxika.markdown.stream.render.demo.javafx.AiChatDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.BatchRenderDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.MinimalBatchDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.MinimalStreamDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.StreamRenderDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo;
+import com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo;
+import com.icuxika.markdown.stream.render.demo.server.BatchServerDemo;
+import com.icuxika.markdown.stream.render.demo.server.StreamServerDemo;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -11,16 +20,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.demo.javafx.AiChatDemo;
-import com.icuxika.markdown.stream.render.demo.javafx.BatchRenderDemo;
-import com.icuxika.markdown.stream.render.demo.javafx.MinimalBatchDemo;
-import com.icuxika.markdown.stream.render.demo.javafx.MinimalStreamDemo;
-import com.icuxika.markdown.stream.render.demo.javafx.StreamRenderDemo;
-import com.icuxika.markdown.stream.render.demo.javafx.TypewriterPreviewDemo;
-import com.icuxika.markdown.stream.render.demo.javafx.VirtualListDemo;
-import com.icuxika.markdown.stream.render.demo.server.BatchServerDemo;
-import com.icuxika.markdown.stream.render.demo.server.StreamServerDemo;
 
 public class Launcher extends Application {
 

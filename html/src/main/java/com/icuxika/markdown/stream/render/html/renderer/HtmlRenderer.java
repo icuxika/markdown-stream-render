@@ -1,10 +1,5 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.icuxika.markdown.stream.render.core.Extension;
 import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
@@ -36,6 +31,10 @@ import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
 import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
 import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HtmlRenderer implements MarkdownRenderer, HtmlNodeRendererContext {
   private final StringBuilder sb = new StringBuilder();

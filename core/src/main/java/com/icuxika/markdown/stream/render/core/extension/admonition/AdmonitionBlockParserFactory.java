@@ -1,12 +1,11 @@
 package com.icuxika.markdown.stream.render.core.extension.admonition;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.block.BlockStart;
 import com.icuxika.markdown.stream.render.core.parser.block.MatchedBlockParser;
 import com.icuxika.markdown.stream.render.core.parser.block.ParserState;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AdmonitionBlockParserFactory implements BlockParserFactory {
   @Override

@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx.modernchat;
 
+import com.icuxika.markdown.stream.render.core.ast.Document;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,10 +13,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import com.icuxika.markdown.stream.render.core.ast.Document;
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 
 public class MessageComponents {
 

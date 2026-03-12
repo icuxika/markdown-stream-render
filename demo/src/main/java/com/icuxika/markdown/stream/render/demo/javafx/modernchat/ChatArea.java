@@ -1,14 +1,13 @@
 package com.icuxika.markdown.stream.render.demo.javafx.modernchat;
 
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 
 public class ChatArea extends ScrollPane {
 

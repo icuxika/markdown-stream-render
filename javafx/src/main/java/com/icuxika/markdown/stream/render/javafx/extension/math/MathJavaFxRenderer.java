@@ -1,5 +1,9 @@
 package com.icuxika.markdown.stream.render.javafx.extension.math;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.extension.math.MathNode;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -11,15 +15,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javax.swing.JLabel;
-
 import org.scilab.forge.jlatexmath.TeXConstants;
 import org.scilab.forge.jlatexmath.TeXFormula;
 import org.scilab.forge.jlatexmath.TeXIcon;
-
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.extension.math.MathNode;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRenderer;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxNodeRendererContext;
 
 public class MathJavaFxRenderer implements JavaFxNodeRenderer {
   private final JavaFxNodeRendererContext context;

@@ -1,5 +1,6 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.auth;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -7,8 +8,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
 
 public class AuthWindow extends StackPane {
 

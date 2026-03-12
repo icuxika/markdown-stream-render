@@ -1,5 +1,11 @@
 package com.icuxika.markdown.stream.render.demo.server;
 
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
+import com.icuxika.markdown.stream.render.html.renderer.HtmlStreamRenderer;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,13 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
-
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.html.HtmlCssProvider;
-import com.icuxika.markdown.stream.render.html.renderer.HtmlStreamRenderer;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 public class StreamServerDemo {
 

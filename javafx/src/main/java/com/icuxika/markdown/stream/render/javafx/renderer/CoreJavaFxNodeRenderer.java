@@ -1,17 +1,5 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-import java.util.function.Consumer;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
-
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
 import com.icuxika.markdown.stream.render.core.ast.BulletList;
 import com.icuxika.markdown.stream.render.core.ast.Code;
@@ -38,6 +26,17 @@ import com.icuxika.markdown.stream.render.core.ast.TableHead;
 import com.icuxika.markdown.stream.render.core.ast.TableRow;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+import java.util.function.Consumer;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 
 /**
  * 核心 JavaFX 节点渲染器.

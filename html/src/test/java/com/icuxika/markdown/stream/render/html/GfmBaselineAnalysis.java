@@ -1,5 +1,7 @@
 package com.icuxika.markdown.stream.render.html;
 
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,12 +9,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 
 /**
  * 运行 GFM Spec 中的所有测试用例，并生成对比分析报告。 不作为自动化回归测试的一部分（因为预期会失败），而是作为开发进度的评估工具。

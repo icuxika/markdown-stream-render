@@ -1,14 +1,13 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.auth.AuthWindow;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.main.MainWindow;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.service.AuthService;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 public class ChirpChatApp extends Application {
 

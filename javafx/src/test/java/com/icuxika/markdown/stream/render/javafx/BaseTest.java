@@ -2,7 +2,6 @@ package com.icuxika.markdown.stream.render.javafx;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

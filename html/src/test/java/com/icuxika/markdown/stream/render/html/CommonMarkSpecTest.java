@@ -1,5 +1,13 @@
 package com.icuxika.markdown.stream.render.html;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
+import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,20 +16,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParserOptions;
-import com.icuxika.markdown.stream.render.html.renderer.HtmlRenderer;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * CommonMark 规范兼容性测试 (CommonMark Spec Conformance Tests)

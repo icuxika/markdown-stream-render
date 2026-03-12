@@ -1,8 +1,7 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
-import java.util.Set;
-
 import com.icuxika.markdown.stream.render.core.ast.Node;
+import java.util.Set;
 
 /**
  * Renders a specific set of node types.

@@ -1,5 +1,9 @@
 package com.icuxika.markdown.stream.render.demo.benchmark;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -9,11 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.ast.Paragraph;
-import com.icuxika.markdown.stream.render.core.ast.Text;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 
 /**
  * Performance Benchmark.

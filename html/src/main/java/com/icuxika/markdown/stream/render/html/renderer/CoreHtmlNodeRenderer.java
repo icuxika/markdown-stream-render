@@ -1,8 +1,5 @@
 package com.icuxika.markdown.stream.render.html.renderer;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
 import com.icuxika.markdown.stream.render.core.ast.BulletList;
@@ -30,6 +27,8 @@ import com.icuxika.markdown.stream.render.core.ast.TableHead;
 import com.icuxika.markdown.stream.render.core.ast.TableRow;
 import com.icuxika.markdown.stream.render.core.ast.Text;
 import com.icuxika.markdown.stream.render.core.ast.ThematicBreak;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The default renderer that handles all core CommonMark nodes.

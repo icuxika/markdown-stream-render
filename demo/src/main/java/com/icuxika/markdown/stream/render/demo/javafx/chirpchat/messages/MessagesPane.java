@@ -1,5 +1,9 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.messages;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.Conversation;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.Message;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Insets;
@@ -14,11 +18,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.Conversation;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.Message;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 
 public class MessagesPane extends HBox {
 

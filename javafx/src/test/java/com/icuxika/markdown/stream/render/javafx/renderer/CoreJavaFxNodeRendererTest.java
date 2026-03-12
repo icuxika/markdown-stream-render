@@ -1,20 +1,18 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.icuxika.markdown.stream.render.core.ast.Heading;
+import com.icuxika.markdown.stream.render.core.ast.Paragraph;
+import com.icuxika.markdown.stream.render.core.ast.Text;
+import com.icuxika.markdown.stream.render.javafx.BaseTest;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
-
 import org.junit.jupiter.api.Test;
-
-import com.icuxika.markdown.stream.render.core.ast.Heading;
-import com.icuxika.markdown.stream.render.core.ast.Paragraph;
-import com.icuxika.markdown.stream.render.core.ast.Text;
-import com.icuxika.markdown.stream.render.javafx.BaseTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class CoreJavaFxNodeRendererTest extends BaseTest {
 

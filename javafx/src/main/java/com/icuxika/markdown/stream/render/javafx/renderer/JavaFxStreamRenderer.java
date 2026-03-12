@@ -1,15 +1,5 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
-import java.util.Stack;
-import javafx.application.Platform;
-import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
 import com.icuxika.markdown.stream.render.core.ast.BulletList;
 import com.icuxika.markdown.stream.render.core.ast.Document;
@@ -19,6 +9,15 @@ import com.icuxika.markdown.stream.render.core.ast.Node;
 import com.icuxika.markdown.stream.render.core.ast.OrderedList;
 import com.icuxika.markdown.stream.render.core.extension.admonition.AdmonitionBlock;
 import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
+import java.util.Stack;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
  * JavaFX 流式渲染器.

@@ -1,9 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.main;
 
-import javafx.scene.layout.BorderPane;
-
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
 import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
+import javafx.scene.layout.BorderPane;
 
 public class MainWindow extends BorderPane {
 

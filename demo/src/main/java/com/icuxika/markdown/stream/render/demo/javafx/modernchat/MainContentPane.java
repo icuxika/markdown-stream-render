@@ -1,13 +1,12 @@
 package com.icuxika.markdown.stream.render.demo.javafx.modernchat;
 
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxStreamRenderer;
 
 public class MainContentPane extends BorderPane {
 

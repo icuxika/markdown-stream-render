@@ -1,5 +1,10 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import com.icuxika.markdown.stream.render.javafx.renderer.MarkdownListCell;
+import com.icuxika.markdown.stream.render.javafx.renderer.VirtualJavaFxStreamRenderer;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
@@ -19,12 +24,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.MarkdownListCell;
-import com.icuxika.markdown.stream.render.javafx.renderer.VirtualJavaFxStreamRenderer;
 
 /**
  * Virtual Stream Render Demo.

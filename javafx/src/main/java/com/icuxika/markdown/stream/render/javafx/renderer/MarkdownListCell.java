@@ -1,9 +1,8 @@
 package com.icuxika.markdown.stream.render.javafx.renderer;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.core.ast.Node;
 
 /**
  * A ListCell implementation for rendering Markdown Nodes.

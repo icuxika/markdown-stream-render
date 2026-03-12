@@ -1,13 +1,5 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.icuxika.markdown.stream.render.core.ast.Code;
 import com.icuxika.markdown.stream.render.core.ast.Emphasis;
 import com.icuxika.markdown.stream.render.core.ast.HardBreak;
@@ -24,6 +16,13 @@ import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParser
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineParserState;
 import com.icuxika.markdown.stream.render.core.parser.inline.ParsedInline;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Inline Parser.

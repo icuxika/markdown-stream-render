@@ -1,10 +1,9 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.service;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 
 public class AuthService {
   private final Map<String, User> users = new HashMap<>();

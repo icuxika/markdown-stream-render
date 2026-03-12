@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
 import java.util.Map;
 import java.util.TreeMap;
 import javafx.application.Application;
@@ -11,11 +14,6 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.parser.MarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.JavaFxRenderer;
-
 import jfx.incubator.scene.control.richtext.CodeArea;
 
 public class BatchRenderDemo extends Application {

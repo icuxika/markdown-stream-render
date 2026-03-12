@@ -1,5 +1,8 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.main;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.Post;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +16,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.Post;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 
 public class HomeFeed extends VBox {
 

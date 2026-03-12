@@ -1,5 +1,7 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.main;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,9 +12,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 
 public class LeftSidebar extends VBox {
 
@@ -115,17 +114,26 @@ public class LeftSidebar extends VBox {
   private void handleNavClick(int index) {
     switch (index) {
       case 0 -> {
-        if (onHomeClick != null) onHomeClick.run();
+        if (onHomeClick != null) {
+          onHomeClick.run();
+        }
       }
       case 2 -> {
-        if (onNotificationsClick != null) onNotificationsClick.run();
+        if (onNotificationsClick != null) {
+          onNotificationsClick.run();
+        }
       }
       case 3 -> {
-        if (onMessagesClick != null) onMessagesClick.run();
+        if (onMessagesClick != null) {
+          onMessagesClick.run();
+        }
       }
       case 5 -> {
-        if (onProfileClick != null) onProfileClick.run();
+        if (onProfileClick != null) {
+          onProfileClick.run();
+        }
       }
+      default -> {}
     }
   }
 

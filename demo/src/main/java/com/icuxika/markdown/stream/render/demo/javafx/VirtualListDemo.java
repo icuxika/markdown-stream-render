@@ -1,5 +1,10 @@
 package com.icuxika.markdown.stream.render.demo.javafx;
 
+import com.icuxika.markdown.stream.render.core.ast.Node;
+import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
+import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
+import com.icuxika.markdown.stream.render.javafx.renderer.MarkdownListCell;
+import com.icuxika.markdown.stream.render.javafx.renderer.VirtualJavaFxStreamRenderer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,12 +20,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.icuxika.markdown.stream.render.core.ast.Node;
-import com.icuxika.markdown.stream.render.core.parser.StreamMarkdownParser;
-import com.icuxika.markdown.stream.render.javafx.MarkdownTheme;
-import com.icuxika.markdown.stream.render.javafx.renderer.MarkdownListCell;
-import com.icuxika.markdown.stream.render.javafx.renderer.VirtualJavaFxStreamRenderer;
 
 /**
  * Virtual List Demo.
@@ -175,13 +174,13 @@ public class VirtualListDemo extends Application {
     Runnable task =
         new Runnable() {
           int index = 0;
-          final int CHUNK_SIZE = 1024; // 1KB chunks
+          final int chunkSize = 1024; // 1KB chunks
 
           @Override
           public void run() {
             try {
               if (index < finalContent.length()) {
-                int end = Math.min(index + CHUNK_SIZE, finalContent.length());
+                int end = Math.min(index + chunkSize, finalContent.length());
                 String chunk = finalContent.substring(index, end);
                 index = end;
 

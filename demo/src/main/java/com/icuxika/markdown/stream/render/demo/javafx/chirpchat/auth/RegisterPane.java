@@ -1,5 +1,7 @@
 package com.icuxika.markdown.stream.render.demo.javafx.chirpchat.auth;
 
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
+import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 import java.util.Optional;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -11,9 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.ChirpChatApp;
-import com.icuxika.markdown.stream.render.demo.javafx.chirpchat.model.User;
 
 public class RegisterPane extends VBox {
 

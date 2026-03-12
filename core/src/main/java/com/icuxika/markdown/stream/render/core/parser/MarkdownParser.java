@@ -1,14 +1,5 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.icuxika.markdown.stream.render.core.Extension;
 import com.icuxika.markdown.stream.render.core.ast.Block;
 import com.icuxika.markdown.stream.render.core.ast.BlockQuote;
@@ -39,6 +30,14 @@ import com.icuxika.markdown.stream.render.core.parser.block.MatchedBlockParser;
 import com.icuxika.markdown.stream.render.core.parser.block.ParserState;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.MarkdownRenderer;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 核心 Markdown 解析器.

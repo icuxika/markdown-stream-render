@@ -1,8 +1,5 @@
 package com.icuxika.markdown.stream.render.core.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.icuxika.markdown.stream.render.core.Extension;
 import com.icuxika.markdown.stream.render.core.ast.Document;
 import com.icuxika.markdown.stream.render.core.ast.Heading;
@@ -16,6 +13,8 @@ import com.icuxika.markdown.stream.render.core.parser.block.BlockParserFactory;
 import com.icuxika.markdown.stream.render.core.parser.inline.InlineContentParserFactory;
 import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownRenderer;
 import com.icuxika.markdown.stream.render.core.renderer.StreamMarkdownTypingRenderer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 流式 Markdown 解析器.
